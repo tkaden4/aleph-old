@@ -3,7 +3,7 @@ module parse.FileInputBuffer;
 import std.stdio;
 import std.file;
 
-import parse.Lexer;
+import parse.LexerInputBuffer;
 import parse.Token;
 
 class FileInputBuffer : LexerInputBuffer {

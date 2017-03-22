@@ -6,6 +6,8 @@ struct SourceLocation {
     size_t col_no;
 };
 
+alias TokenType = Token.Type;
+
 struct Token {
 public:
     enum Type {
@@ -16,6 +18,8 @@ public:
         STRING,
         PROC,
         LET,
+        IF,
+        ELSE,
         SEMI,
         COLON,
         LBRACE,
@@ -24,18 +28,27 @@ public:
         RPAREN,
         MINUS,
         RARROW,
+        FUNC,
+        STAR,
+        GT,
+        LT,
         EQ,
+        GTEQ,
+        LTEQ,
+        REM,
         ID
     };
     
-    this(string lexeme, Type type, SourceLocation loc)
-    {
-        this.lexeme = lexeme;
-        this.type = type;
-        this.location = loc;
-    }
-
     string lexeme;
     Type type;
     SourceLocation location;
+
+    string toString()
+    {
+        import std.string;
+        return "Token(\"%s\", %s) l:%u, c:%u"
+                    .format(this.lexeme, this.type, 
+                            this.location.line_no,
+                            this.location.col_no);
+    }
 };

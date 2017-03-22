@@ -1,7 +1,7 @@
 // this is an external declaration of C's printf() function
 extern proc printf(fmt: const char *) -> void
 
-proc fizz_buzz(n: int) = {
+proc fizz_buzz(n: int) -> void = {
     if(n > 0){
         fizz_buzz(n - 1)
     }

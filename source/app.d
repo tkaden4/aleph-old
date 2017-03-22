@@ -10,13 +10,7 @@ import parse.FileInputBuffer;
 
 void main()
 {
-    auto lexer = new Lexer(new FileInputBuffer("test/tests/test.aleph"));
-    while(lexer.hasNext()){
-        try{
-            (*lexer.next).writeln;
-        }catch(LexerException e){
-            writeln("Lexer Error : ", e.msg);
-            break;
-        }
-    }
+    auto lexer = new Lexer(new FileInputBuffer("test/tests/fizzbuzz.aleph"));
+    auto parser = new Parser(lexer);
+    parser.procDecl.writeln;
 }

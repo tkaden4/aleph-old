@@ -1,5 +1,6 @@
 module parse.Lexer;
 import parse.Token;
+import parse.LexerInputBuffer;
 
 import std.container;
 import std.stdio;
@@ -7,13 +8,6 @@ import std.exception;
 import std.ascii;
 import std.string;
 
-interface LexerInputBuffer {
-    /* gets the current location */
-    SourceLocation getLocation() pure;
-    /* read next character */
-    char next();
-    bool hasNext() pure;
-};
 
 class LexerException : Exception { mixin basicExceptionCtors; };
 
@@ -40,32 +34,45 @@ public:
             throw new LexerException("Reached end of input buffer");
         }
 
+        // Ignore preceding whitespace
         this.ignore(delegate(char c){
             return c == ' ' || c == '\t' || c == '\n';
         });
 
+        // Ignore comments
+        if(this.test('/') && this.test('/', 1)){
+            this.ignore(delegate(char c){
+                return c != '\n';
+            });
+            this.advance();
+        }
+
         Token *ret = null;
         switch(this.la()){
-        case '{':
-            ret = this.makeAndAdvance("{", Token.Type.LBRACE);
+        /* Punctuation */
+        case '{': ret = this.makeAndAdvance("{", Token.Type.LBRACE); break;
+        case '}': ret = this.makeAndAdvance("}", Token.Type.RBRACE); break;
+        case '(': ret = this.makeAndAdvance("(", Token.Type.LPAREN); break;
+        case ')': ret = this.makeAndAdvance(")", Token.Type.RPAREN); break;
+        case ';': ret = this.makeAndAdvance(";", Token.Type.SEMI); break;
+        case ':': ret = this.makeAndAdvance(":", Token.Type.COLON); break;
+        /* Operators */
+        case '=': ret = this.makeAndAdvance("=", Token.Type.EQ); break;
+        case '*': ret = this.makeAndAdvance("*", Token.Type.STAR); break;
+        case '%': ret = this.makeAndAdvance("%", Token.Type.REM); break;
+        case '<':
+            if(this.test('=', 1)){
+                ret = this.makeAndAdvance("<=", Token.Type.LTEQ, 2);
+            }else{
+                ret = this.makeAndAdvance("<", Token.Type.LT);
+            }
             break;
-        case '}':
-            ret = this.makeAndAdvance("}", Token.Type.RBRACE);
-            break;
-        case '(':
-            ret = this.makeAndAdvance("(", Token.Type.LPAREN);
-            break;
-        case ')':
-            ret = this.makeAndAdvance(")", Token.Type.RPAREN);
-            break;
-        case ';':
-            ret = this.makeAndAdvance(";", Token.Type.SEMI);
-            break;
-        case '=':
-            ret = this.makeAndAdvance("=", Token.Type.EQ);
-            break;
-        case '_':
-            ret = this.lexId();
+        case '>':
+            if(this.test('=', 1)){
+                ret = this.makeAndAdvance(">=", Token.Type.GTEQ, 2);
+            }else{
+                ret = this.makeAndAdvance(">", Token.Type.GT);
+            }
             break;
         case '-':   /* either minus or right arrow */
             if(this.test('>', 1)){
@@ -74,6 +81,9 @@ public:
                 ret = this.makeAndAdvance("-", Token.Type.MINUS);
             }
             break;
+        /* Custom rules */
+        case '"': ret = this.lexString(); break;
+        case '_': ret = this.lexId(); break;
         default:
             if(this.test(toDelegate(&isAlpha))){
                 ret = this.lexId();
@@ -83,20 +93,6 @@ public:
                 throw new LexerException(
                         "Couldn't match on character '%c'".format(this.la())
                     );
-            }
-        }
-
-        // Check for keywords
-        if(ret.type == Token.Type.ID){
-            switch(ret.lexeme){
-            case "let":
-                ret.type = Token.Type.LET;
-                break;
-            case "proc":
-                ret.type = Token.Type.PROC;
-                break;
-            default:
-                break;
             }
         }
 
@@ -117,7 +113,7 @@ private:
         while(this.test(toDelegate(&isIdBody))){
             lexeme ~= this.advance();
         }
-        return this.makeToken(lexeme, Token.Type.ID);
+        return this.handleKeyword(this.makeToken(lexeme, Token.Type.ID));
     }
 
     /* TODO handle floating-point numbers */
@@ -130,7 +126,34 @@ private:
         return this.makeToken(lexeme, Token.Type.INTEGER);
     }
 
+    /* TODO add raw character literals as well as escaped characters */
+    Token *lexString()
+    {
+        string lexeme;
+        lexeme ~= this.match('"');
+        while(!this.test('"')){
+            lexeme ~= this.advance();
+        }
+        lexeme ~= this.match('"');
+        return this.makeToken(lexeme, Token.Type.STRING);
+    }
+
+
     /* UTILITY FUNCTIONS */
+
+    Token *handleKeyword(Token *tok) pure
+    {
+        if(tok.type == Token.Type.ID){
+            final switch(tok.lexeme){
+            case "let": tok.type = Token.Type.LET; break;
+            case "proc": tok.type = Token.Type.PROC; break;
+            case "func": tok.type = Token.Type.FUNC; break;
+            case "if": tok.type = Token.Type.IF; break;
+            case "else": tok.type = Token.Type.ELSE; break;
+            }
+        }
+        return tok;
+    }
 
     Token *makeAndAdvance(string lexeme, Token.Type type, size_t n=1)
     {
