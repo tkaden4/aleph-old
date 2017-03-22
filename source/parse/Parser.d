@@ -11,9 +11,9 @@ public:
         this.lexer = lexer;
     }
 
-    auto procDecl()
+    ASTNode procDecl()
     {
-        return "";
+        return null;
     }
 private:
     /* UTILITY FUNCTIONS */

@@ -6,7 +6,7 @@ struct SourceLocation {
     size_t col_no;
 };
 
-alias TokenType = Token.Type;
+public alias TokenType = Token.Type;
 
 struct Token {
 public:
@@ -19,6 +19,7 @@ public:
         STRING,
         /* Keywords */
         PROC,
+        FUNC,
         LET,
         IF,
         ELSE,
@@ -30,10 +31,10 @@ public:
         LPAREN,
         RPAREN,
         RARROW,
-        FUNC,
         STAR,
         /* operators */
         MINUS,
+        PLUS,
         EQ,
         GT,
         LT,
@@ -42,6 +43,8 @@ public:
         LTEQ,
         NTEQ,
         REM,
+        DEC,
+        INC,
         /* Etc. */
         ID
     };

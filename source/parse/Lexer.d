@@ -15,8 +15,9 @@ bool isIdBody(dchar c) pure
     return isAlpha(c) || isDigit(c) || c == '_';
 }
 
-template tryMultiLook(char la, char next, TokenType def, TokenType mat)
+bool isIdStart(dchar c) pure
 {
+    return isAlpha(c) || c == '_';
 }
 
 final class Lexer {
@@ -31,9 +32,10 @@ public:
         this.la_buff ~= this.buff.next();
     }
 
+
     Token *next()
     {
-        if(!this.buff.hasNext()){
+        if(!this.buff.hasNext){
             throw new LexerException("Reached end of input buffer");
         }
 
@@ -45,7 +47,7 @@ public:
             this.ignore(delegate(dchar c){
                 return c != '\n';
             });
-            this.advance();
+            this.advance;
         }
 
         switch(this.la){
@@ -59,15 +61,18 @@ public:
         /* Operators */
         case '*': return this.makeAndAdvance("*", Token.Type.STAR);
         case '%': return this.makeAndAdvance("%", Token.Type.REM);
-        case '=': return this.tryMultiLook('=', '=', Token.Type.EQ, Token.Type.EQEQ);
-        case '<': return this.tryMultiLook('<', '=', Token.Type.LT, Token.Type.LTEQ);
-        case '>': return this.tryMultiLook('>', '=', Token.Type.GT, Token.Type.GTEQ);
-        case '-': return this.tryMultiLook('-', '>', Token.Type.MINUS, Token.Type.RARROW);
+        case '=': return this.lexMultiple('=', Token.Type.EQ, '=', Token.Type.EQEQ);
+        case '<': return this.lexMultiple('<', Token.Type.LT, '=', Token.Type.LTEQ);
+        case '>': return this.lexMultiple('>', Token.Type.GT, '=', Token.Type.GTEQ);
+        case '-': return this.lexMultiple('-', Token.Type.MINUS,
+                                          '>', Token.Type.RARROW,
+                                          '-', Token.Type.DEC);
+        case '+': return this.lexMultiple('+', Token.Type.PLUS, '+', Token.Type.INC);
         /* Etc. Rules */
         case '"': return this.lexString;
         case '_': return this.lexId;
         default:
-            if(this.test(toDelegate(&isAlpha))){
+            if(this.test(toDelegate(&isIdStart))){
                 return this.lexId;
             }else if(this.test(toDelegate(&isDigit))){
                 return this.lexNumber;
@@ -117,12 +122,17 @@ private:
 
     /* UTILITY FUNCTIONS */
 
-    Token *tryMultiLook(char la, char next, Token.Type def, Token.Type mat)
+    Token *lexMultiple(Args...)(char defla, TokenType deftype,
+                                char altla, TokenType alttype, Args args)
     {
-        if(this.test(next, 1)){
-            return this.makeAndAdvance(""~la~next, mat);
+        if(this.test(altla, 1)){
+            return this.makeAndAdvance(""~defla~altla, alttype, 2);
         }
-        return this.makeAndAdvance(""~la, def);
+        static if(args.length % 2 && args.length > 0){
+            return this.lexMultiple(defla, deftype, args);
+        }else{
+            return this.makeAndAdvance(""~defla, deftype);
+        }
     }
 
     Token *handleKeyword(Token *tok) pure
