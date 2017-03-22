@@ -4,5 +4,7 @@ __dummy.html
 *.o
 *.obj
 __test__*__
+aleph
+alephc
 *.swo
 *.swp

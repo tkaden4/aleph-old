@@ -8,12 +8,15 @@ import std.exception;
 import std.ascii;
 import std.string;
 
-
 class LexerException : Exception { mixin basicExceptionCtors; };
 
 bool isIdBody(dchar c) pure
 {
     return isAlpha(c) || isDigit(c) || c == '_';
+}
+
+template tryMultiLook(char la, char next, TokenType def, TokenType mat)
+{
 }
 
 final class Lexer {
@@ -35,74 +38,48 @@ public:
         }
 
         // Ignore preceding whitespace
-        this.ignore(delegate(char c){
-            return c == ' ' || c == '\t' || c == '\n';
-        });
+        this.ignore((&isWhite).toDelegate);
 
         // Ignore comments
         if(this.test('/') && this.test('/', 1)){
-            this.ignore(delegate(char c){
+            this.ignore(delegate(dchar c){
                 return c != '\n';
             });
             this.advance();
         }
 
-        Token *ret = null;
-        switch(this.la()){
+        switch(this.la){
         /* Punctuation */
-        case '{': ret = this.makeAndAdvance("{", Token.Type.LBRACE); break;
-        case '}': ret = this.makeAndAdvance("}", Token.Type.RBRACE); break;
-        case '(': ret = this.makeAndAdvance("(", Token.Type.LPAREN); break;
-        case ')': ret = this.makeAndAdvance(")", Token.Type.RPAREN); break;
-        case ';': ret = this.makeAndAdvance(";", Token.Type.SEMI); break;
-        case ':': ret = this.makeAndAdvance(":", Token.Type.COLON); break;
+        case '{': return this.makeAndAdvance("{", Token.Type.LBRACE);
+        case '}': return this.makeAndAdvance("}", Token.Type.RBRACE);
+        case '(': return this.makeAndAdvance("(", Token.Type.LPAREN);
+        case ')': return this.makeAndAdvance(")", Token.Type.RPAREN);
+        case ';': return this.makeAndAdvance(";", Token.Type.SEMI);
+        case ':': return this.makeAndAdvance(":", Token.Type.COLON);
         /* Operators */
-        case '=': ret = this.makeAndAdvance("=", Token.Type.EQ); break;
-        case '*': ret = this.makeAndAdvance("*", Token.Type.STAR); break;
-        case '%': ret = this.makeAndAdvance("%", Token.Type.REM); break;
-        case '<':
-            if(this.test('=', 1)){
-                ret = this.makeAndAdvance("<=", Token.Type.LTEQ, 2);
-            }else{
-                ret = this.makeAndAdvance("<", Token.Type.LT);
-            }
-            break;
-        case '>':
-            if(this.test('=', 1)){
-                ret = this.makeAndAdvance(">=", Token.Type.GTEQ, 2);
-            }else{
-                ret = this.makeAndAdvance(">", Token.Type.GT);
-            }
-            break;
-        case '-':   /* either minus or right arrow */
-            if(this.test('>', 1)){
-                ret = this.makeAndAdvance("->", Token.Type.RARROW, 2);
-            }else{
-                ret = this.makeAndAdvance("-", Token.Type.MINUS);
-            }
-            break;
-        /* Custom rules */
-        case '"': ret = this.lexString(); break;
-        case '_': ret = this.lexId(); break;
+        case '*': return this.makeAndAdvance("*", Token.Type.STAR);
+        case '%': return this.makeAndAdvance("%", Token.Type.REM);
+        case '=': return this.tryMultiLook('=', '=', Token.Type.EQ, Token.Type.EQEQ);
+        case '<': return this.tryMultiLook('<', '=', Token.Type.LT, Token.Type.LTEQ);
+        case '>': return this.tryMultiLook('>', '=', Token.Type.GT, Token.Type.GTEQ);
+        case '-': return this.tryMultiLook('-', '>', Token.Type.MINUS, Token.Type.RARROW);
+        /* Etc. Rules */
+        case '"': return this.lexString;
+        case '_': return this.lexId;
         default:
             if(this.test(toDelegate(&isAlpha))){
-                ret = this.lexId();
+                return this.lexId;
             }else if(this.test(toDelegate(&isDigit))){
-                ret = this.lexNumber();
-            }else{
-                throw new LexerException(
-                        "Couldn't match on character '%c'".format(this.la())
-                    );
+                return this.lexNumber;
             }
+            throw new LexerException("Couldn't match on character '%c'"
+                                        .format(this.la()));
         }
-
-        return ret;
     }
-
 
     bool hasNext() pure
     {
-        return this.buff.hasNext();
+        return this.buff.hasNext;
     }
 private:
     /* LEXER RULES */
@@ -111,7 +88,7 @@ private:
     {
         string lexeme;
         while(this.test(toDelegate(&isIdBody))){
-            lexeme ~= this.advance();
+            lexeme ~= this.advance;
         }
         return this.handleKeyword(this.makeToken(lexeme, Token.Type.ID));
     }
@@ -121,7 +98,7 @@ private:
     {
         string lexeme;
         while(this.test(toDelegate(&isDigit))){
-            lexeme ~= this.advance();
+            lexeme ~= this.advance;
         }
         return this.makeToken(lexeme, Token.Type.INTEGER);
     }
@@ -132,24 +109,32 @@ private:
         string lexeme;
         lexeme ~= this.match('"');
         while(!this.test('"')){
-            lexeme ~= this.advance();
+            lexeme ~= this.advance;
         }
         lexeme ~= this.match('"');
         return this.makeToken(lexeme, Token.Type.STRING);
     }
 
-
     /* UTILITY FUNCTIONS */
+
+    Token *tryMultiLook(char la, char next, Token.Type def, Token.Type mat)
+    {
+        if(this.test(next, 1)){
+            return this.makeAndAdvance(""~la~next, mat);
+        }
+        return this.makeAndAdvance(""~la, def);
+    }
 
     Token *handleKeyword(Token *tok) pure
     {
         if(tok.type == Token.Type.ID){
-            final switch(tok.lexeme){
+            switch(tok.lexeme){
             case "let": tok.type = Token.Type.LET; break;
             case "proc": tok.type = Token.Type.PROC; break;
             case "func": tok.type = Token.Type.FUNC; break;
             case "if": tok.type = Token.Type.IF; break;
             case "else": tok.type = Token.Type.ELSE; break;
+            default: break;
             }
         }
         return tok;
@@ -215,7 +200,7 @@ private:
         }
     }
 
-    void ignore(bool delegate(char) t)
+    void ignore(bool delegate(dchar) t)
     {
         while(this.buff.hasNext() && t(this.la())){
             this.advance();

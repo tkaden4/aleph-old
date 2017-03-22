@@ -11,6 +11,9 @@ import parse.FileInputBuffer;
 void main()
 {
     auto lexer = new Lexer(new FileInputBuffer("test/tests/fizzbuzz.aleph"));
-    auto parser = new Parser(lexer);
-    parser.procDecl.writeln;
+    while(lexer.hasNext()){
+        (*lexer.next).writeln;
+    }
+//    auto parser = new Parser(lexer);
+//    parser.procDecl.writeln;
 }

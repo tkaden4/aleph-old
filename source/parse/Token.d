@@ -12,30 +12,37 @@ struct Token {
 public:
     enum Type {
         EOF,
+        /* Literals */
         INTEGER,
         FLOAT,
         CHAR,
         STRING,
+        /* Keywords */
         PROC,
         LET,
         IF,
         ELSE,
+        /* Punctuation */
         SEMI,
         COLON,
         LBRACE,
         RBRACE,
         LPAREN,
         RPAREN,
-        MINUS,
         RARROW,
         FUNC,
         STAR,
+        /* operators */
+        MINUS,
+        EQ,
         GT,
         LT,
-        EQ,
+        EQEQ,
         GTEQ,
         LTEQ,
+        NTEQ,
         REM,
+        /* Etc. */
         ID
     };
     
@@ -51,4 +58,14 @@ public:
                             this.location.line_no,
                             this.location.col_no);
     }
+
+    bool opEquals(in Token o) pure
+    {
+        return this.type == o.type;
+    }
 };
+
+unittest
+{
+    assert(Token("foo", TokenType.ID) == Token("bar", TokenType.ID));
+}
