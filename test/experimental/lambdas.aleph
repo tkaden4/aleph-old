@@ -1,0 +1,4 @@
+proc main = {
+    let x = func() = 8
+    0
+}
