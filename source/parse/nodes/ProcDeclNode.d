@@ -26,7 +26,27 @@ public:
         this.exp = exp;
     }
 
-    mixin basicNodeVisitImpl;
+    auto getBody()
+    {
+        return this.exp;
+    }
+
+    auto getName()
+    {
+        return this.id;
+    }
+
+    auto getParams()
+    {
+        return this.params;
+    }
+
+    auto getReturnType()
+    {
+        return this.ret;
+    }
+
+    override void visit(ASTVisitor tv){ tv.visitProcDecl(this); }
 
     override string toString()
     {

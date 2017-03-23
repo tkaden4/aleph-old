@@ -3,31 +3,17 @@ module parse.nodes.ASTVisitor;
 public import std.string;
 public import parse.nodes.ASTException;
 public import parse.nodes.ASTNode;
-
-template basicNodeVisitImpl()
-{
-    override void visit(ASTVisitor visitor)
-    {
-        visitor.invoke(this);
-    }
-}
-
-template visitorFunctionImpl(bool decl=false, U: ASTNode, T...,)
-{
-    static if(decl){
-        abstract void invoke(U node);
-    }else{
-        override void invoke(U node)
-        {
-            throw new ASTException("Unable to visit node:\n\t%s".format(node));
-        }
-    }
-
-    static if(T.length){
-        mixin visitorFunctions!(decl, T);
-    }
-}
+public import parse.nodes.ProcDeclNode;
+public import parse.nodes.IntegerNode;
+public import parse.nodes.BlockNode;
 
 class ASTVisitor {
-    mixin visitorFunctionImpl!(true, ASTNode);
+    void visitBasic(ASTNode node)
+    {
+        throw new ASTException("Cannot visit basic node");
+    }
+    abstract void visitProcDecl(ProcDeclNode node)
+    {
+        throw new ASTException("Cannot visit procedure node");
+    }
 };

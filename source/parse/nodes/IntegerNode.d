@@ -6,7 +6,7 @@ import parse.symbol.Type;
 
 class IntegerNode : ExpressionNode {
 public:
-    mixin basicNodeVisitImpl;
+    override void visit(ASTVisitor tv){ tv.visitBasic(this); }
 
     this(long value)
     {

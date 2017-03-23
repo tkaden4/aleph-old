@@ -15,5 +15,4 @@ void main()
     auto parser = new Parser(lexer);
     auto main = parser.procDecl;
     main.visit(new ASTPrinter);
-//  parser.procDecl.writeln;
 }

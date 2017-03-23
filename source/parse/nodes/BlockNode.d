@@ -14,7 +14,7 @@ public:
         this.children = children;
     }
 
-    mixin basicNodeVisitImpl;
+    override void visit(ASTVisitor tv){ tv.visitBasic(this); }
 
     auto getChildren()
     {
