@@ -20,7 +20,7 @@ auto presult(T)(T t)
     return ParseResult!T(t);
 }
 
-T getOrThrow(T)(Nullable!T n, Exception ex)
+T getOrThrow(T)(Nullable!T n, const Exception ex)
 {
     if(n.isNull){
         throw ex;
@@ -51,7 +51,7 @@ public:
             auto num = this.match(Token.Type.INTEGER).lexeme.to!long;
             return presult!ExpressionNode(new IntegerNode(num));
         }else{
-            return ParseResult!ExpressionNode.init;
+            throw new ParserException("No Literal Available");
         }
     }
 

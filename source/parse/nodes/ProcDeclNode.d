@@ -31,15 +31,8 @@ public:
     override string toString()
     {
         import std.string;
-        string paramstr;
-        foreach(i, p; this.params){
-            paramstr ~= "\n\t%s".format(p);
-            if(i != this.params.length - 1){
-                paramstr ~= ", ";
-            }
-        }
-        return "ProcDeclNode(%s(%s)\n\t-> %s {\n%s\n})"
-                    .format(this.id, paramstr, this.ret, this.exp);
+        return "ProcDeclNode(%s(%s) -> %s = %s)"
+                    .format(this.id, this.params, this.ret, this.exp);
     }
 private:
     string id;

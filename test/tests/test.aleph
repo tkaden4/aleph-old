@@ -1,5 +1,8 @@
-proc java() -> void = ({{{8}}})
-
 proc main(ok: int, java: int) -> int = {
-    1240939434
+    8
+    134
+    {
+        999   
+        102
+    }
 }

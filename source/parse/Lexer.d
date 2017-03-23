@@ -75,7 +75,8 @@ public:
         case '<': return this.lexMultiple('<', Token.Type.LT, '=', Token.Type.LTEQ);
         case '>': return this.lexMultiple('>', Token.Type.GT, '=', Token.Type.GTEQ);
         /* Etc. Rules */
-        case '"': return this.lexString;
+        case '\"': return this.lexString;
+        case '\'': return this.lexChar;
         case '_': return this.lexIdOrKeyword;
         default:
             if(this.test(toDelegate(&isIdStart))){
@@ -94,6 +95,18 @@ public:
     }
 private:
     /* LEXER RULES */
+
+    auto escape(char c) pure
+    {
+        switch(c){
+        case 'n': return '\n';
+        case 't': return '\t';
+        case '\"': return '\"';
+        case '\'': return '\'';
+        case '\\': return '\\';
+        default: return c;
+        }
+    }
 
     Token *lexIdOrKeyword()
     {
@@ -114,16 +127,30 @@ private:
         return this.makeToken(lexeme, Token.Type.INTEGER);
     }
 
-    /* TODO add raw character literals as well as escaped characters */
     Token *lexString()
     {
-        string lexeme;
-        lexeme ~= this.match('"');
-        while(!this.test('"')){
-            lexeme ~= this.advance;
+        string lexeme = "" ~ this.match('\"');
+        while(!this.test('\"')){
+            if(this.test('\\')){
+                lexeme ~= "" ~ this.advance ~ this.advance;
+            }else{
+                lexeme ~= "" ~ this.advance;
+            }
         }
-        lexeme ~= this.match('"');
+        lexeme ~= "" ~ this.match('\"');
         return this.makeToken(lexeme, Token.Type.STRING);
+    }
+
+    Token *lexChar()
+    {
+        string lexeme = "" ~ this.match('\'');
+        if(this.test('\\')){
+            lexeme ~= "" ~ this.advance ~ this.advance;
+        }else{
+            lexeme ~= "" ~ this.advance;
+        }
+        lexeme ~= this.match('\'');
+        return this.makeToken(lexeme, Token.Type.CHAR);
     }
 
     /* UTILITY FUNCTIONS */

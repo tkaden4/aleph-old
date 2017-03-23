@@ -14,11 +14,6 @@ public:
         this.children = children;
     }
 
-    invariant
-    {
-        assert(this.children !is null);
-    }
-
     mixin basicNodeVisitImpl;
 
     auto getChildren()
@@ -43,14 +38,7 @@ public:
     override string toString() const
     {
         import std.string;
-        string str;
-        foreach(i,p; this.children){
-            str ~= "%s".format(p);
-            if(i != this.children.length - 1){
-                str ~= '\n';
-            }
-        }
-        return "BlockNode(%s)".format(str);
+        return "BlockNode(%s)".format(this.children);
     }
 private:
     ExpressionNode[] children;

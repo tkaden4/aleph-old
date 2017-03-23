@@ -1,9 +1,8 @@
 module parse.nodes.ASTVisitor;
 
-import std.string;
-
-import parse.nodes.ASTException;
-import parse.nodes.ASTNode;
+public import std.string;
+public import parse.nodes.ASTException;
+public import parse.nodes.ASTNode;
 
 template basicNodeVisitImpl()
 {
