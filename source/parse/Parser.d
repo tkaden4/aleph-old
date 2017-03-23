@@ -2,11 +2,30 @@ module parse.Parser;
 
 import parse.Lexer;
 import parse.Token;
+import parse.symbol.Type;
 import parse.nodes.ASTNode;
+import parse.nodes.ProcDeclNode;
+import parse.nodes.IntegerNode;
+import parse.nodes.ExpressionNode;
+import parse.nodes.BlockNode;
 
 import std.exception;
 import std.stdio;
 import std.string;
+import std.typecons;
+
+alias ParseResult(T) = Nullable!T;
+auto presult(T)(T t)
+{
+    return ParseResult!T(t);
+}
+T getOrThrow(T)(Nullable!T n, Exception ex)
+{
+    if(n.isNull){
+        throw ex;
+    }
+    return n.get;
+}
 
 class ParserException : Exception { mixin basicExceptionCtors; };
 
@@ -19,21 +38,59 @@ public:
 
     invariant
     {
-        assert(this.lexer);
+        assert(this.lexer !is null, "Parser was provided a null lexer");
+    }
+
+    auto literalExpression()
+    {
+        import std.conv;
+        if(this.test(Token.Type.INTEGER)){
+            auto num = this.match(Token.Type.INTEGER).lexeme.to!long;
+            return ParseResult!ExpressionNode(new IntegerNode(num));
+        }else{
+            return ParseResult!ExpressionNode.init;
+        }
+    }
+
+    auto blockExpression()
+    {
+        ExpressionNode[] res = [];
+        this.match(Token.Type.LBRACE);
+        while(!this.test(Token.Type.RBRACE)){
+            res ~= this.literalExpression;
+        }
+        return presult(new BlockNode(res));
     }
 
     /* PARSER RULES */
-
-    ASTNode procDecl()
+    /* TODO implement operator precedence without many function calls */ 
+    auto expression()
     {
-        auto toks = this.match(Token.Type.PROC, Token.Type.ID, Token.Type.LPAREN);
-        "Found function with id \"%s\"".format(toks[1].lexeme).writeln;
-        return null;
+        return presult(this.blockExpression.get);
+    }
+
+    Nullable!Type parseType()
+    {
+        this.match(Token.Type.ID);
+        return nullable!Type(new PrimitiveType(PrimitiveType.Primitive.INT));
+    }
+
+    ProcDeclNode procDecl()
+    {
+        auto toks = this.match(Token.Type.PROC, Token.Type.ID, Token.Type.LPAREN,
+                               Token.Type.RPAREN, Token.Type.RARROW);
+        // TODO add type inferencing
+        auto ret_type = this.parseType.getOrThrow(
+                            new ParserException("No return type"));
+        this.match(Token.Type.EQ);
+        auto expression = this.expression.getOrThrow(
+                            new ParserException("Unable to parse expression"));
+        return new ProcDeclNode(toks[1].lexeme, ret_type, [], expression);
     }
 private:
     /* UTILITY FUNCTIONS */
 
-    const(Token) *la(size_t n=0)
+    auto la(size_t n=0)
     {
         while(this.la_buff.length <= n){
             this.la_buff ~= this.lexer.next;
@@ -41,12 +98,12 @@ private:
         return this.la_buff[n];
     }
 
-    const(Token) *advance()
+    auto advance()
     {
         if(this.la_buff.empty){
             throw new ParserException("Reached end of lookahead buffer");
         }
-        const(Token) *ret = this.la_buff[0];
+        auto ret = this.la_buff[0];
         this.la_buff = this.la_buff[1..$];
         if(this.lexer.hasNext){
              this.la_buff ~= this.lexer.next;
@@ -54,9 +111,9 @@ private:
         return ret;
     }
 
-    const(Token)*[] match(U...)(Token.Type t, Token.Type t2, U args)
+    auto match(U...)(Token.Type t, Token.Type t2, U args)
     {
-        const(Token)*[] ret = [this.match(t), this.match(t2)];
+        auto ret = [this.match(t), this.match(t2)];
         static if(args.length > 0){
             return ret ~ this.match(args);
         }else{
@@ -64,7 +121,7 @@ private:
         }
     }
 
-    const(Token) *match(Token.Type c)
+    auto match(Token.Type c)
     {
         import std.string;
         if(!this.test(c)){
