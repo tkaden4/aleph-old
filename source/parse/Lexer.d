@@ -26,10 +26,15 @@ public:
     this(LexerInputBuffer input)
     {
         this.buff = input;
-        if(!this.buff.hasNext()){
+        if(!this.buff.hasNext){
             throw new LexerException("Lexer was provided an empty buffer");
         }
-        this.la_buff ~= this.buff.next();
+        this.la_buff ~= this.buff.next;
+    }
+
+    invariant
+    {
+        assert(this.buff);
     }
 
 
@@ -143,6 +148,8 @@ private:
             case "func": tok.type = Token.Type.FUNC; break;
             case "if": tok.type = Token.Type.IF; break;
             case "else": tok.type = Token.Type.ELSE; break;
+            case "extern": tok.type = Token.Type.EXTERN; break;
+            case "static": tok.type = Token.Type.STATIC; break;
             default: break;
             }
         }
@@ -153,7 +160,7 @@ private:
     {
         auto ret = this.makeToken(lexeme, type);
         while(n--){
-            this.advance();
+            this.advance;
         }
         return ret;
     }
@@ -167,7 +174,7 @@ private:
     char la(size_t n=0)
     {
         while(this.la_buff.length <= n){
-            this.la_buff ~= this.buff.next();
+            this.la_buff ~= this.buff.next;
         }
         return this.la_buff[n];
     }
@@ -179,8 +186,8 @@ private:
         }
         char ret = this.la_buff[0];
         this.la_buff = this.la_buff[1..$];
-        if(this.buff.hasNext()){
-             this.la_buff ~= this.buff.next();
+        if(this.buff.hasNext){
+             this.la_buff ~= this.buff.next;
         }
         return ret;
     }
@@ -189,7 +196,7 @@ private:
     {
         if(!this.test(c)){
         }
-        return this.advance();
+        return this.advance;
     }
 
     bool test(char c, size_t n=0)
@@ -199,23 +206,42 @@ private:
 
     bool test(bool delegate(dchar) t)
     {
-        return t(this.la());
+        return t(this.la);
     }
 
-    void ignore(char t)
+    void ignore(char c)
     {
-        while(this.buff.hasNext() && this.test(t)){
-            this.advance();
+        while(this.buff.hasNext && this.test(c)){
+            this.advance;
         }
     }
 
-    void ignore(bool delegate(dchar) t)
+    void ignore(bool delegate(dchar) test)
     {
-        while(this.buff.hasNext() && t(this.la())){
-            this.advance();
+        while(this.buff.hasNext && test(this.la)){
+            this.advance;
         }
     }
 private:
     char[] la_buff;     // move to std.container.array!char
     LexerInputBuffer buff;
 };
+
+unittest
+{
+    import parse.StringInputBuffer;
+    import parse.Token;
+
+    enum tests = [
+        ("this_is_an_id _this_too", [Token.Type.ID, Token.Type.ID]),
+        ("this_is_an_id _this_too", [Token.Type.ID, Token.Type.ID])
+    ];
+    
+    foreach(x; tests){
+        auto lexer = new Lexer(new StringInputBuffer(x));
+        Token[] tokens;
+        while(lexer.hasNext){
+            tokens ~= lexer.next;
+        }
+    }
+}

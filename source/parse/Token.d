@@ -23,6 +23,8 @@ public:
         LET,
         IF,
         ELSE,
+        EXTERN,
+        STATIC,
         /* Punctuation */
         SEMI,
         COLON,

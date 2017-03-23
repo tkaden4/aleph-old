@@ -5,6 +5,8 @@ import parse.Token;
 import parse.nodes.ASTNode;
 
 import std.exception;
+import std.stdio;
+import std.string;
 
 class ParserException : Exception { mixin basicExceptionCtors; };
 
@@ -15,53 +17,61 @@ public:
         this.lexer = lexer;
     }
 
+    invariant
+    {
+        assert(this.lexer);
+    }
+
+    /* PARSER RULES */
+
     ASTNode procDecl()
     {
-        this.match(Token.Type.PROC, Token.Type.ID, Token.Type.ID);
+        auto toks = this.match(Token.Type.PROC, Token.Type.ID, Token.Type.LPAREN);
+        "Found function with id \"%s\"".format(toks[1].lexeme).writeln;
         return null;
     }
 private:
     /* UTILITY FUNCTIONS */
 
-    Token la(size_t n=0)
+    const(Token) *la(size_t n=0)
     {
         while(this.la_buff.length <= n){
-            this.la_buff ~= this.lexer.next();
+            this.la_buff ~= this.lexer.next;
         }
-        return *this.la_buff[n];
+        return this.la_buff[n];
     }
 
-    Token advance()
+    const(Token) *advance()
     {
-        if(!this.la_buff.length){
+        if(this.la_buff.empty){
             throw new ParserException("Reached end of lookahead buffer");
         }
         const(Token) *ret = this.la_buff[0];
         this.la_buff = this.la_buff[1..$];
         if(this.lexer.hasNext){
-             this.la_buff ~= this.lexer.next();
+             this.la_buff ~= this.lexer.next;
         }
-        return *ret;
+        return ret;
     }
 
-    Token[] match(U...)(Token.Type t, Token.Type t2, U args)
+    const(Token)*[] match(U...)(Token.Type t, Token.Type t2, U args)
     {
-        Token[] ret = [] ~ this.match(t) ~ this.match(t2);
-        static if(U.length > 0){
+        const(Token)*[] ret = [this.match(t), this.match(t2)];
+        static if(args.length > 0){
             return ret ~ this.match(args);
         }else{
             return ret;
         }
     }
 
-    Token match(Token.Type c)
+    const(Token) *match(Token.Type c)
     {
         import std.string;
         if(!this.test(c)){
             throw new ParserException("Could not match %s with %s"
                                         .format(this.la.type, c));
         }
-        return this.advance();
+        return this.advance;
     }
 
     bool test(Token.Type c, size_t n=0)

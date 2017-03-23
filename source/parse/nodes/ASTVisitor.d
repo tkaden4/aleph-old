@@ -5,7 +5,7 @@ import std.string;
 import parse.nodes.ASTException;
 import parse.nodes.ASTNode;
 
-template defaultASTVisit()
+template basicNodeVisitImpl()
 {
     override void visit(ASTVisitor visitor)
     {
@@ -13,7 +13,7 @@ template defaultASTVisit()
     }
 }
 
-template visitorFunctions(bool decl=false, U: ASTNode, T...,)
+template visitorFunctionImpl(bool decl=false, U: ASTNode, T...,)
 {
     static if(decl){
         abstract void invoke(U node);
@@ -30,5 +30,5 @@ template visitorFunctions(bool decl=false, U: ASTNode, T...,)
 }
 
 class ASTVisitor {
-    mixin visitorFunctions!(true, ASTNode);
+    mixin visitorFunctionImpl!(true, ASTNode);
 };
