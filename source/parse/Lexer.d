@@ -63,10 +63,12 @@ public:
         case ')': return this.makeAndAdvance(")", Token.Type.RPAREN);
         case ';': return this.makeAndAdvance(";", Token.Type.SEMI);
         case ':': return this.makeAndAdvance(":", Token.Type.COLON);
+        case ',': return this.makeAndAdvance(":", Token.Type.COMMA);
         /* Operators */
         case '%': return this.makeAndAdvance("%", Token.Type.REM);
         case '*': return this.makeAndAdvance("*", Token.Type.STAR);
         case '/': return this.makeAndAdvance("/", Token.Type.DIV);
+        case '!': return this.makeAndAdvance("!", Token.Type.BANG);
         case '-': return this.lexMultiple('-', Token.Type.MINUS, '>', Token.Type.RARROW, '-', Token.Type.DEC);
         case '+': return this.lexMultiple('+', Token.Type.PLUS, '+', Token.Type.INC);
         case '=': return this.lexMultiple('=', Token.Type.EQ, '=', Token.Type.EQEQ);

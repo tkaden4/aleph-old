@@ -19,6 +19,7 @@ auto presult(T)(T t)
 {
     return ParseResult!T(t);
 }
+
 T getOrThrow(T)(Nullable!T n, Exception ex)
 {
     if(n.isNull){
@@ -41,12 +42,14 @@ public:
         assert(this.lexer !is null, "Parser was provided a null lexer");
     }
 
+    /* PARSER RULES */
+
     auto literalExpression()
     {
         import std.conv;
         if(this.test(Token.Type.INTEGER)){
             auto num = this.match(Token.Type.INTEGER).lexeme.to!long;
-            return ParseResult!ExpressionNode(new IntegerNode(num));
+            return presult!ExpressionNode(new IntegerNode(num));
         }else{
             return ParseResult!ExpressionNode.init;
         }
@@ -57,35 +60,71 @@ public:
         ExpressionNode[] res = [];
         this.match(Token.Type.LBRACE);
         while(!this.test(Token.Type.RBRACE)){
-            res ~= this.literalExpression;
+            res ~= this.expression;
         }
-        return presult(new BlockNode(res));
+        this.match(Token.type.RBRACE);
+        return presult!ExpressionNode(new BlockNode(res));
     }
 
-    /* PARSER RULES */
-    /* TODO implement operator precedence without many function calls */ 
+    ParseResult!ExpressionNode primaryExpression()
+    {
+        switch(this.la.type){
+        /* { expression* } */
+        case Token.Type.LBRACE: return this.blockExpression;
+        /* ( expression ) */
+        case Token.Type.LPAREN:
+            this.match(Token.Type.LPAREN);
+            auto ret = this.expression;
+            this.match(Token.Type.RPAREN);
+            return ret;
+        /* Literals */
+        case Token.Type.INTEGER:
+        case Token.Type.STRING:
+        case Token.Type.FLOAT:
+        case Token.Type.CHAR:
+            return this.literalExpression;
+        /* TODO add function calls, Etc. */
+        default: return ParseResult!ExpressionNode.init;
+        }
+    }
+
     auto expression()
     {
-        return presult(this.blockExpression.get);
+        return presult(this.primaryExpression.get);
     }
 
-    Nullable!Type parseType()
+    auto parseType()
     {
         this.match(Token.Type.ID);
-        return nullable!Type(new PrimitiveType(PrimitiveType.Primitive.INT));
+        return nullable!Type(Primitives.Int);
+    }
+
+    auto parameters()
+    {
+        Parameter[] params;
+        while(this.test(Token.Type.ID)){
+            params ~= Parameter(this.match(Token.Type.ID, Token.Type.COLON)[0].lexeme,
+                                this.parseType.getOrThrow(
+                                    new ParserException("Expected a type")));
+            if(this.test(Token.Type.COMMA)){
+                this.advance;
+            }
+        }
+        return nullable(params);
     }
 
     ProcDeclNode procDecl()
     {
-        auto toks = this.match(Token.Type.PROC, Token.Type.ID, Token.Type.LPAREN,
-                               Token.Type.RPAREN, Token.Type.RARROW);
+        auto toks = this.match(Token.Type.PROC, Token.Type.ID, Token.Type.LPAREN);
+        auto params = this.parameters;
+        this.match(Token.Type.RPAREN, Token.Type.RARROW);
         // TODO add type inferencing
         auto ret_type = this.parseType.getOrThrow(
                             new ParserException("No return type"));
         this.match(Token.Type.EQ);
         auto expression = this.expression.getOrThrow(
                             new ParserException("Unable to parse expression"));
-        return new ProcDeclNode(toks[1].lexeme, ret_type, [], expression);
+        return new ProcDeclNode(toks[1].lexeme, ret_type, params, expression);
     }
 private:
     /* UTILITY FUNCTIONS */

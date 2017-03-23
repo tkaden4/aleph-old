@@ -43,7 +43,14 @@ public:
     override string toString() const
     {
         import std.string;
-        return "BlockNode(%s)".format(this.children);
+        string str;
+        foreach(i,p; this.children){
+            str ~= "%s".format(p);
+            if(i != this.children.length - 1){
+                str ~= '\n';
+            }
+        }
+        return "BlockNode(%s)".format(str);
     }
 private:
     ExpressionNode[] children;

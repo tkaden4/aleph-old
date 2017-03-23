@@ -13,4 +13,5 @@ void main()
     auto lexer = new Lexer(new FileInputBuffer("test/tests/test.aleph"));
     auto parser = new Parser(lexer);
     parser.procDecl.writeln;
+    parser.procDecl.writeln;
 }

@@ -34,10 +34,12 @@ public:
         RPAREN,
         RARROW,
         STAR,
+        COMMA,
         /* operators */
         MINUS,
         PLUS,
         DIV,
+        BANG,
         EQ,
         GT,
         LT,

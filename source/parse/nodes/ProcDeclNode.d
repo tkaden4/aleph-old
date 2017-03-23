@@ -9,6 +9,11 @@ import std.string;
 struct Parameter {
     string id;
     Type type;
+
+    string toString() const
+    {
+        return "Parameter(%s, %s)".format(this.id, this.type);
+    }
 };
 
 class ProcDeclNode : ASTNode {
@@ -27,10 +32,13 @@ public:
     {
         import std.string;
         string paramstr;
-        foreach(p; this.params){
-            paramstr ~= "%s:%s, ".format(p.id, p.type);
+        foreach(i, p; this.params){
+            paramstr ~= "\n\t%s".format(p);
+            if(i != this.params.length - 1){
+                paramstr ~= ", ";
+            }
         }
-        return "ProcDeclNode(%s(%s) -> %s = %s)"
+        return "ProcDeclNode(%s(%s)\n\t-> %s {\n%s\n})"
                     .format(this.id, paramstr, this.ret, this.exp);
     }
 private:

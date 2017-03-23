@@ -1,3 +1,5 @@
-proc main() -> int = {
+proc java() -> void = ({{{8}}})
+
+proc main(ok: int, java: int) -> int = {
     1240939434
 }
