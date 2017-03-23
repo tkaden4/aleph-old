@@ -59,26 +59,25 @@ public:
         case ';': return this.makeAndAdvance(";", Token.Type.SEMI);
         case ':': return this.makeAndAdvance(":", Token.Type.COLON);
         /* Operators */
-        case '*': return this.makeAndAdvance("*", Token.Type.STAR);
         case '%': return this.makeAndAdvance("%", Token.Type.REM);
+        case '*': return this.makeAndAdvance("*", Token.Type.STAR);
+        case '/': return this.makeAndAdvance("/", Token.Type.DIV);
+        case '-': return this.lexMultiple('-', Token.Type.MINUS, '>', Token.Type.RARROW, '-', Token.Type.DEC);
+        case '+': return this.lexMultiple('+', Token.Type.PLUS, '+', Token.Type.INC);
         case '=': return this.lexMultiple('=', Token.Type.EQ, '=', Token.Type.EQEQ);
         case '<': return this.lexMultiple('<', Token.Type.LT, '=', Token.Type.LTEQ);
         case '>': return this.lexMultiple('>', Token.Type.GT, '=', Token.Type.GTEQ);
-        case '-': return this.lexMultiple('-', Token.Type.MINUS,
-                                          '>', Token.Type.RARROW,
-                                          '-', Token.Type.DEC);
-        case '+': return this.lexMultiple('+', Token.Type.PLUS, '+', Token.Type.INC);
         /* Etc. Rules */
         case '"': return this.lexString;
-        case '_': return this.lexId;
+        case '_': return this.lexIdOrKeyword;
         default:
             if(this.test(toDelegate(&isIdStart))){
-                return this.lexId;
+                return this.lexIdOrKeyword;
             }else if(this.test(toDelegate(&isDigit))){
                 return this.lexNumber;
             }
             throw new LexerException("Couldn't match on character '%c'"
-                                        .format(this.la()));
+                                        .format(this.la));
         }
     }
 
@@ -89,7 +88,7 @@ public:
 private:
     /* LEXER RULES */
 
-    Token *lexId()
+    Token *lexIdOrKeyword()
     {
         string lexeme;
         while(this.test(toDelegate(&isIdBody))){

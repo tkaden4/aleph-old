@@ -35,6 +35,7 @@ public:
         /* operators */
         MINUS,
         PLUS,
+        DIV,
         EQ,
         GT,
         LT,
