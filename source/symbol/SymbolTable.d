@@ -1,6 +1,6 @@
-module parse.symbol.SymbolTable;
+module symbol.SymbolTable;
 
-import parse.symbol.Type;
+import symbol.Type;
 import std.container;
 
 struct Symbol {

@@ -2,12 +2,11 @@ module parse.nodes.IntegerNode;
 
 import parse.nodes.ExpressionNode;
 import parse.nodes.ASTVisitor;
-import parse.symbol.Type;
+
+import symbol.Type;
 
 class IntegerNode : ExpressionNode {
 public:
-    override void visit(ASTVisitor tv){ tv.visitBasic(this); }
-
     this(long value)
     {
         this.value = value;
@@ -17,6 +16,8 @@ public:
     {
         return this.value;
     }
+    
+    override void visit(ASTVisitor tv){ tv.visitIntegerNode(this); }
 
     override bool hasResult() const
     {

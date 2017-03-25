@@ -1,8 +1,8 @@
-all:
+build:
 	dub build
 clean:
 	dub clean
-test:
-	dub test
+tst:
+	./test/tests/test.sh
 run:
 	dub run

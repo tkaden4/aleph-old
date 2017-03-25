@@ -3,7 +3,8 @@ module parse.nodes.BlockNode;
 import parse.nodes.ASTVisitor;
 import parse.nodes.ASTNode;
 import parse.nodes.ExpressionNode;
-import parse.symbol.Type;
+
+import symbol.Type;
 
 import std.range;
 
@@ -14,7 +15,7 @@ public:
         this.children = children;
     }
 
-    override void visit(ASTVisitor tv){ tv.visitBasic(this); }
+    override void visit(ASTVisitor tv){ tv.visitBlockNode(this); }
 
     auto getChildren()
     {

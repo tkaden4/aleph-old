@@ -12,7 +12,15 @@ class ASTVisitor {
     {
         throw new ASTException("Cannot visit basic node");
     }
-    abstract void visitProcDecl(ProcDeclNode node)
+    void visitIntegerNode(IntegerNode node)
+    {
+        throw new ASTException("Cannot visit integer node");
+    }
+    void visitBlockNode(BlockNode node)
+    {
+        throw new ASTException("Cannot visit block node");
+    }
+    void visitProcDecl(ProcDeclNode node)
     {
         throw new ASTException("Cannot visit procedure node");
     }

@@ -1,4 +1,4 @@
-module parse.symbol.Type;
+module symbol.Type;
 
 interface TypeVisitor {
     void invoke(Type t);

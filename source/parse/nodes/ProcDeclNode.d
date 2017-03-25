@@ -2,7 +2,9 @@ module parse.nodes.ProcDeclNode;
 
 import parse.nodes.ASTNode;
 import parse.nodes.ASTVisitor;
-import parse.symbol.Type;
+import parse.nodes.StatementNode;
+
+import symbol.Type;
 
 import std.string;
 
@@ -16,7 +18,7 @@ struct Parameter {
     }
 };
 
-class ProcDeclNode : ASTNode {
+class ProcDeclNode : StatementNode {
 public:
     this(string id, Type ret, Parameter[] params, ASTNode exp)
     {

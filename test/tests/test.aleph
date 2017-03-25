@@ -1,8 +1,3 @@
 proc main(ok: int, java: int) -> int = {
-    8
-    134
-    {
-        999   
-        102
-    }
+    let k: int = 8
 }

@@ -5,18 +5,25 @@ import parse.nodes.ASTVisitor;
 
 class ASTPrinter : ASTVisitor {
 public:
-    override void visitBasic(ASTNode node)
+    override void visitIntegerNode(IntegerNode node)
     {
-        "%sUnvisited node".format(this.entab).writeln;
+        "%s%s".format(this.entab, node).writeln;
+    }
+
+    override void visitBlockNode(BlockNode node)
+    {
+        ++this.indent_level;
+        foreach(child; node.getChildren){
+            child.visit(this);
+        }
+        --this.indent_level;
     }
 
     override void visitProcDecl(ProcDeclNode node)
     {
         "%sProcedure %s :: %s -> %s"
             .format(this.entab, node.getName, node.getParams, node.getReturnType).writeln;
-        ++this.indent_level;
         node.getBody.visit(this);
-        --this.indent_level;
     }
 private:
     string entab()

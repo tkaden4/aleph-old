@@ -9,9 +9,13 @@ import parse.Token;
 import parse.FileInputBuffer;
 import parse.nodes.ASTPrinter;
 
-void main()
+void main(string[] args)
 {
-    auto lexer = new Lexer(new FileInputBuffer("test/tests/test.aleph"));
+    if(args.length != 2){
+        "Not enough arguments".writeln;
+        return;
+    }
+    auto lexer = new Lexer(new FileInputBuffer(args[1]));
     auto parser = new Parser(lexer);
     auto main = parser.procDecl;
     main.visit(new ASTPrinter);
