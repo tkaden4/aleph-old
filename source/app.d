@@ -17,6 +17,8 @@ void main(string[] args)
     }
     auto lexer = new Lexer(new FileInputBuffer(args[1]));
     auto parser = new Parser(lexer);
-    auto main = parser.procDecl;
-    main.visit(new ASTPrinter);
+    auto main = parser.program;
+    foreach(x; main){
+        x.visit(new ASTPrinter);
+    }
 }

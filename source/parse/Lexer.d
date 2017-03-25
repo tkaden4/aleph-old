@@ -1,5 +1,6 @@
 module parse.Lexer;
-import parse.Token;
+
+public import parse.Token;
 import parse.LexerInputBuffer;
 
 import std.container;
@@ -53,6 +54,7 @@ public:
                 return c != '\n';
             });
             this.advance;
+            return this.next;
         }
 
         switch(this.la){

@@ -1,0 +1,7 @@
+//proc main() -> int
+proc foobar() -> char = 'k'
+proc foo() -> int = (8888)
+
+proc main() -> int = {
+    0
+}

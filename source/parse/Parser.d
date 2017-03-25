@@ -3,14 +3,14 @@ module parse.Parser;
 import symbol.Type;
 
 import parse.Lexer;
-import parse.Token;
 import parse.nodes.ASTNode;
+import parse.nodes.VarDeclNode;
 import parse.nodes.ProcDeclNode;
 import parse.nodes.IntegerNode;
+import parse.nodes.CharNode;
 import parse.nodes.ExpressionNode;
 import parse.nodes.BlockNode;
 import parse.nodes.StatementNode;
-import parse.nodes.VarDeclNode;
 
 import std.exception;
 import std.stdio;
@@ -47,18 +47,30 @@ public:
 
     /* PARSER RULES */
 
+    auto program()
+    {
+        ASTNode[] res;
+        while(this.lexer.hasNext){
+            res ~= this.declaration.get;
+        }
+        return res;
+    }
+
+    /* CHAR, STRING, INTEGER, FLOAT */
     auto literalExpression()
     {
         import std.conv;
-        if(this.test(Token.Type.INTEGER)){
+        switch(this.la.type){
+        case Token.Type.INTEGER:
             auto num = this.match(Token.Type.INTEGER).lexeme.to!long;
             return presult!ExpressionNode(new IntegerNode(num));
-        }else if(this.test(Token.Type.CHAR)){
-            //auto ch = this.match(Token.Type.CHAR).lexeme.to!char;
-            (*this.advance).writeln;
-            return presult!ExpressionNode(new IntegerNode(8));
+        case Token.Type.CHAR:
+            auto tok = this.match(Token.Type.CHAR);
+            auto ch = tok.lexeme[1..$-1].to!char;
+            return presult!ExpressionNode(new CharNode(ch));
+        default:
+            return ParseResult!ExpressionNode.init;
         }
-        return ParseResult!ExpressionNode.init;
     }
 
     auto blockExpression()
@@ -67,6 +79,7 @@ public:
         this.match(Token.Type.LBRACE);
         while(!this.test(Token.Type.RBRACE)){
             auto exp = this.expression;
+            "writeln".writeln;
             if(exp.isNull){
                 stderr.writefln("Tried expression, now doing decl");
                 exp = this.declaration;
@@ -106,8 +119,9 @@ public:
 
     auto parseType()
     {
-        this.match(Token.Type.ID);
-        return nullable!Type(Primitives.Int);
+        auto tok = this.match(Token.Type.ID);
+        auto type = tok.lexeme.toPrimitive;
+        return nullable!Type(type);
     }
 
     auto parameters()
@@ -147,11 +161,11 @@ public:
         return new VarDeclNode(toks[1].lexeme, type, exp);
     }
 
-    StatementNode declaration()
+    ParseResult!StatementNode declaration()
     {
         switch(this.la.type){
-        case Token.Type.PROC: return this.procDecl;
-        case Token.Type.LET: return this.varDecl;
+        case Token.Type.PROC: return cast(ParseResult!StatementNode)this.procDecl;
+        case Token.Type.LET: return cast(ParseResult!StatementNode)this.varDecl;
         default: throw new ParserException("Couldn't parse declaration");
         }
     }

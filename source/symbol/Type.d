@@ -8,11 +8,23 @@ interface Type {
     void visit(TypeVisitor tv);
 };
 
+public Type toPrimitive(string s)
+{
+    import std.string;
+    switch(s){
+    case "void": return Primitives.Void;
+    case "int": return Primitives.Int;
+    case "char": return Primitives.Char;
+    default: throw new Exception("Could not convert \"%s\" to primitive".format(s));
+    }
+}
+
 class PrimitiveType : Type {
 public:
     enum Primitive {
         INT,
-        VOID
+        VOID,
+        CHAR
     };
     this(Primitive type)
     {
@@ -34,7 +46,8 @@ private:
 
 enum Primitives {
     Int = new PrimitiveType(PrimitiveType.Primitive.INT),
-    Void = new PrimitiveType(PrimitiveType.Primitive.VOID)
+    Void = new PrimitiveType(PrimitiveType.Primitive.VOID),
+    Char = new PrimitiveType(PrimitiveType.Primitive.CHAR)
 };
 
 class FunctionType : Type {

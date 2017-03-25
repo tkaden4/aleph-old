@@ -10,20 +10,29 @@ public:
         "%s%s".format(this.entab, node).writeln;
     }
 
+    override void visitCharNode(CharNode node)
+    {
+        "%s%s".format(this.entab, node).writeln;
+    }
+
     override void visitBlockNode(BlockNode node)
     {
+        "%sBlockNode(".format(this.entab).writeln;
         ++this.indent_level;
         foreach(child; node.getChildren){
             child.visit(this);
         }
         --this.indent_level;
+        "%s)".format(this.entab).writeln;
     }
 
     override void visitProcDecl(ProcDeclNode node)
     {
         "%sProcedure %s :: %s -> %s"
             .format(this.entab, node.getName, node.getParams, node.getReturnType).writeln;
+        ++this.indent_level;
         node.getBody.visit(this);
+        --this.indent_level;
     }
 private:
     string entab()
