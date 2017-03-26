@@ -2,7 +2,7 @@ module parse.Parser;
 
 import symbol.Type;
 
-import parse.Lexer;
+import parse.lex.Lexer;
 import parse.nodes.ASTNode;
 import parse.nodes.VarDeclNode;
 import parse.nodes.ProcDeclNode;
@@ -11,6 +11,8 @@ import parse.nodes.CharNode;
 import parse.nodes.ExpressionNode;
 import parse.nodes.BlockNode;
 import parse.nodes.StatementNode;
+import parse.nodes.IdentifierNode;
+import symbol.SymbolTable;
 
 import std.exception;
 import std.stdio;
@@ -49,9 +51,11 @@ public:
 
     auto program()
     {
-        ASTNode[] res;
+        StatementNode[] res;
         while(this.lexer.hasNext){
-            res ~= this.declaration.get;
+            res ~= this.declaration.getOrThrow(
+                       new ParserException("Unable to parse declaration") 
+                   );
         }
         return res;
     }
@@ -73,17 +77,22 @@ public:
         }
     }
 
+    ParseResult!ExpressionNode statement()
+    {
+        switch(this.la.type){
+        case Token.Type.LET:
+        case Token.Type.PROC:
+            return cast(ParseResult!ExpressionNode)this.declaration;
+        default: return this.expression;
+        }
+    }
+
     auto blockExpression()
     {
         ExpressionNode[] res = [];
         this.match(Token.Type.LBRACE);
         while(!this.test(Token.Type.RBRACE)){
-            auto exp = this.expression;
-            "writeln".writeln;
-            if(exp.isNull){
-                stderr.writefln("Tried expression, now doing decl");
-                exp = this.declaration;
-            }
+            auto exp = this.statement;
             res ~= exp.getOrThrow(new ParserException("Invalid block body"));
         }
         this.match(Token.type.RBRACE);
@@ -93,6 +102,10 @@ public:
     ParseResult!ExpressionNode primaryExpression()
     {
         switch(this.la.type){
+        /* ID */
+        case Token.Type.ID: 
+            auto id = this.match(Token.Type.ID);
+            return presult!ExpressionNode(new IdentifierNode(id.lexeme, null));
         /* { expression* } */
         case Token.Type.LBRACE: return this.blockExpression;
         /* ( expression ) */
@@ -121,16 +134,16 @@ public:
     {
         auto tok = this.match(Token.Type.ID);
         auto type = tok.lexeme.toPrimitive;
-        return nullable!Type(type);
+        return type;
     }
 
     auto parameters()
     {
         Parameter[] params;
         while(this.test(Token.Type.ID)){
-            params ~= Parameter(this.match(Token.Type.ID, Token.Type.COLON)[0].lexeme,
-                                this.parseType.getOrThrow(
-                                    new ParserException("Expected a type")));
+            params ~= Parameter(this.match(Token.Type.ID,
+                                           Token.Type.COLON)[0].lexeme,
+                                           this.parseType);
             if(this.test(Token.Type.COMMA)){
                 this.advance;
             }
@@ -138,27 +151,40 @@ public:
         return nullable(params);
     }
 
-    ProcDeclNode procDecl()
+    auto procDecl()
     {
         auto toks = this.match(Token.Type.PROC, Token.Type.ID, Token.Type.LPAREN);
         auto params = this.parameters;
-        this.match(Token.Type.RPAREN, Token.Type.RARROW);
-        // TODO add type inferencing
-        auto ret_type = this.parseType.getOrThrow(
-                            new ParserException("No return type"));
-        this.match(Token.Type.EQ);
-        auto expression = this.expression.getOrThrow(
-                            new ParserException("Unable to parse expression"));
-        return new ProcDeclNode(toks[1].lexeme, ret_type, params, expression);
+        this.match(Token.Type.RPAREN);
+
+        Type ret_type = null;
+        if(this.test(Token.Type.RARROW)){
+            this.match(Token.Type.RARROW);
+            ret_type = this.parseType;
+        }
+
+        ExpressionNode exp = null;
+        if(this.test(Token.Type.EQ)){
+            this.match(Token.Type.EQ);
+            exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
+        }
+        return presult(new ProcDeclNode(toks[1].lexeme, ret_type, params, exp));
     }
 
-    VarDeclNode varDecl()
+    auto varDecl()
     {
-        auto toks = this.match(Token.Type.LET, Token.Type.ID, Token.Type.COLON);
-        auto type = this.parseType.getOrThrow(new ParserException("No type"));
-        this.match(Token.Type.EQ);
-        auto exp = this.expression.getOrThrow(new ParserException("No expression"));
-        return new VarDeclNode(toks[1].lexeme, type, exp);
+        auto toks = this.match(Token.Type.LET, Token.Type.ID);
+        Type type = null;
+        if(this.test(Token.Type.COLON)){
+            this.match(Token.Type.COLON);
+            type = this.parseType;
+        }
+        ExpressionNode exp = null;
+        if(this.test(Token.Type.EQ)){
+            this.match(Token.Type.EQ);
+            exp = this.expression.getOrThrow(new ParserException("No expression"));
+        }
+        return presult(new VarDeclNode(toks[1].lexeme, type, exp));
     }
 
     ParseResult!StatementNode declaration()

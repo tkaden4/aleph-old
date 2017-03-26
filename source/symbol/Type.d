@@ -21,7 +21,7 @@ public Type toPrimitive(string s)
 
 class PrimitiveType : Type {
 public:
-    enum Primitive {
+    package enum Primitive {
         INT,
         VOID,
         CHAR
@@ -52,11 +52,19 @@ enum Primitives {
 
 class FunctionType : Type {
 public:
+    this(Type ret, Type[] param)
+    {
+        this.return_type = ret;
+        this.param_types = param;
+    }
+
     override void visit(TypeVisitor tv){ tv.invoke(this); }
+
     auto getReturnType() pure
     {
         return this.return_type;
     }
+
     auto getParameterTypes() pure
     {
         return this.param_types;

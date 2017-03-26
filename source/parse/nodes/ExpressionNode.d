@@ -1,10 +1,11 @@
 module parse.nodes.ExpressionNode;
 
-import parse.nodes.ASTNode;
-import parse.nodes.ASTVisitor;
+public import parse.visitors.ASTVisitor;
+public import parse.nodes.ASTNode;
+
 public import symbol.Type;
+public import std.typecons;
 
 interface ExpressionNode : ASTNode {
-    bool hasResult() const;
-    const(Type) getResultType() const;
+    @property Type resultType();
 };

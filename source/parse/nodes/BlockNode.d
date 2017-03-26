@@ -1,6 +1,5 @@
 module parse.nodes.BlockNode;
 
-import parse.nodes.ASTVisitor;
 import parse.nodes.ASTNode;
 import parse.nodes.ExpressionNode;
 
@@ -12,35 +11,29 @@ class BlockNode : ExpressionNode {
 public:
     this(ExpressionNode[] children)
     {
-        this.children = children;
+        this._children = children;
+        this.result_type = children.empty ? Primitives.Void :
+                                children.back.resultType;
     }
 
     override void visit(ASTVisitor tv){ tv.visitBlockNode(this); }
 
-    auto getChildren()
+    override @property Type resultType()
     {
-        return this.children;
+        return this.result_type;
     }
 
-    override bool hasResult() const
-    {
-        return this.children.empty ?
-                    false :
-                    this.children.back.hasResult;
-    }
-
-    override const(Type) getResultType() const
-    {
-        return this.children.empty ?
-                    Primitives.Void :
-                    this.children.back.getResultType;
-    }
-
-    override string toString() const
+    override string toString()
     {
         import std.string;
         return "BlockNode(%s)".format(this.children);
     }
+
+    @property ExpressionNode[] children()
+    {
+        return this._children;
+    }
 private:
-    ExpressionNode[] children;
+    ExpressionNode[] _children;
+    Type result_type;
 };

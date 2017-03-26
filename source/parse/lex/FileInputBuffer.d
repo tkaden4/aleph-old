@@ -1,10 +1,10 @@
-module parse.FileInputBuffer;
+module parse.lex.FileInputBuffer;
 
 import std.stdio;
 import std.file;
 
-import parse.StringInputBuffer;
-import parse.Token;
+import parse.lex.StringInputBuffer;
+import parse.lex.Token;
 
 class FileInputBuffer : StringInputBuffer {
 public:

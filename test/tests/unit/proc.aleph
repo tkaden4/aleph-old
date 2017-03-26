@@ -1,7 +1,5 @@
-//proc main() -> int
-proc foobar() -> char = 'k'
-proc foo() -> int = (8888)
-
-proc main() -> int = {
+proc main(k: int, h: int) = {
+    let k: int = 8
+    k
     0
 }

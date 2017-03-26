@@ -1,4 +1,4 @@
-module parse.nodes.ASTException;
+module parse.ASTException;
 
 import std.exception;
 

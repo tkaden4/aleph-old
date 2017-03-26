@@ -6,10 +6,21 @@ import symbol.Type;
 
 class VarDeclNode : StatementNode {
 public:
-    this(string id, const(Type) type, ExpressionNode exp)
+    this(string id, Type type, ExpressionNode exp)
     {
-
+        this.id = id;
+        this.type = type;
+        this.init = exp;
     }
 
-    override void visit(ASTVisitor tv){ tv.visitBasic(this); }
+    override void visit(ASTVisitor tv){ tv.visitVarDecl(this); }
+
+    override string toString() const
+    {
+        return "VarDecl(%s) :: %s".format(this.id, this.type);
+    }
+public:
+    const(string) id;
+    Type type;
+    ExpressionNode init;
 };

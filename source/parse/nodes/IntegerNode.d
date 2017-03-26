@@ -1,7 +1,6 @@
 module parse.nodes.IntegerNode;
 
 import parse.nodes.ExpressionNode;
-import parse.nodes.ASTVisitor;
 
 import symbol.Type;
 
@@ -19,12 +18,7 @@ public:
     
     override void visit(ASTVisitor tv){ tv.visitIntegerNode(this); }
 
-    override bool hasResult() const
-    {
-        return true;
-    }
-
-    override const(Type) getResultType() const
+    override @property Type resultType()
     {
         return Primitives.Int;
     }

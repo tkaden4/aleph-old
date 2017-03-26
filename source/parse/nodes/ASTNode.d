@@ -1,6 +1,8 @@
 module parse.nodes.ASTNode;
 
-import parse.nodes.ASTVisitor;
+public import parse.visitors.ASTVisitor;
+
+/* TODO add immutable nodes / visitation pipeline */
 
 /* Currently, this is all we need,
  * all an ASTNode needs is a way to 

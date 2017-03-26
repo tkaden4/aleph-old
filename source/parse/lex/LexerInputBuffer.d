@@ -1,6 +1,6 @@
-module parse.LexerInputBuffer;
+module parse.lex.LexerInputBuffer;
 
-import parse.Token;
+import parse.lex.Token;
 
 interface LexerInputBuffer {
     /* gets the current location */

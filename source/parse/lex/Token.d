@@ -1,4 +1,4 @@
-module parse.Token;
+module parse.lex.Token;
 
 struct SourceLocation {
     string filename;

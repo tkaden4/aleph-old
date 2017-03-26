@@ -1,7 +1,7 @@
 module parse.nodes.ProcDeclNode;
 
 import parse.nodes.ASTNode;
-import parse.nodes.ASTVisitor;
+import parse.nodes.ExpressionNode;
 import parse.nodes.StatementNode;
 
 import symbol.Type;
@@ -20,32 +20,37 @@ struct Parameter {
 
 class ProcDeclNode : StatementNode {
 public:
-    this(string id, Type ret, Parameter[] params, ASTNode exp)
+    this(string id, Type ret, Parameter[] params, ExpressionNode exp)
     {
         this.id = id;
-        this.ret = ret;
+        this.ret_type = ret;
         this.params = params;
         this.exp = exp;
     }
 
-    auto getBody()
+    auto bodyNode()
     {
         return this.exp;
     }
 
-    auto getName()
+    auto name()
     {
         return this.id;
     }
 
-    auto getParams()
+    auto parameters()
     {
         return this.params;
     }
 
-    auto getReturnType()
+    @property Type returnType()
     {
-        return this.ret;
+        return this.ret_type;
+    }
+
+    @property void returnType(Type type)
+    {
+        this.ret_type = type;
     }
 
     override void visit(ASTVisitor tv){ tv.visitProcDecl(this); }
@@ -54,11 +59,11 @@ public:
     {
         import std.string;
         return "ProcDeclNode(%s(%s) -> %s = %s)"
-                    .format(this.id, this.params, this.ret, this.exp);
+                    .format(this.id, this.params, this.ret_type, this.exp);
     }
-private:
-    string id;
-    Type ret;
+public:
+    const(string) id;
+    Type ret_type;
     Parameter[] params;
-    ASTNode exp;
+    ExpressionNode exp;
 };

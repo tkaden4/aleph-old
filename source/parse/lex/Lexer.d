@@ -1,7 +1,7 @@
-module parse.Lexer;
+module parse.lex.Lexer;
 
-public import parse.Token;
-import parse.LexerInputBuffer;
+public import parse.lex.Token;
+import parse.lex.LexerInputBuffer;
 
 import std.container;
 import std.stdio;

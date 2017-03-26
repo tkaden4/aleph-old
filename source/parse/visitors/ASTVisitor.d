@@ -1,12 +1,15 @@
-module parse.nodes.ASTVisitor;
+module parse.visitors.ASTVisitor;
 
-public import std.string;
-public import parse.nodes.ASTException;
+public import parse.ASTException;
 public import parse.nodes.ASTNode;
 public import parse.nodes.ProcDeclNode;
 public import parse.nodes.IntegerNode;
 public import parse.nodes.BlockNode;
 public import parse.nodes.CharNode;
+public import parse.nodes.IdentifierNode;
+public import parse.nodes.VarDeclNode;
+
+public import std.string;
 
 class ASTVisitor {
     void visitBasic(ASTNode node)
@@ -28,5 +31,13 @@ class ASTVisitor {
     void visitProcDecl(ProcDeclNode node)
     {
         throw new ASTException("Cannot visit procedure node");
+    }
+    void visitIdentifierNode(IdentifierNode node)
+    {
+        throw new ASTException("Cannot visit identifier node");
+    }
+    void visitVarDecl(VarDeclNode node)
+    {
+        throw new ASTException("Cannot visit variable declaration node");
     }
 };

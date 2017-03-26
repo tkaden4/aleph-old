@@ -1,7 +1,7 @@
-module parse.StringInputBuffer;
+module parse.lex.StringInputBuffer;
 
-import parse.LexerInputBuffer;
-import parse.Token;
+import parse.lex.LexerInputBuffer;
+import parse.lex.Token;
 
 class StringInputBuffer : LexerInputBuffer {
 public:
