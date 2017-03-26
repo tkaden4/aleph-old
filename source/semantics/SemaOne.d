@@ -25,7 +25,12 @@ public override:
         foreach(p; node.parameters){
             param_types ~= p.type;
         }
-        node.returnType = node.exp.resultType;
+        if(!node.returnType){
+            node.returnType = node.exp.resultType;
+        }
+        if(node.returnType != node.exp.resultType){
+            throw new ASTException("Type Mismatch");
+        }
         this.result.insert(node.name, Symbol(node.name,
                                 new FunctionType(node.returnType, param_types)));
     }

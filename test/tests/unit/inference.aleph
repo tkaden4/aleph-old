@@ -1,5 +1,3 @@
 proc main() = { // should infer int return type
     let k = 8   // should infer int type
-    k
-    0
 }

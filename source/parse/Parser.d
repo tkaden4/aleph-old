@@ -214,7 +214,7 @@ private:
         auto ret = this.la_buff[0];
         this.la_buff = this.la_buff[1..$];
         if(this.lexer.hasNext){
-             this.la_buff ~= this.lexer.next;
+            this.la_buff ~= this.lexer.next;
         }
         return ret;
     }

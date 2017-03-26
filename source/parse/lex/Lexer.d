@@ -41,7 +41,7 @@ public:
 
     Token *next()
     {
-        if(!this.buff.hasNext){
+        if(!this.buff.hasNext && this.la_buff.empty){
             throw new LexerException("Reached end of input buffer");
         }
 

@@ -1,5 +1,0 @@
-proc main(k: int, h: int) = {
-    let k: int = 8
-    k
-    0
-}
