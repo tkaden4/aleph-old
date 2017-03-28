@@ -119,7 +119,7 @@ public:
 
     ParseResult!ExpressionNode postfixExpression()
     {
-        ParseResult!ExpressionNode postexp(ExpressionNode node)
+        ParseResult!ExpressionNode postOp(ExpressionNode node)
         {
             switch(this.la.type){
             case Token.Type.LPAREN:
@@ -133,13 +133,10 @@ public:
         }
         
         auto exp = this.primaryExpression;
-        if(exp.isNull){
-            return exp;
-        }
-        auto ret = postexp(exp.getOrThrow(new ParserException("no post 1")));
+        auto ret = postOp(exp.getOrThrow(new ParserException("postfix requires an expression")));
         while(!ret.isNull){
             exp = ret;
-            ret = postexp(exp.getOrThrow(new ParserException("no post 2")));
+            ret = postOp(exp.getOrThrow(new ParserException("no expression in postfix")));
         }
         return exp;
     }
@@ -161,10 +158,10 @@ public:
 
     auto blockExpression()
     {
-        ExpressionNode[] res = [];
+        ExpressionNode[] res;
         this.match(Token.Type.LBRACE);
         while(!this.test(Token.Type.RBRACE)){
-            auto exp = this.statement;
+            auto exp = this.expression;
             res ~= exp.getOrThrow(new ParserException("Invalid block body"));
         }
         this.match(Token.type.RBRACE);

@@ -12,8 +12,13 @@ public:
     this(ExpressionNode[] children)
     {
         this._children = children;
-        this.result_type = children.empty ? Primitives.Void :
-                                children.back.resultType;
+        this.result_type = !this.children.empty ? Primitives.Void :
+                                this.children.back.resultType;
+    }
+
+    invariant
+    {
+        assert(this._children);
     }
 
     override void visit(ASTVisitor tv){ tv.visitBlockNode(this); }

@@ -1,1 +1,3 @@
-proc main() -> int = main() 
+proc main() -> int = {
+    main()
+}
