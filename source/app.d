@@ -10,6 +10,7 @@ import parse.Parser;
 import parse.visitors.ASTPrinter;
 
 import semantics.SemaOne;
+import gen.Generator;
 
 void main(string[] args)
 {
@@ -22,15 +23,9 @@ void main(string[] args)
     auto parser = new Parser(lexer);
     auto program = parser.program;
 
-    auto printer = new ASTPrinter;
+
     auto sem_one = new SemaOne;
-
-    foreach(x; program){
-        x.visit(sem_one);
-    }
-
-    foreach(x; program){
-        x.visit(printer);
-    }
-
+    program.visit(sem_one);
+    auto symbols = sem_one.result;
+    program.visit(new ASTPrinter);
 }

@@ -4,10 +4,16 @@ import symbol.Type;
 
 import std.container;
 import std.typecons;
+import std.string;
 
 public struct Symbol {
     string identifier;
     Type type;
+
+    string toString() const
+    {
+        return "Symbol(%s, %s)".format(this.identifier, this.type);
+    }
 };
 
 final class SymbolTable {
@@ -20,7 +26,9 @@ public:
     Nullable!(Symbol) lookup(string id)
     {
         auto sym = id in this.symbols;
-        sym = sym ? sym : &parent.lookup(id).get();
+        if(this.parent){
+            sym = sym ? sym : &parent.lookup(id).get();
+        }
         if(sym){
             return nullable(*sym);
         }
@@ -30,6 +38,15 @@ public:
     void insert(string id, Symbol s)
     {
         this.symbols[id] = s;
+    }
+
+    override string toString() const
+    {
+        string ret;
+        foreach(k, v; this.symbols){
+            ret ~= "%s : %s\n".format(k, v.toString);
+        }
+        return ret;
     }
 private:
     Symbol[string] symbols;

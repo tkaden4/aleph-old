@@ -15,6 +15,11 @@ public:
 
     override void visit(ASTVisitor tv){ tv.visitVarDecl(this); }
 
+    @property string name() const
+    {
+        return this.id;
+    }
+
     override string toString() const
     {
         return "VarDecl(%s) :: %s".format(this.id, this.type);

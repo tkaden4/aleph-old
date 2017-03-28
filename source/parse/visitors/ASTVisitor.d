@@ -8,6 +8,7 @@ public import parse.nodes.BlockNode;
 public import parse.nodes.CharNode;
 public import parse.nodes.IdentifierNode;
 public import parse.nodes.VarDeclNode;
+public import parse.nodes.ProgramNode;
 
 public import std.string;
 
@@ -15,6 +16,10 @@ class ASTVisitor {
     void visitBasic(ASTNode node)
     {
         throw new ASTException("Cannot visit basic node");
+    }
+    void visitProgramNode(ProgramNode node)
+    {
+        throw new ASTException("Cannot visit program node");
     }
     void visitIntegerNode(IntegerNode node)
     {

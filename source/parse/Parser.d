@@ -35,6 +35,12 @@ T getOrThrow(T)(Nullable!T n, const Exception ex)
 
 class ParserException : Exception { mixin basicExceptionCtors; };
 
+struct ParserResult {
+    ASTNode root;       /* root of the tree */
+    ProcDeclNode[] untyped_proc;    /* list of procedures with no types */
+    VarDeclNode[] untyped_var;      /* list of variables with no types */
+};
+
 final class Parser {
 public:
     this(Lexer lexer)
@@ -57,7 +63,7 @@ public:
                        new ParserException("Unable to parse declaration") 
                    );
         }
-        return res;
+        return new ProgramNode(res);
     }
 
     /* CHAR, STRING, INTEGER, FLOAT */
@@ -73,6 +79,7 @@ public:
             auto ch = tok.lexeme[1..$-1].to!char;
             return presult!ExpressionNode(new CharNode(ch));
         default:
+            "Literal not implemented".writeln;
             return ParseResult!ExpressionNode.init;
         }
     }
@@ -163,11 +170,8 @@ public:
             ret_type = this.parseType;
         }
 
-        ExpressionNode exp = null;
-        if(this.test(Token.Type.EQ)){
-            this.match(Token.Type.EQ);
-            exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
-        }
+        this.match(Token.Type.EQ);
+        ExpressionNode exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
         return presult(new ProcDeclNode(toks[1].lexeme, ret_type, params, exp));
     }
 
@@ -179,11 +183,12 @@ public:
             this.match(Token.Type.COLON);
             type = this.parseType;
         }
-        ExpressionNode exp = null;
-        if(this.test(Token.Type.EQ)){
-            this.match(Token.Type.EQ);
-            exp = this.expression.getOrThrow(new ParserException("No expression"));
+        if(!this.test(Token.Type.EQ)){
+            throw new ParserException("Variables must be initialized");
         }
+        this.match(Token.Type.EQ);
+        ExpressionNode exp = this.expression.getOrThrow(
+                                    new ParserException("Variables must be initialized"));
         return presult(new VarDeclNode(toks[1].lexeme, type, exp));
     }
 

@@ -60,14 +60,20 @@ public:
 
     override void visit(TypeVisitor tv){ tv.invoke(this); }
 
-    auto getReturnType() pure
+    auto returnType() pure
     {
         return this.return_type;
     }
 
-    auto getParameterTypes() pure
+    auto parameterTypes() pure
     {
         return this.param_types;
+    }
+
+    override string toString() const
+    {
+        import std.string;
+        return "(%s -> %s)".format(this.param_types, this.return_type);
     }
 private:
     Type return_type;

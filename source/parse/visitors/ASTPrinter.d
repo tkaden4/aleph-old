@@ -15,6 +15,13 @@ public:
         "%s%s".format(this.entab, node).writeln;
     }
 
+    override void visitProgramNode(ProgramNode node)
+    {
+        foreach(x; node.children){
+            x.visit(this);
+        }
+    }
+
     override void visitBlockNode(BlockNode node)
     {
         if(node.children.length){
