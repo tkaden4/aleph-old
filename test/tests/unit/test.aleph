@@ -1,5 +1,0 @@
-proc foo(k: int) -> int = k
-
-proc main() = {
-    8(0)
-}

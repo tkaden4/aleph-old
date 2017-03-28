@@ -28,6 +28,10 @@ class CallNode : ExpressionNode {
 
     @property Type resultType()
     {
+        if(!this.result_type){
+            auto k = this.call.resultType.asFunction;
+            this.result_type = k;
+        }
         return this.result_type;
     }
 

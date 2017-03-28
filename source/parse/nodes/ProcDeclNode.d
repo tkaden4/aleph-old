@@ -45,6 +45,9 @@ public:
 
     @property Type returnType()
     {
+        if(!this.ret_type){
+            this.ret_type = this.bodyNode.resultType;
+        }
         return this.ret_type;
     }
 
@@ -63,7 +66,9 @@ public:
     }
 public:
     const(string) id;
+
     Type ret_type;
+
     Parameter[] params;
     ExpressionNode exp;
 };

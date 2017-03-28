@@ -21,7 +21,7 @@ public:
     char next()
     {
         if(!this.hasNext){
-            throw new Exception("No more characters in string");
+            return '\0';
         }
         const char c = this.buffer[this.index++];
         ++this.col_no;

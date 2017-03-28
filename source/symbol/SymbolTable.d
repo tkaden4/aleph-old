@@ -23,24 +23,25 @@ public:
         this.parent = parent;
     }
 
-    Nullable!(Symbol) lookup(string id)
+    Nullable!(Symbol*) lookup(string id)
     {
         auto sym = id in this.symbols;
         if(this.parent){
             auto tmp = parent.lookup(id);
             if(!tmp.isNull){
-                sym = sym ? sym : &tmp.get();
+                sym = sym ? sym : tmp.get();
             }
         }
         if(sym){
-            return nullable(*sym);
+            return nullable(sym);
         }
-        return Nullable!(Symbol).init;
+        return Nullable!(Symbol*).init;
     }
 
-    void insert(string id, Symbol s)
+    Symbol *insert(string id, Symbol s)
     {
         this.symbols[id] = s;
+        return &this.symbols[id];
     }
 
     override string toString() const

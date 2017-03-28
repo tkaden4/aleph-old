@@ -24,7 +24,7 @@ public override{
 
     void visitCallNode(CallNode node)
     {
-        "%sCallNode(".format(this.entab).writeln;
+        "%sCall(".format(this.entab).writeln;
         ++this.indent_level;
         node.toCall.visit(this);
         foreach(x; node.arguments){
@@ -37,7 +37,7 @@ public override{
     void visitBlockNode(BlockNode node)
     {
         if(node.children.length){
-            "%sBlockNode(".format(this.entab).writeln;
+            "%sBlock(".format(this.entab).writeln;
             ++this.indent_level;
             foreach(child; node.children){
                 child.visit(this);
@@ -45,17 +45,18 @@ public override{
             --this.indent_level;
             "%s)".format(this.entab).writeln;
         }else{
-            "%sBlockNode()".format(this.entab).writeln;
+            "%sBlock()".format(this.entab).writeln;
         }
     }
 
     void visitProcDecl(ProcDeclNode node)
     {
-        "%sProcedure %s :: %s -> %s"
+        "%sProc %s :: %s -> %s("
             .format(this.entab, node.name, node.parameters, node.returnType).writeln;
         ++this.indent_level;
         node.bodyNode.visit(this);
         --this.indent_level;
+        ")".writeln;
     }
 
     void visitIdentifierNode(IdentifierNode node)
@@ -81,7 +82,7 @@ private:
     {
         string res;
         for(size_t i = 0; i < this.indent_level; ++i){
-            res ~= '\t';
+            res ~= "  ";
         }
         return res;
     }

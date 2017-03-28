@@ -1,4 +1,5 @@
 import std.stdio;
+import std.string;
 import std.file;
 import std.range;
 import std.algorithm;
@@ -10,6 +11,7 @@ import parse.Parser;
 import parse.visitors.ASTPrinter;
 
 import semantics.SemaOne;
+
 import gen.Generator;
 
 void main(string[] args)
@@ -19,12 +21,16 @@ void main(string[] args)
         return;
     }
 
+    "====== Compiling \"%s\" ======".format(args[1]).writeln;
     auto lexer = new Lexer(new FileInputBuffer(args[1]));
     auto parser = new Parser(lexer);
     auto program = parser.program;
 
-    auto sem_one = new SemaOne;
-    program.visit(sem_one);
-    auto symbols = sem_one.result;
+    auto find_sym = new SemaOne;
+    program.visit(find_sym);
+
+    auto symbols = find_sym.result;
+
     program.visit(new ASTPrinter);
+    "\n\n".write;
 }

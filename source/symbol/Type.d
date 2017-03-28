@@ -41,7 +41,7 @@ public:
     override string toString() const
     {
         import std.string;
-        return "PrimitiveType(%s)".format(this.type);
+        return "Primitive(%s)".format(this.type);
     }
 private:
     Primitive type;
@@ -68,14 +68,19 @@ public:
         return this;
     }
 
-    auto returnType() pure
+    @property auto returnType()
     {
         return this.return_type;
     }
 
-    auto parameterTypes() pure
+    @property auto parameterTypes()
     {
         return this.param_types;
+    }
+
+    @property void returnType(Type t)
+    {
+        this.return_type = t;
     }
 
     override string toString() const

@@ -110,6 +110,9 @@ public:
         while(!this.test(Token.Type.RPAREN)){
             ret ~= this.expression.getOrThrow(
                         new ParserException("No expression in parameters"));
+            if(this.test(Token.Type.COMMA)){
+                this.advance;
+            }
         }
         return ret;
     }
@@ -128,13 +131,17 @@ public:
                 return ParseResult!ExpressionNode.init;
             }
         }
-
+        
         auto exp = this.primaryExpression;
-        auto ret = postexp(exp.get);
-        if(ret.isNull){
+        if(exp.isNull){
             return exp;
         }
-        return ret;
+        auto ret = postexp(exp.getOrThrow(new ParserException("no post 1")));
+        while(!ret.isNull){
+            exp = ret;
+            ret = postexp(exp.getOrThrow(new ParserException("no post 2")));
+        }
+        return exp;
     }
 
     auto expression()
@@ -248,7 +255,7 @@ private:
         if(this.lexer.hasNext){
             this.la_buff ~= this.lexer.next;
         }else{
-            this.la_buff ~= new Token("EOS", Token.Type.EOS);
+            this.la_buff ~= this.lexer.next;
         }
         return ret;
     }
@@ -268,7 +275,7 @@ private:
         import std.string;
         if(!this.test(c)){
             throw new ParserException("Could not match %s with %s"
-                                        .format(this.la.type, c));
+                                            .format(this.la.type, c));
         }
         return this.advance;
     }

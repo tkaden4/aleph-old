@@ -21,11 +21,6 @@ bool isIdStart(dchar c) pure
     return isAlpha(c) || c == '_';
 }
 
-bool isWhite2(dchar c) pure
-{
-    return c == ' ' || c == '\n' || c == '\t';
-}
-
 final class Lexer {
     import std.functional;
 public:
@@ -46,19 +41,23 @@ public:
 
     Token *next()
     {
-        if(!this.buff.hasNext && this.la_buff.empty){
-            throw new LexerException("Reached end of input buffer");
+        if(!this.hasNext){
+            return this.makeToken("EOS", Token.Type.EOS);
         }
 
-        // Ignore preceding whitespace
-        this.ignore((&isWhite2).toDelegate);
+        if(this.test((&isWhite).toDelegate)){
+            while(this.test((&isWhite).toDelegate)){
+                this.advance;
+            }
+            return this.next;
+        }
 
         // Ignore comments
         if(this.test('/') && this.test('/', 1)){
             this.ignore(delegate(dchar c){
                 return c != '\n';
             });
-            this.advance;
+            this.match('\n');
             return this.next;
         }
 
@@ -70,7 +69,7 @@ public:
         case ')': return this.makeAndAdvance(")", Token.Type.RPAREN);
         case ';': return this.makeAndAdvance(";", Token.Type.SEMI);
         case ':': return this.makeAndAdvance(":", Token.Type.COLON);
-        case ',': return this.makeAndAdvance(":", Token.Type.COMMA);
+        case ',': return this.makeAndAdvance(",", Token.Type.COMMA);
         /* Operators */
         case '%': return this.makeAndAdvance("%", Token.Type.REM);
         case '*': return this.makeAndAdvance("*", Token.Type.STAR);
@@ -96,9 +95,9 @@ public:
         }
     }
 
-    bool hasNext() pure
+    bool hasNext()
     {
-        return this.buff.hasNext;
+        return this.la != '\0';
     }
 private:
     /* LEXER RULES */
@@ -223,7 +222,7 @@ private:
         char ret = this.la_buff[0];
         this.la_buff = this.la_buff[1..$];
         if(this.buff.hasNext){
-             this.la_buff ~= this.buff.next;
+            this.la_buff ~= this.buff.next;
         }
         return ret;
     }
@@ -252,9 +251,9 @@ private:
         }
     }
 
-    void ignore(bool delegate(dchar) test)
+    void ignore(bool delegate(dchar) foo)
     {
-        while(this.buff.hasNext && test(this.la)){
+        while(this.buff.hasNext && foo(this.la)){
             this.advance;
         }
     }
