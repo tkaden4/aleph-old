@@ -26,7 +26,6 @@ void main(string[] args)
     auto parser = new Parser(lexer);
     auto program = parser.program;
 
-    /*
     auto find_sym = new SemaOne;
     program.visit(find_sym);
 
@@ -34,5 +33,4 @@ void main(string[] args)
 
     program.visit(new ASTPrinter);
     "\n\n".write;
-    */
 }

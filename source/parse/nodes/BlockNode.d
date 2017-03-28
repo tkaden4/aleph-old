@@ -12,7 +12,7 @@ public:
     this(ExpressionNode[] children)
     {
         this._children = children;
-        this.result_type = !this.children.empty ? Primitives.Void :
+        this.result_type = this.children.empty ? Primitives.Void :
                                 this.children.back.resultType;
     }
 

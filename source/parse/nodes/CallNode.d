@@ -26,10 +26,14 @@ class CallNode : ExpressionNode {
         return this.args;
     }
 
-    @property Type resultType()
+    override @property Type resultType()
     {
         if(!this.result_type){
-            auto k = this.call.resultType.asFunction;
+            /* TODO this is where the error occurs */
+            auto k = this.call.resultType;
+            if(k){
+                k = k.asFunction;
+            }
             this.result_type = k;
         }
         return this.result_type;
