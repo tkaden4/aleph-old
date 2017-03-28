@@ -6,6 +6,7 @@ interface TypeVisitor {
 
 interface Type {
     void visit(TypeVisitor tv);
+    FunctionType asFunction();
 };
 
 public Type toPrimitive(string s)
@@ -35,6 +36,8 @@ public:
         return this.type;
     }
     override void visit(TypeVisitor tv){ tv.invoke(this); }
+    override FunctionType asFunction(){ return null; }
+
     override string toString() const
     {
         import std.string;
@@ -59,6 +62,11 @@ public:
     }
 
     override void visit(TypeVisitor tv){ tv.invoke(this); }
+
+    override FunctionType asFunction()
+    {
+        return this;
+    }
 
     auto returnType() pure
     {

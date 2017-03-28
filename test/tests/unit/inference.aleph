@@ -1,5 +1,0 @@
-proc main() = { // should infer int return type
-    let k: int = 9
-    let j = k
-    0
-}

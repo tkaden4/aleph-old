@@ -18,12 +18,22 @@ public:
         return this.type;
     }
 
+    @property void resultType(Type t)
+    {
+        this.type = t;
+    }
+
+    @property string name() const
+    {
+        return this.id;
+    }
+
     override string toString() const
     {
         import std.string;
         return "IdentifierNode(%s)".format(this.id);
     }
-public:
+private:
     const string id;
     Type type;
 };

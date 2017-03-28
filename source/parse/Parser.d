@@ -35,12 +35,6 @@ T getOrThrow(T)(Nullable!T n, const Exception ex)
 
 class ParserException : Exception { mixin basicExceptionCtors; };
 
-struct ParserResult {
-    ASTNode root;       /* root of the tree */
-    ProcDeclNode[] untyped_proc;    /* list of procedures with no types */
-    VarDeclNode[] untyped_var;      /* list of variables with no types */
-};
-
 final class Parser {
 public:
     this(Lexer lexer)
@@ -84,28 +78,6 @@ public:
         }
     }
 
-    ParseResult!ExpressionNode statement()
-    {
-        switch(this.la.type){
-        case Token.Type.LET:
-        case Token.Type.PROC:
-            return cast(ParseResult!ExpressionNode)this.declaration;
-        default: return this.expression;
-        }
-    }
-
-    auto blockExpression()
-    {
-        ExpressionNode[] res = [];
-        this.match(Token.Type.LBRACE);
-        while(!this.test(Token.Type.RBRACE)){
-            auto exp = this.statement;
-            res ~= exp.getOrThrow(new ParserException("Invalid block body"));
-        }
-        this.match(Token.type.RBRACE);
-        return presult!ExpressionNode(new BlockNode(res));
-    }
-
     ParseResult!ExpressionNode primaryExpression()
     {
         switch(this.la.type){
@@ -132,9 +104,64 @@ public:
         }
     }
 
+    ExpressionNode[] paramExpressions()
+    {
+        ExpressionNode[] ret;
+        while(!this.test(Token.Type.RPAREN)){
+            ret ~= this.expression.getOrThrow(
+                        new ParserException("No expression in parameters"));
+        }
+        return ret;
+    }
+
+    ParseResult!ExpressionNode postfixExpression()
+    {
+        ParseResult!ExpressionNode postexp(ExpressionNode node)
+        {
+            switch(this.la.type){
+            case Token.Type.LPAREN:
+                this.match(Token.Type.LPAREN);
+                auto args = this.paramExpressions;
+                this.match(Token.Type.RPAREN);
+                return presult!ExpressionNode(new CallNode(node, args));
+            default:
+                return ParseResult!ExpressionNode.init;
+            }
+        }
+
+        auto exp = this.primaryExpression;
+        auto ret = postexp(exp.get);
+        if(ret.isNull){
+            return exp;
+        }
+        return ret;
+    }
+
     auto expression()
     {
-        return this.primaryExpression;
+        return this.postfixExpression;
+    }
+
+    ParseResult!ExpressionNode statement()
+    {
+        switch(this.la.type){
+        case Token.Type.LET:
+        case Token.Type.PROC:
+            return cast(ParseResult!ExpressionNode)this.declaration;
+        default: return this.expression;
+        }
+    }
+
+    auto blockExpression()
+    {
+        ExpressionNode[] res = [];
+        this.match(Token.Type.LBRACE);
+        while(!this.test(Token.Type.RBRACE)){
+            auto exp = this.statement;
+            res ~= exp.getOrThrow(new ParserException("Invalid block body"));
+        }
+        this.match(Token.type.RBRACE);
+        return presult!ExpressionNode(new BlockNode(res));
     }
 
     auto parseType()
@@ -220,6 +247,8 @@ private:
         this.la_buff = this.la_buff[1..$];
         if(this.lexer.hasNext){
             this.la_buff ~= this.lexer.next;
+        }else{
+            this.la_buff ~= new Token("EOS", Token.Type.EOS);
         }
         return ret;
     }

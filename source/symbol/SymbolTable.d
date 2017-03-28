@@ -27,7 +27,10 @@ public:
     {
         auto sym = id in this.symbols;
         if(this.parent){
-            sym = sym ? sym : &parent.lookup(id).get();
+            auto tmp = parent.lookup(id);
+            if(!tmp.isNull){
+                sym = sym ? sym : &tmp.get();
+            }
         }
         if(sym){
             return nullable(*sym);
@@ -48,8 +51,19 @@ public:
         }
         return ret;
     }
+
+    SymbolTable enterScope()
+    {
+        this.children.insertFront(new SymbolTable(this));
+        return this.children.front;
+    }
+
+    SymbolTable leaveScope()
+    {
+        return this.parent;
+    }
 private:
     Symbol[string] symbols;
     SymbolTable parent;
-    //SList!SymbolTable children;
+    SList!SymbolTable children;
 };

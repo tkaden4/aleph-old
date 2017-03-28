@@ -18,9 +18,20 @@ public:
 
     override void visit(ASTVisitor tv){ tv.visitBlockNode(this); }
 
+    void resolveType()
+    {
+        this.result_type = this.children.empty ? Primitives.Void 
+                                               : this.children.back.resultType;
+    }
+
     override @property Type resultType()
     {
         return this.result_type;
+    }
+
+    @property void resultType(Type t)
+    {
+        this.result_type = t;
     }
 
     override string toString()

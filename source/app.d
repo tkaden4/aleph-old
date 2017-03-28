@@ -14,15 +14,14 @@ import gen.Generator;
 
 void main(string[] args)
 {
-
     if(args.length != 2){
         "Not enough arguments".writeln;
         return;
     }
+
     auto lexer = new Lexer(new FileInputBuffer(args[1]));
     auto parser = new Parser(lexer);
     auto program = parser.program;
-
 
     auto sem_one = new SemaOne;
     program.visit(sem_one);

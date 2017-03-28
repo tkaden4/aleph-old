@@ -9,12 +9,12 @@ import symbol.Type;
 import std.string;
 
 struct Parameter {
-    string id;
+    string name;
     Type type;
 
     string toString() const
     {
-        return "Parameter(%s, %s)".format(this.id, this.type);
+        return "Parameter(%s, %s)".format(this.name, this.type);
     }
 };
 

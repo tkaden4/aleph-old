@@ -21,6 +21,11 @@ bool isIdStart(dchar c) pure
     return isAlpha(c) || c == '_';
 }
 
+bool isWhite2(dchar c) pure
+{
+    return c == ' ' || c == '\n' || c == '\t';
+}
+
 final class Lexer {
     import std.functional;
 public:
@@ -46,7 +51,7 @@ public:
         }
 
         // Ignore preceding whitespace
-        this.ignore((&isWhite).toDelegate);
+        this.ignore((&isWhite2).toDelegate);
 
         // Ignore comments
         if(this.test('/') && this.test('/', 1)){
@@ -86,8 +91,8 @@ public:
             }else if(this.test(toDelegate(&isDigit))){
                 return this.lexNumber;
             }
-            throw new LexerException("Couldn't match on character '%c'"
-                                        .format(this.la));
+            throw new LexerException("Couldn't match on character '%c' at %s"
+                                        .format(this.la, this.buff.getLocation));
         }
     }
 

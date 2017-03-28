@@ -14,7 +14,7 @@ class SemaOne : ResultVisitor!SymbolTable {
 public:
     this()
     {
-        this.res = new SymbolTable;
+        super(new SymbolTable);
     }
 public override:
     void visitProgramNode(ProgramNode node)
@@ -27,11 +27,15 @@ public override:
 
     void visitProcDecl(ProcDeclNode node)
     {
-        node.bodyNode.visit(this);
+        this.res.enterScope;
         Type[] param_types;
         foreach(p; node.parameters){
             param_types ~= p.type;
+            this.res.insert(p.name, Symbol(p.name, p.type));
         }
+        node.bodyNode.visit(this);
+        this.res.leaveScope;
+
         if(!node.returnType){
             node.returnType = node.exp.resultType;
         }
@@ -41,12 +45,28 @@ public override:
         this.result.insert(node.name, Symbol(node.name,
                                 new FunctionType(node.returnType, param_types)));
     }
-    
+
+    void visitCallNode(CallNode node)
+    {
+        node.toCall.visit(this);
+        foreach(x; node.arguments){
+            x.visit(this);
+        }
+        auto type = node.toCall.resultType.asFunction;
+        if(!type){
+            throw new ASTException("%s is not a function".format(node.toCall));
+        }
+        node.resultType = type.returnType;
+    }
+
     void visitBlockNode(BlockNode node)
     {
+        this.res = this.result.enterScope;
         foreach(n; node.children){
             n.visit(this);
         }
+        node.resolveType;
+        this.res = this.result.leaveScope;
     }
 
     void visitVarDecl(VarDeclNode node)
@@ -64,6 +84,11 @@ public override:
     void visitIdentifierNode(IdentifierNode node)
     {
         /* TODO lookup in table */
+        auto symbol = this.result.lookup(node.name);
+        if(symbol.isNull){
+            throw new ASTException("No symbol with id %s".format(node.name));
+        }
+        node.resultType = symbol.type;
     }
 
     void visitIntegerNode(IntegerNode node){}

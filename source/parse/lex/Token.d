@@ -51,7 +51,8 @@ public:
         DEC,
         INC,
         /* Etc. */
-        ID
+        ID,
+        EOS
     };
     
     string lexeme;

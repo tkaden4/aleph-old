@@ -4,25 +4,37 @@ import std.stdio;
 import parse.visitors.ASTVisitor;
 
 class ASTPrinter : ASTVisitor {
-public:
-    override void visitIntegerNode(IntegerNode node)
+public override{
+    void visitIntegerNode(IntegerNode node)
     {
         "%s%s".format(this.entab, node).writeln;
     }
 
-    override void visitCharNode(CharNode node)
+    void visitCharNode(CharNode node)
     {
         "%s%s".format(this.entab, node).writeln;
     }
 
-    override void visitProgramNode(ProgramNode node)
+    void visitProgramNode(ProgramNode node)
     {
         foreach(x; node.children){
             x.visit(this);
         }
     }
 
-    override void visitBlockNode(BlockNode node)
+    void visitCallNode(CallNode node)
+    {
+        "%sCallNode(".format(this.entab).writeln;
+        ++this.indent_level;
+        node.toCall.visit(this);
+        foreach(x; node.arguments){
+            x.visit(this);
+        }
+        --this.indent_level;
+        "%s)".format(this.entab).writeln;
+    }
+
+    void visitBlockNode(BlockNode node)
     {
         if(node.children.length){
             "%sBlockNode(".format(this.entab).writeln;
@@ -37,7 +49,7 @@ public:
         }
     }
 
-    override void visitProcDecl(ProcDeclNode node)
+    void visitProcDecl(ProcDeclNode node)
     {
         "%sProcedure %s :: %s -> %s"
             .format(this.entab, node.name, node.parameters, node.returnType).writeln;
@@ -46,12 +58,12 @@ public:
         --this.indent_level;
     }
 
-    override void visitIdentifierNode(IdentifierNode node)
+    void visitIdentifierNode(IdentifierNode node)
     {
         "%s%s :: %s".format(this.entab, node, node.resultType).writeln;
     }
 
-    override void visitVarDecl(VarDeclNode node)
+    void visitVarDecl(VarDeclNode node)
     {
         "%s%s".format(this.entab, node).write;
         if(node.init){
@@ -63,6 +75,7 @@ public:
             writeln();
         }
     }
+}
 private:
     string entab() pure
     {
