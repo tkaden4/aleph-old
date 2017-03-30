@@ -25,7 +25,7 @@ auto presult(T)(T t)
     return ParseResult!T(t);
 }
 
-T getOrThrow(T)(Nullable!T n, const Exception ex)
+T getOrThrow(T)(Nullable!T n, const Exception ex) pure
 {
     if(n.isNull){
         throw ex;
@@ -170,9 +170,12 @@ public:
 
     auto parseType()
     {
-        auto tok = this.match(Token.Type.ID);
-        auto type = tok.lexeme.toPrimitive;
-        return type;
+        switch(this.la.type){
+        case Token.Type.ID:
+            return this.match(Token.Type.ID).lexeme.toPrimitive;
+        default:
+            throw new ParserException("Couldn't parse type");
+        }
     }
 
     auto parameters()

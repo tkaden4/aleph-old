@@ -30,7 +30,6 @@ public:
 
     invariant
     {
-        assert(this.ret_type);
         assert(this.id);
         assert(this.exp);
     }
