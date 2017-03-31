@@ -7,12 +7,12 @@ class ASTPrinter : ASTVisitor {
 public override{
     void visitIntegerNode(IntegerNode node)
     {
-        "%s%s".format(this.entab, node).writeln;
+        "%s%s".writefln(this.entab, node);
     }
 
     void visitCharNode(CharNode node)
     {
-        "%s%s".format(this.entab, node).writeln;
+        "%s%s".writefln(this.entab, node);
     }
 
     void visitProgramNode(ProgramNode node)
@@ -24,35 +24,35 @@ public override{
 
     void visitCallNode(CallNode node)
     {
-        "%sCall(".format(this.entab).writeln;
+        "%sCall(".writefln(this.entab);
         ++this.indent_level;
         node.toCall.visit(this);
         foreach(x; node.arguments){
             x.visit(this);
         }
         --this.indent_level;
-        "%s)".format(this.entab).writeln;
+        "%s)".writefln(this.entab);
     }
 
     void visitBlockNode(BlockNode node)
     {
         if(node.children.length){
-            "%sBlock(".format(this.entab).writeln;
+            "%sBlock(".writefln(this.entab);
             ++this.indent_level;
             foreach(child; node.children){
                 child.visit(this);
             }
             --this.indent_level;
-            "%s)".format(this.entab).writeln;
+            "%s)".writefln(this.entab);
         }else{
-            "%sBlock()".format(this.entab).writeln;
+            "%sBlock()".writefln(this.entab);
         }
     }
 
     void visitProcDecl(ProcDeclNode node)
     {
         "%sProc %s :: %s -> %s("
-            .format(this.entab, node.name, node.parameters, node.returnType).writeln;
+            .writefln(this.entab, node.name, node.parameters, node.returnType);
         ++this.indent_level;
         node.bodyNode.visit(this);
         --this.indent_level;
@@ -61,12 +61,12 @@ public override{
 
     void visitIdentifierNode(IdentifierNode node)
     {
-        "%s%s :: %s".format(this.entab, node, node.resultType).writeln;
+        "%s%s :: %s".writefln(this.entab, node, node.resultType);
     }
 
     void visitVarDecl(VarDeclNode node)
     {
-        "%s%s".format(this.entab, node).write;
+        "%s%s".writefln(this.entab, node);
         if(node.init){
             " = ".writeln;
             ++this.indent_level;

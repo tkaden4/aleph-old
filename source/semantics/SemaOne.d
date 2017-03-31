@@ -1,12 +1,11 @@
 module semantics.SemaOne;
 
 /* 
-   Adds all declarations to the symbol table
+ * Creates the symbol table and performs type inferencing
  */
 
 import symbol.SymbolTable;
 import symbol.Type;
-
 import parse.visitors.ResultVisitor;
 
 import std.stdio;
@@ -17,6 +16,7 @@ public:
     {
         super(new SymbolTable);
     }
+
 public override:
     void visitProgramNode(ProgramNode node)
     {
@@ -27,22 +27,36 @@ public override:
 
     void visitProcDecl(ProcDeclNode node)
     {
-        auto procSymbol = new Symbol(node.name, node.functionType, this.result);
-        this.result.insert(node.name, procSymbol);
+        /* Create the symbol to be added to table */
+        Symbol sym;
+        if(node.returnType){
+            sym = new Symbol(node.name, node.functionType, this.result);
+        }else{
+            if(node.bodyNode.resultType){
+                node.returnType = node.bodyNode.resultType;
+                sym = new Symbol(node.name, node.functionType, this.result);
+            }else{
+                /* No return type, and not trivial to infer */
+                sym = new Symbol(node.name, null, this.result);
+            }
+        }
 
+        /* Make sure we actually created a symbol */
+        assert(sym, "Procedure symbol must be defined");
+        /* Add the symbol for the function */
+        this.result.insert(node.name, sym);
+        /* visit the body with a new scope*/
         this.result = this.result.enterScope;
-
         foreach(x; node.parameters){
             this.result.insert(x.name, new Symbol(x.name, x.type, this.result));
         }
-
         node.bodyNode.visit(this);
-
         this.result = this.result.leaveScope;
 
+        /* Check for unresolved type */
         if(!node.returnType){
             node.returnType = node.bodyNode.resultType;
-            this.result[node.name].type.asFunction.returnType = node.returnType;
+            this.result[node.name].type = node.functionType;
         }
     }
 
@@ -58,8 +72,6 @@ public override:
                 throw new ASTException("Cannot call non-function");
             }
             node.resultType = fn.returnType;
-        }else{
-            throw new ASTException("Type of call is unknown");
         }
     }
 
@@ -69,6 +81,9 @@ public override:
             x.visit(this);
         }
         node.resolveType;
+        if(!node.resultType){
+            throw new ASTException("Result type unknown");
+        }
     }
 
     void visitVarDecl(VarDeclNode node)
@@ -84,6 +99,7 @@ public override:
         if(sym.isNull){
             throw new ASTException("No symbol defined with name %s".format(node.name));
         }else if(!sym.type){
+            /* TODO add forward references */
             throw new ASTException("Type of %s unknowable at this point".format(node.name));
         }else{
             node.resultType = sym.type;

@@ -21,7 +21,7 @@ void main(string[] args)
         return;
     }
 
-    "====== Compiling \"%s\" ======".format(args[1]).writeln;
+    "====== Compiling \"%s\" ======".writefln(args[1]);
 
     auto lexer = new Lexer(new FileInputBuffer(args[1]));
     auto parser = new Parser(lexer);
@@ -31,7 +31,8 @@ void main(string[] args)
     program.visit(find_sym);
     auto symbols = find_sym.result;
 
-    auto gen = new Generator(symbols);
+    auto file = File("%s.c".format(args[1]), "w+");
+    auto gen = new Generator(symbols, file);
     gen.generate(program);
 
     "\n".writeln;

@@ -1,5 +1,6 @@
-extern proc puts(char[]) -> void
+import 
 
+proc puts(char[]) -> void
 proc main() = {
     puts("Hello, World")
     0

@@ -15,17 +15,26 @@ public Type toPrimitive(string s)
     }
 }
 
+enum Primitive {
+    INT,
+    VOID,
+    CHAR
+};
+
+enum Primitives {
+    Int = new PrimitiveType(Primitive.INT),
+    Void = new PrimitiveType(Primitive.VOID),
+    Char = new PrimitiveType(Primitive.CHAR)
+};
+
 class PrimitiveType : Type {
 public:
-    package enum Primitive {
-        INT,
-        VOID,
-        CHAR
-    };
+
     this(Primitive type)
     {
         this.type = type;
     }
+
     auto getType() pure
     {
         return this.type;
@@ -42,11 +51,6 @@ private:
     Primitive type;
 };
 
-enum Primitives {
-    Int = new PrimitiveType(PrimitiveType.Primitive.INT),
-    Void = new PrimitiveType(PrimitiveType.Primitive.VOID),
-    Char = new PrimitiveType(PrimitiveType.Primitive.CHAR)
-};
 
 class FunctionType : Type {
 public:
@@ -54,6 +58,14 @@ public:
     {
         this.return_type = ret;
         this.param_types = param;
+    }
+
+    invariant
+    {
+        foreach(x; this.param_types){
+            assert(x, "Param is null");
+        }
+        assert(this.return_type, "Return is null");
     }
 
     override FunctionType asFunction()
@@ -76,10 +88,18 @@ public:
         this.return_type = t;
     }
 
-    override string toString() const
+    override string toString()
     {
         import std.string;
-        return "(%s -> %s)".format(this.param_types, this.return_type);
+        string params;
+        foreach(i, x; this.param_types){
+            if(i == this.param_types.length - 1){
+                params ~= "%s".format(x);
+                break;
+            }
+            params ~= "%s, ".format(x);
+        }
+        return "((%s) -> %s)".format(params, this.return_type);
     }
 private:
     Type return_type;
