@@ -1,6 +1,4 @@
-proc foo(a: int) -> int = a
-
-proc main() = {
+proc main() -> int = {
     main()
-    foo(0)
+    0
 }
