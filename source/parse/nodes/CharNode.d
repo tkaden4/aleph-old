@@ -9,13 +9,14 @@ public:
     this(char value)
     {
         this._value = value;
+        this.type = Primitives.Char;
     }
 
     override void visit(ASTVisitor tv){ tv.visitCharNode(this); }
 
-    override @property Type resultType()
+    override Type resultType()
     {
-        return Primitives.Char;
+        return this.type;
     }
 
     override string toString() const
@@ -30,4 +31,5 @@ public:
     }
 private:
     char _value;
+    Type type;
 };

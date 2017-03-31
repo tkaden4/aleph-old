@@ -9,19 +9,20 @@ public:
     this(long value)
     {
         this.value = value;
+        this.type = Primitives.Int;
     }
 
     auto getValue() const
     {
         return this.value;
     }
+
+    override Type resultType()
+    {
+        return this.type;
+    }
     
     override void visit(ASTVisitor tv){ tv.visitIntegerNode(this); }
-
-    override @property Type resultType()
-    {
-        return Primitives.Int;
-    }
 
     override string toString() const
     {
@@ -30,4 +31,5 @@ public:
     }
 private:
     long value;
+    Type type;
 };

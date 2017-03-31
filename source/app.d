@@ -22,15 +22,17 @@ void main(string[] args)
     }
 
     "====== Compiling \"%s\" ======".format(args[1]).writeln;
+
     auto lexer = new Lexer(new FileInputBuffer(args[1]));
     auto parser = new Parser(lexer);
     auto program = parser.program;
 
     auto find_sym = new SemaOne;
     program.visit(find_sym);
-
     auto symbols = find_sym.result;
 
-    program.visit(new ASTPrinter);
-    "\n\n".write;
+    auto gen = new Generator(symbols);
+    gen.generate(program);
+
+    "\n".writeln;
 }

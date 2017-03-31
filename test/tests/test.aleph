@@ -1,3 +1,0 @@
-proc main(ok: int, java: int) -> int = {
-    let k: int = 8
-}

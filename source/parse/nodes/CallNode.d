@@ -16,6 +16,16 @@ class CallNode : ExpressionNode {
 
     override void visit(ASTVisitor tv){ tv.visitCallNode(this); }
 
+    override @property Type resultType()
+    {
+        return this.type;
+    }
+
+    @property void resultType(Type t)
+    {
+        this.type = t;
+    }
+
     @property ExpressionNode toCall()
     {
         return this.call;
@@ -25,26 +35,8 @@ class CallNode : ExpressionNode {
     {
         return this.args;
     }
-
-    override @property Type resultType()
-    {
-        if(!this.result_type){
-            /* TODO this is where the error occurs */
-            auto k = this.call.resultType;
-            if(k){
-                k = k.asFunction;
-            }
-            this.result_type = k;
-        }
-        return this.result_type;
-    }
-
-    @property void resultType(Type t)
-    {
-        this.result_type = t;
-    }
 private:
-    Type result_type;
+    Type type;
     ExpressionNode call;
     ExpressionNode[] args;
 };

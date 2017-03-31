@@ -12,6 +12,11 @@ class ResultVisitor(T) : ASTVisitor {
     {
         return this.res;
     }
-protected:
+
+    @property void result(T new_res)
+    {
+        this.res = new_res;
+    }
+private:
     T res;
 };

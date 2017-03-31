@@ -1,4 +1,0 @@
-proc main() = {
-    main()
-    0
-}

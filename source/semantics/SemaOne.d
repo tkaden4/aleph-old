@@ -9,6 +9,7 @@ import symbol.Type;
 
 import parse.visitors.ResultVisitor;
 
+import std.stdio;
 
 class SemaOne : ResultVisitor!SymbolTable {
 public:
@@ -26,9 +27,22 @@ public override:
 
     void visitProcDecl(ProcDeclNode node)
     {
-        Type[] param_types;
-        foreach(p; node.parameters){
-            param_types ~= p.type;
+        auto procSymbol = new Symbol(node.name, node.functionType, this.result);
+        this.result.insert(node.name, procSymbol);
+
+        this.result = this.result.enterScope;
+
+        foreach(x; node.parameters){
+            this.result.insert(x.name, new Symbol(x.name, x.type, this.result));
+        }
+
+        node.bodyNode.visit(this);
+
+        this.result = this.result.leaveScope;
+
+        if(!node.returnType){
+            node.returnType = node.bodyNode.resultType;
+            this.result[node.name].type.asFunction.returnType = node.returnType;
         }
     }
 
@@ -38,29 +52,42 @@ public override:
         foreach(x; node.arguments){
             x.visit(this);
         }
+        if(node.toCall.resultType){
+            auto fn = node.toCall.resultType.asFunction;
+            if(!fn){
+                throw new ASTException("Cannot call non-function");
+            }
+            node.resultType = fn.returnType;
+        }else{
+            throw new ASTException("Type of call is unknown");
+        }
     }
 
     void visitBlockNode(BlockNode node)
     {
-        this.res = this.result.enterScope;
-        foreach(n; node.children){
-            n.visit(this);
+        foreach(x; node.children){
+            x.visit(this);
         }
-        this.res = this.result.leaveScope;
+        node.resolveType;
     }
 
     void visitVarDecl(VarDeclNode node)
     {
-        this.res.insert(node.name, Symbol(node.name, node.type));
+        node.init.visit(this);
+        this.result.insert(node.name,
+                new Symbol(node.name, node.resultType, this.result));
     }
 
     void visitIdentifierNode(IdentifierNode node)
     {
-        auto symbol = this.result.lookup(node.name);
-        if(symbol.isNull){
-            throw new ASTException("Symbol %s not defined".format(node.name));
+        auto sym = this.result[node.name];
+        if(sym.isNull){
+            throw new ASTException("No symbol defined with name %s".format(node.name));
+        }else if(!sym.type){
+            throw new ASTException("Type of %s unknowable at this point".format(node.name));
+        }else{
+            node.resultType = sym.type;
         }
-        node.resultType = symbol.type;
     }
 
     void visitIntegerNode(IntegerNode node){}

@@ -1,11 +1,6 @@
 module symbol.Type;
 
-interface TypeVisitor {
-    void invoke(Type t);
-};
-
 interface Type {
-    void visit(TypeVisitor tv);
     FunctionType asFunction();
 };
 
@@ -35,7 +30,7 @@ public:
     {
         return this.type;
     }
-    override void visit(TypeVisitor tv){ tv.invoke(this); }
+
     override FunctionType asFunction(){ return null; }
 
     override string toString() const
@@ -60,8 +55,6 @@ public:
         this.return_type = ret;
         this.param_types = param;
     }
-
-    override void visit(TypeVisitor tv){ tv.invoke(this); }
 
     override FunctionType asFunction()
     {

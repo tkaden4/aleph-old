@@ -49,11 +49,16 @@ public:
         return this.params;
     }
 
+    auto functionType()
+    {
+        import std.range;
+        import std.algorithm;
+        auto paramTypes = this.parameters.map!((x) => x.type).array;
+        return new FunctionType(this.returnType, paramTypes);
+    }
+
     @property Type returnType()
     {
-        if(!this.ret_type){
-            this.ret_type = this.bodyNode.resultType;
-        }
         return this.ret_type;
     }
 

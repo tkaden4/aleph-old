@@ -7,16 +7,15 @@ import parse.visitors.ASTPrinter;
 import std.container;
 
 class Generator {
-    this()
+    this(SymbolTable table)
     {
-        this.visitor = new ASTPrinter;
+        this.table = table;
     }
     void generate(ASTNode node)
     {
-        node.visit(this.visitor);
+        node.visit(new ASTPrinter);
     }
 private:
     SymbolTable table;
-    ASTVisitor visitor;
     SList!string result_stack;
 };

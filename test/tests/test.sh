@@ -1,1 +1,1 @@
-find ./test/tests/unit/* | xargs -n1 ./alephc
+find ./test/tests/unit/*.al | xargs -n1 ./alephc

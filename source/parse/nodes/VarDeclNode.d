@@ -8,24 +8,20 @@ class VarDeclNode : StatementNode {
 public:
     this(string id, Type type, ExpressionNode exp)
     {
-        this.id = id;
+        this.name = id;
         this.type = type;
         this.init = exp;
     }
 
     override void visit(ASTVisitor tv){ tv.visitVarDecl(this); }
 
-    @property string name() const
-    {
-        return this.id;
-    }
-
     override string toString() const
     {
-        return "VarDecl(%s) :: %s".format(this.id, this.type);
+        return "VarDecl(%s) :: %s".format(this.name, this.type);
     }
+
 public:
-    const(string) id;
+    const(string) name;
     Type type;
     ExpressionNode init;
 };
