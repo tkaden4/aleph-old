@@ -8,12 +8,18 @@ class ResultVisitor(T) : ASTVisitor {
         this.res = t;
     }
 
-    @property T result()
+    final T visit(ASTNode node)
+    {
+        node.visit(this);
+        return this.result;
+    }
+
+    final @property T result()
     {
         return this.res;
     }
 
-    @property void result(T new_res)
+    final @property void result(T new_res)
     {
         this.res = new_res;
     }

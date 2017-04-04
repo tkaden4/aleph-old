@@ -10,13 +10,17 @@ import parse.visitors.ResultVisitor;
 
 import std.stdio;
 
+SymbolTable resolve_types(ASTNode node)
+{
+    return new SemaOne().visit(node);
+}
+
 class SemaOne : ResultVisitor!SymbolTable {
 public:
     this()
     {
         super(new SymbolTable);
     }
-
 public override:
     void visitProgramNode(ProgramNode node)
     {

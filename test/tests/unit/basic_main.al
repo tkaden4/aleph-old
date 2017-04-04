@@ -1,1 +1,3 @@
-proc main() -> int = 0
+proc main() -> int = {
+    0
+}

@@ -3,16 +3,24 @@ import std.string;
 import std.file;
 import std.range;
 import std.algorithm;
+import std.datetime;
 
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
-
 import parse.Parser;
 import parse.visitors.ASTPrinter;
 
 import semantics.SemaOne;
+import semantics.Sugar;
 
 import gen.Generator;
+
+auto time(void delegate() func)
+{
+    const auto start = Clock.currTime;
+    func();
+    return Clock.currTime - start;
+}
 
 void main(string[] args)
 {
@@ -21,19 +29,18 @@ void main(string[] args)
         return;
     }
 
-    "====== Compiling \"%s\" ======".writefln(args[1]);
+    "Compiling \"%s\"".writefln(args[1]);
 
-    auto lexer = new Lexer(new FileInputBuffer(args[1]));
-    auto parser = new Parser(lexer);
-    auto program = parser.program;
+    
+    auto parser = new Parser(new Lexer(new FileInputBuffer(args[1])));
 
-    auto find_sym = new SemaOne;
-    program.visit(find_sym);
-    auto symbols = find_sym.result;
-
-    auto file = File("%s.c".format(args[1]), "w+");
-    auto gen = new Generator(symbols, file);
-    gen.generate(program);
-
-    "\n".writeln;
+    "Compilation took %d usecs\n".writefln(
+        time({
+            auto program = parser.program;
+            auto symbols = program.desugar.resolve_types;
+            auto file = stdout;
+            auto gen = new Generator(symbols, file);
+            gen.generate(program);
+        }).total!"usecs"
+    );
 }

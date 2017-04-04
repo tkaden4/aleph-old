@@ -8,13 +8,13 @@ class IntegerNode : ExpressionNode {
 public:
     this(long value)
     {
-        this.value = value;
+        this.val = value;
         this.type = Primitives.Int;
     }
 
-    auto getValue() const
+    auto value()
     {
-        return this.value;
+        return this.val;
     }
 
     override Type resultType()
@@ -27,9 +27,9 @@ public:
     override string toString() const
     {
         import std.string;
-        return "IntegerNode(%d)".format(this.value);
+        return "IntegerNode(%d)".format(this.val);
     }
 private:
-    long value;
+    long val;
     Type type;
 };
