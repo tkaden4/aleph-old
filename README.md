@@ -7,9 +7,8 @@ It emphasizes ease of use, C compatibility, and efficiency.
 
 ## Features ##
 - First-Class Functions
-- Template Programming
-- Rich Standard Library
-- C99 Output
+- Pattern Matching
+- ANSI C99 Output
 
 ## Examples ##
 

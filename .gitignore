@@ -3,6 +3,9 @@ docs.json
 __dummy.html
 *.o
 *.obj
+*.out
+tags
+*.c
 __test__*__
 aleph
 alephc
