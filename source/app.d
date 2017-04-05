@@ -4,6 +4,7 @@ import std.file;
 import std.range;
 import std.algorithm;
 import std.datetime;
+import std.typecons;
 
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
@@ -35,7 +36,8 @@ auto usage()
     stderr.writeln(usage_msg);
 }
 
-auto map(alias func, Args...)(Tuple!Args t)
+// applies a function to a T and returns the T
+auto then(alias func, T)(T t)
 {
     func(t);
     return t;
@@ -47,20 +49,25 @@ void main(string[] args)
         usage();
         return;
     }
+
+    enum timefmt = "usecs";
+
     "Compiling \"%s\"".writefln(args[1]);
-    "Compilation took %d usecs\n".writefln(
-        time!"usecs"({
+    "Compilation took %d %s\n".writefln(
+        time!timefmt({
             Parser
                 .fromFile(args[1])
                 // parse the file
                 .program
                 // build symbol table and inference types 
                 .build_types
-                .map!(x => x[1].desugar)
+                // Desu
+                .then!(x => x[1].desugar)
                 // generate code
                 .expand.generate(
                             new FileStream(
                                 new File("%s.c".format(args[1]) ,"w")));
-        })
+        }),
+        timefmt
     );
 }

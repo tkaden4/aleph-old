@@ -19,11 +19,6 @@ import std.stdio;
 import std.string;
 import std.typecons;
 
-alias ParseResult(T) = Nullable!T;
-auto presult(T)(T t)
-{
-    return ParseResult!T(t);
-}
 
 T getOrThrow(T)(Nullable!T n, const Exception ex) pure
 {
@@ -36,12 +31,24 @@ T getOrThrow(T)(Nullable!T n, const Exception ex) pure
 class ParserException : Exception { mixin basicExceptionCtors; };
 
 final class Parser {
+private:
+    alias ParseResult(T) = Nullable!T;
+    auto presult(T)(T t)
+    {
+        return ParseResult!T(t);
+    }
 public:
 
     static Parser fromFile(string name)
     {
         import parse.lex.FileInputBuffer;
         return new Parser(new Lexer(new FileInputBuffer(name)));
+    }
+
+    static Parser fromFile(ref File file)
+    {
+        import parse.lex.FileInputBuffer;
+        return new Parser(new Lexer(new FileInputBuffer(file)));
     }
 
     this(Lexer lexer)
@@ -201,9 +208,14 @@ public:
 
     auto procDecl()
     {
-        auto toks = this.match(Token.Type.PROC, Token.Type.ID, Token.Type.LPAREN);
-        auto params = this.parameters;
-        this.match(Token.Type.RPAREN);
+        auto toks = this.match(Token.Type.PROC, Token.Type.ID);
+
+        Parameter[] params = null;
+        if(this.test(Token.Type.LPAREN)){
+            this.match(Token.Type.LPAREN);
+            params = this.parameters;
+            this.match(Token.Type.RPAREN);
+        }
 
         Type ret_type = null;
         if(this.test(Token.Type.RARROW)){
