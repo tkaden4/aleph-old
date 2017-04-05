@@ -10,7 +10,7 @@ import parse.visitors.ResultVisitor;
 
 import std.stdio;
 
-Tuple!(SymbolTable, ASTNode) resolve_types(ASTNode node)
+auto build_types(ASTNode node)
 {
     return tuple(new SemaOne().visit(node), node);
 }
@@ -26,6 +26,13 @@ public override:
     {
         foreach(x; node.children){
             x.visit(this);
+        }
+    }
+
+    void visitReturnNode(ReturnNode node)
+    {
+        if(node.value){
+            node.value.visit(this);
         }
     }
 
@@ -75,6 +82,9 @@ public override:
             if(!fn){
                 throw new ASTException("Cannot call non-function");
             }
+            if(!fn.returnType){
+                throw new ASTException("Unknown return type");
+            }
             node.resultType = fn.returnType;
         }
     }
@@ -103,7 +113,6 @@ public override:
         if(sym.isNull){
             throw new ASTException("No symbol defined with name %s".format(node.name));
         }else if(!sym.type){
-            /* TODO add forward references */
             throw new ASTException("Type of %s unknowable at this point".format(node.name));
         }else{
             node.resultType = sym.type;

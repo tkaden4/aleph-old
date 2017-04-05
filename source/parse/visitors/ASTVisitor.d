@@ -10,13 +10,27 @@ public import parse.nodes.IdentifierNode;
 public import parse.nodes.VarDeclNode;
 public import parse.nodes.ProgramNode;
 public import parse.nodes.CallNode;
+public import parse.nodes.ReturnNode;
+public import parse.nodes.StatementNode;
 
 public import std.string;
 
+// TODO add dispatch()
 class ASTVisitor {
+    protected final void dispatch(ASTNode node)
+    {
+        if(node){
+            node.visit(this);
+        }
+    }
+
     void visitBasic(ASTNode node)
     {
         throw new ASTException("Cannot visit basic node");
+    }
+    void visitReturnNode(ReturnNode node)
+    {
+        throw new ASTException("Cannot visit return node");
     }
     void visitCallNode(CallNode node)
     {

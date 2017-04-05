@@ -8,7 +8,7 @@ class ResultVisitor(T) : ASTVisitor {
         this.res = t;
     }
 
-    final T visit(ASTNode node)
+    T visit(ASTNode node)
     {
         node.visit(this);
         return this.result;

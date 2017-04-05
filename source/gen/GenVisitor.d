@@ -1,87 +1,126 @@
 module gen.GenVisitor;
 
 import std.file;
-import std.stdio;
+import stdio = std.stdio;
+import std.range;
+import std.conv;
 
-import parse.visitors.ASTVisitor;
-
+import parse.visitors.ResultVisitor;
 import symbol.SymbolTable;
-
 import gen.GenUtils;
+public import gen.OutputBuilder;
 
-final class GenVisitor : ASTVisitor {
+auto generate(SymbolTable table, ASTNode node, OutputStream outp)
+{
+    return new GenVisitor(table, new OutputBuilder(outp)).visit(node);
+}
+
+final class GenVisitor : ResultVisitor!(OutputBuilder *) {
 private:
-    import std.conv;
-    File *output;
+    OutputBuilder *ob;
     SymbolTable table;
-private:
+
+    alias ob this;
+
     void visitParameters(ProcDeclNode node)
     {
         foreach(i, x; node.parameters){
-            this.output.writef("%s %s", x.type.toCtype, x.name);
-            if(i < node.parameters.length - 1){
-                this.output.write(", ");
-            }
+            this.ob.untabbed({
+                this.ob.printf("%s %s", x.type.toCtype, x.name);
+                if(i < node.parameters.length - 1){
+                    this.ob.printf(", ");
+                }
+            });
         }
     }
 public:
-    this(SymbolTable table, ref File output)
+    this(SymbolTable table, ref OutputBuilder output)
     {
         this(table, &output);
     }
 
-    this(SymbolTable table, File *output)
+    this(SymbolTable table, OutputBuilder *output)
     {
+        super(output);
         this.table = table;
-        this.output = output;
+        this.ob = output;
     }
 override:
+    OutputBuilder *visit(ASTNode node)
+    {
+        node.visit(this);
+        return this.ob;
+    }
+
     void visitProgramNode(ProgramNode node)
     {
         foreach(x; node.children){
-            x.visit(this);
+            this.dispatch(x);
         }
+    }
+
+    void visitReturnNode(ReturnNode node)
+    {
+        printf("return");
+        untabbed({
+            if(node.value){
+                this.printf(" ");
+                dispatch(node.value);
+            }
+        });
     }
 
     void visitProcDecl(ProcDeclNode node)
     {
-        this.output.writef(
-                "%s %s(",
-                node.returnType.toCtype,
-                node.name
-            );
-        this.visitParameters(node);
-        this.output.write(')');
-        this.output.writeln("{");
-        node.bodyNode.visit(this);
-        this.output.writeln("}");
+        printf(
+            "%s %s(",
+            node.returnType.toCtype,
+            node.name
+        );
+        visitParameters(node);
+        printfln(")");
+        dispatch(node.bodyNode);
     }
 
     void visitCallNode(CallNode node)
     {
-        node.toCall.visit(this);
+        dispatch(node.toCall);
+        untabbed({
+            this.printf("(");
+            foreach(i, x; node.arguments){
+                this.dispatch(x);
+                if(i < node.arguments.length - 1){
+                    this.printf(", ");
+                }
+            }
+            this.printf(")");
+        });
     }
 
     void visitBlockNode(BlockNode node)
     {
-        import std.range;
-        auto back = node.children.back;
-        if(back && back.resultType){
-        }
-        foreach(x; node.children){
-            x.visit(this);
-        }
+        block({
+            foreach(x; node.children){
+                dispatch(x);
+                this.untabbed({
+                    this.printfln(";");
+                });
+            }
+        });
     }
 
     void visitIdentifierNode(IdentifierNode node)
     {
+        printf(node.name);
     }
 
     void visitIntegerNode(IntegerNode node)
     {
+        printf("%d", node.value);
     }
 
     void visitCharNode(CharNode node)
     {
+        printf("%c", node.value);
     }
 };

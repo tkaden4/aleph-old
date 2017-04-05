@@ -12,8 +12,7 @@ public:
     this(ExpressionNode[] children)
     {
         this._children = children;
-        this.result_type = this.children.empty ? Primitives.Void :
-                                this.children.back.resultType;
+        this.resolveType;
     }
 
     invariant
@@ -45,9 +44,14 @@ public:
         return "BlockNode(%s)".format(this.children);
     }
 
-    @property ExpressionNode[] children()
+    @property auto children()
     {
         return this._children;
+    }
+
+    @property void children(ExpressionNode[] nodes)
+    {
+        this._children = nodes;
     }
 private:
     ExpressionNode[] _children;

@@ -3,11 +3,22 @@ module parse.visitors.ASTPrinter;
 import std.stdio;
 import parse.visitors.ASTVisitor;
 
+auto printTree(ASTNode node)
+{
+    node.visit(new ASTPrinter);
+    return node;
+}
+
 class ASTPrinter : ASTVisitor {
 public override{
     void visitIntegerNode(IntegerNode node)
     {
         "%s%s".writefln(this.entab, node);
+    }
+
+    void visitReturnNode(ReturnNode node)
+    {
+        "%sReturn(%s)".writefln(this.entab, node.value);
     }
 
     void visitCharNode(CharNode node)

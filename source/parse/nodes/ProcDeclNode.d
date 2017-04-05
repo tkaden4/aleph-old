@@ -3,6 +3,7 @@ module parse.nodes.ProcDeclNode;
 import parse.nodes.ASTNode;
 import parse.nodes.ExpressionNode;
 import parse.nodes.StatementNode;
+import parse.nodes.ReturnNode;
 
 import symbol.Type;
 
@@ -18,6 +19,9 @@ struct Parameter {
     }
 };
 
+/* A quick note :
+ * the return node is included in the body node */
+
 class ProcDeclNode : StatementNode {
 public:
     this(string id, Type ret, Parameter[] params, ExpressionNode exp)
@@ -30,13 +34,18 @@ public:
 
     invariant
     {
-        assert(this.id);
-        assert(this.exp);
+        assert(this.id, "Null");
+        assert(this.exp, "Null expression");
     }
 
-    auto bodyNode()
+    @property auto bodyNode()
     {
         return this.exp;
+    }
+
+    @property void bodyNode(ExpressionNode node)
+    {
+        this.exp = node;
     }
 
     auto name()
