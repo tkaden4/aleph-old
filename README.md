@@ -25,3 +25,15 @@ proc main() -> int = {
     0
 }
 </pre>
+
+Most things can be type inferenced
+<pre>
+import std.c.stdio
+
+proc hello = "Hello";   // Semicolon is optional, type inferred as const char *
+
+proc main = {       // Parameters and return type optional
+    puts(hello())
+    0
+}
+</pre>
