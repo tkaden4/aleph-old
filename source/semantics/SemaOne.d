@@ -10,9 +10,9 @@ import parse.visitors.ResultVisitor;
 
 import std.stdio;
 
-SymbolTable resolve_types(ASTNode node)
+Tuple!(SymbolTable, ASTNode) resolve_types(ASTNode node)
 {
-    return new SemaOne().visit(node);
+    return tuple(new SemaOne().visit(node), node);
 }
 
 class SemaOne : ResultVisitor!SymbolTable {

@@ -37,6 +37,13 @@ class ParserException : Exception { mixin basicExceptionCtors; };
 
 final class Parser {
 public:
+
+    static Parser fromFile(string name)
+    {
+        import parse.lex.FileInputBuffer;
+        return new Parser(new Lexer(new FileInputBuffer(name)));
+    }
+
     this(Lexer lexer)
     {
         this.lexer = lexer;

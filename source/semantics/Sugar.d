@@ -10,13 +10,7 @@ ASTNode desugar(ASTNode node)
 }
 
 class Sugar : ResultVisitor!ASTNode {
-    this(ASTNode node)
-    {
-        super(node);
-    }
+    this(ASTNode node){ super(node); }
 override:
-    void visitProgramNode(ProgramNode node)
-    {
-
-    }
+    void visitProgramNode(ProgramNode node){}
 }

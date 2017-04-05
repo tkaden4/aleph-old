@@ -9,17 +9,19 @@ import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
 import parse.visitors.ASTPrinter;
+import parse.nodes.ASTNode;
+import symbol.SymbolTable;
 
 import semantics.SemaOne;
 import semantics.Sugar;
 
 import gen.Generator;
 
-auto time(void delegate() func)
+auto time(string type, T)(T func)
 {
     const auto start = Clock.currTime;
     func();
-    return Clock.currTime - start;
+    return (Clock.currTime - start).total!type;
 }
 
 void main(string[] args)
@@ -28,19 +30,19 @@ void main(string[] args)
         "Not enough arguments".writeln;
         return;
     }
-
     "Compiling \"%s\"".writefln(args[1]);
-
-    
-    auto parser = new Parser(new Lexer(new FileInputBuffer(args[1])));
-
     "Compilation took %d usecs\n".writefln(
-        time({
-            auto program = parser.program;
-            auto symbols = program.desugar.resolve_types;
-            auto file = stdout;
-            auto gen = new Generator(symbols, file);
-            gen.generate(program);
-        }).total!"usecs"
+        time!"usecs"({
+            Parser
+                .fromFile(args[1])
+                // parse the file
+                .program
+                // simplify tree
+                .desugar
+                // build symbol table and inference types 
+                .resolve_types
+                // generate code
+                .expand.generate(stdout);
+        })
     );
 }
