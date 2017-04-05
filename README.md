@@ -43,7 +43,7 @@ proc main = {       // Parameters and return type optional
 proc add_two(a: int) = a + 2
 
 proc map_sum(a: int, b: int, fn: (int) -> int) = {
-    if a == b fn(b)
+    if a == b then fn(b)
     else fn(a) + map_sum(a+1, b, fn)
 }
 
