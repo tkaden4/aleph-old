@@ -66,7 +66,10 @@ void addReturn(ProcDeclNode pnode)
             pnode.bodyNode = new ReturnNode(null);
         }else{
             auto exp = children.back;
-            c.children = c.children[0..$-1] ~ new ReturnNode(exp);
+            if(auto k = cast(ReturnNode)exp){
+            }else{
+                c.children = c.children[0..$-1] ~ new ReturnNode(exp);
+            }
             pnode.bodyNode = c;
         }
     }else if(auto c = cast(IdentifierNode)node){

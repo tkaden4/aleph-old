@@ -1,4 +1,4 @@
-module semantics.ctree.CTreeNode;
+module syntax.ctree.CTreeNode;
 
 interface CTreeNode {
 

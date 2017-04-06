@@ -10,7 +10,7 @@ import syntax.tree.visitors.ResultVisitor;
 
 import std.stdio;
 
-auto build_types(ASTNode node)
+auto buildTypes(ASTNode node)
 {
     return tuple(new SemaOne().visit(node), node);
 }

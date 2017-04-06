@@ -5,6 +5,7 @@ import std.range;
 import std.algorithm;
 import std.datetime;
 import std.typecons;
+import std.traits;
 
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
@@ -14,6 +15,8 @@ import semantics.SemaOne;
 import semantics.Sugar;
 import symbol.SymbolTable;
 import gen.GenVisitor;
+
+import syntax.ctree : CStatementNode;
 
 auto map(T, V, alias f)(Tuple!(T, V) t)
 {
@@ -34,21 +37,33 @@ auto usage()
 }
 
 // applies a function to a T and returns the T
+// for chaining operations on a single type
 auto then(alias func, T)(T t)
 {
-    func(t);
+    static if(__traits(compiles, func())){
+        func();
+    }else{
+        func(t);
+    }
+    return t;
+}
+
+auto if_then(alias func, T)(T t, bool val)
+{
+    if(val){
+        t.then!func;
+    }
     return t;
 }
 
 void main(string[] args)
 {
     if(args.length != 2){
-        usage();
+        usage;
         return;
     }
 
     enum timefmt = "usecs";
-
     "Compiling \"%s\"".writefln(args[1]);
     "Compilation took %d %s\n".writefln(
         time!timefmt({
@@ -57,13 +72,12 @@ void main(string[] args)
                 // parse the file
                 .program
                 // build symbol table and inference types 
-                .build_types
-                // Desu
+                .buildTypes
+                // Desugar the tree
                 .then!(x => x[1].desugar)
                 // generate code
-                .expand.generate(
-                            new FileStream(
-                                new File("%s.c".format(args[1]) ,"w")));
+                .expand.generate(new FileStream(
+                                    new File("%s.c".format(args[1]) ,"w")));
         }),
         timefmt
     );

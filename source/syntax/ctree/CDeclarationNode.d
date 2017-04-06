@@ -1,6 +1,6 @@
-module semantics.ctree.CDeclarationNode;
+module syntax.ctree.CDeclarationNode;
 
-protected import semantics.ctree.CStatementNode;
+protected import syntax.ctree.CStatementNode;
 
 interface CDeclarationNode : CStatementNode {
 
