@@ -5,6 +5,9 @@ import std.stdio;
 import symbol.SymbolTable;
 import symbol.Type;
 import syntax.tree.visitors.ResultVisitor;
+import std.range;
+
+import util.match;
 
 ASTNode desugar(ASTNode node)
 {
@@ -35,48 +38,41 @@ override:
     void visitProcDecl(ProcDeclNode node)
     {
         // Add a return node
-        addReturn(node);
-        if(auto c = cast(BlockNode)node.bodyNode){
-        }else{
-            node.bodyNode = new BlockNode([node.bodyNode]);
-        }
+        node.addReturn.bodyNode.match(
+            (BlockNode k){},
+            (ExpressionNode k){ node.bodyNode = new BlockNode([node.bodyNode]); }
+        );
         this.dispatch(node.bodyNode);
     }
 
-    void visitIntegerNode(IntegerNode node)
-    {
-    }
-
-    void visitIdentifierNode(IdentifierNode node)
-    {
-    }
-
-    void visitBlockNode(BlockNode node)
-    {
-    }
+    // Unused functions
+    void visitIntegerNode(IntegerNode node){}
+    void visitIdentifierNode(IdentifierNode node){}
+    void visitBlockNode(BlockNode node){}
 }
 
-import std.range;
-void addReturn(ProcDeclNode pnode)
+auto addReturn(ProcDeclNode pnode)
 {
     auto node = pnode.bodyNode;
-    if(auto c = cast(BlockNode)node){
-        auto children = c.children;
-        if(!children || children.empty){
-            pnode.bodyNode = new ReturnNode(null);
-        }else{
-            auto exp = children.back;
-            if(auto k = cast(ReturnNode)exp){
+    node.match(
+        (BlockNode n){
+            auto children = n.children;
+            if(children.empty){
+                pnode.bodyNode = new ReturnNode(null);
             }else{
-                c.children = c.children[0..$-1] ~ new ReturnNode(exp);
+                auto exp = children.back;
+                exp.match(
+                    (ReturnNode sub){},
+                    (ExpressionNode sub){
+                        n.children = n.children[0..$-1] ~ new ReturnNode(exp);
+                    }
+                );
+                pnode.bodyNode = n;
             }
-            pnode.bodyNode = c;
+        },
+        (ExpressionNode node){
+            pnode.bodyNode = new ReturnNode(node);
         }
-    }else if(auto c = cast(IdentifierNode)node){
-        pnode.bodyNode = new ReturnNode(c);
-    }else if(auto c = cast(IntegerNode)node){
-        pnode.bodyNode = new ReturnNode(c);
-    }else{
-        throw new Exception("Unable to return");
-    }
+    );
+    return pnode;
 }

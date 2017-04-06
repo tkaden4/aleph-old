@@ -16,8 +16,6 @@ import semantics.Sugar;
 import symbol.SymbolTable;
 import gen.GenVisitor;
 
-import syntax.ctree : CStatementNode;
-
 auto map(T, V, alias f)(Tuple!(T, V) t)
 {
     return f(t);
@@ -62,7 +60,7 @@ void main(string[] args)
         usage;
         return;
     }
-
+    
     enum timefmt = "usecs";
     "Compiling \"%s\"".writefln(args[1]);
     "Compilation took %d %s\n".writefln(
