@@ -15,18 +15,7 @@ import semantics.SemaOne;
 import semantics.Sugar;
 import symbol.SymbolTable;
 import gen.GenVisitor;
-
-auto map(T, V, alias f)(Tuple!(T, V) t)
-{
-    return f(t);
-}
-
-auto time(string type, T)(T func)
-{
-    const auto start = Clock.currTime;
-    func();
-    return (Clock.currTime - start).total!type;
-}
+import util;
 
 auto usage()
 {
@@ -34,25 +23,6 @@ auto usage()
     stderr.writeln(usage_msg);
 }
 
-// applies a function to a T and returns the T
-// for chaining operations on a single type
-auto then(alias func, T)(T t)
-{
-    static if(__traits(compiles, func())){
-        func();
-    }else{
-        func(t);
-    }
-    return t;
-}
-
-auto if_then(alias func, T)(T t, bool val)
-{
-    if(val){
-        t.then!func;
-    }
-    return t;
-}
 
 void main(string[] args)
 {
