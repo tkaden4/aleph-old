@@ -23,14 +23,13 @@ auto usage()
     stderr.writeln(usage_msg);
 }
 
-
 void main(string[] args)
 {
     if(args.length != 2){
         usage;
         return;
     }
-    
+
     enum timefmt = "usecs";
     "Compiling \"%s\"".writefln(args[1]);
     "Compilation took %d %s\n".writefln(

@@ -7,6 +7,7 @@ module semantics.SemaOne;
 import symbol.SymbolTable;
 import symbol.Type;
 import syntax.tree.visitors.ResultVisitor;
+import util;
 
 import std.stdio;
 
@@ -51,7 +52,6 @@ public override:
                 sym = new Symbol(node.name, null, this.result);
             }
         }
-
         /* Make sure we actually created a symbol */
         assert(sym, "Procedure symbol must be defined");
         /* Add the symbol for the function */
@@ -77,16 +77,12 @@ public override:
         foreach(x; node.arguments){
             x.visit(this);
         }
-        if(node.toCall.resultType){
-            auto fn = node.toCall.resultType.asFunction;
-            if(!fn){
-                throw new ASTException("Cannot call non-function");
-            }
-            if(!fn.returnType){
-                throw new ASTException("Unknown return type");
-            }
-            node.resultType = fn.returnType;
-        }
+
+        node.resultType = node.toCall
+            .map!(exp => exp.resultType)
+            .map!(fnres => fnres.asFunction)
+            .map_err!(fn => fn.returnType)(new ASTException("Cannot call non-function"))
+            .map_err!(ret => ret)(new ASTException("Unknown return type"));
     }
 
     void visitBlockNode(BlockNode node)

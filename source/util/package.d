@@ -9,6 +9,22 @@ public {
         return f(t);
     }
 
+    auto map(alias f, T)(T t)
+    {
+        if(t){
+            return f(t);
+        }
+        return null;
+    }
+
+    auto map_err(alias f, T, Ex)(T t, Ex e)
+    {
+        if(t){
+            return f(t);
+        }
+        throw e;
+    }
+
     // time a function
     auto time(string type, T)(T func)
     {
