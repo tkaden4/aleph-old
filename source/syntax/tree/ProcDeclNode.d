@@ -1,9 +1,9 @@
-module parse.nodes.ProcDeclNode;
+module syntax.tree.ProcDeclNode;
 
-import parse.nodes.ASTNode;
-import parse.nodes.ExpressionNode;
-import parse.nodes.StatementNode;
-import parse.nodes.ReturnNode;
+import syntax.tree.ASTNode;
+import syntax.tree.ExpressionNode;
+import syntax.tree.StatementNode;
+import syntax.tree.ReturnNode;
 
 import symbol.Type;
 

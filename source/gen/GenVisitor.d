@@ -5,7 +5,7 @@ import stdio = std.stdio;
 import std.range;
 import std.conv;
 
-import parse.visitors.ResultVisitor;
+import syntax.tree.visitors.ResultVisitor;
 import symbol.SymbolTable;
 import gen.GenUtils;
 public import gen.OutputBuilder;

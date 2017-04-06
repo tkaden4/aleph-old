@@ -1,12 +1,12 @@
-module parse.nodes.ASTNode;
+module syntax.tree.ASTNode;
 
-public import parse.visitors.ASTVisitor;
+public import syntax.tree.visitors.ASTVisitor;
 
 /* TODO add immutable nodes / visitation pipeline */
 
 /* Currently, this is all we need,
  * all an ASTNode needs is a way to 
  * call the correct method in a visitor */
-interface ASTNode {
+public interface ASTNode {
     void visit(ASTVisitor visitor);
 };

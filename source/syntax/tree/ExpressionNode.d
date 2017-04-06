@@ -1,8 +1,6 @@
-module parse.nodes.ExpressionNode;
+module syntax.tree.ExpressionNode;
 
-public import parse.visitors.ASTVisitor;
-public import parse.nodes.ASTNode;
-
+public import syntax.tree.ASTNode;
 public import symbol.Type;
 public import std.typecons;
 

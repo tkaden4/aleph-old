@@ -1,7 +1,7 @@
-module parse.nodes.ProgramNode;
+module syntax.tree.ProgramNode; 
 
-import parse.nodes.ASTNode;
-import parse.nodes.StatementNode;
+import syntax.tree.ASTNode;
+import syntax.tree.StatementNode;
 
 class ProgramNode : ASTNode {
     this(StatementNode[] _children)

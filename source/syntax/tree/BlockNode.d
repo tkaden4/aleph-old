@@ -1,7 +1,7 @@
-module parse.nodes.BlockNode;
+module syntax.tree.BlockNode;
 
-import parse.nodes.ASTNode;
-import parse.nodes.ExpressionNode;
+import syntax.tree.ASTNode;
+import syntax.tree.ExpressionNode;
 
 import symbol.Type;
 

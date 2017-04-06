@@ -9,13 +9,10 @@ import std.typecons;
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
-import parse.visitors.ASTPrinter;
-import parse.nodes.ASTNode;
-import symbol.SymbolTable;
-
+import syntax.tree.visitors.ASTPrinter;
 import semantics.SemaOne;
 import semantics.Sugar;
-
+import symbol.SymbolTable;
 import gen.GenVisitor;
 
 auto map(T, V, alias f)(Tuple!(T, V) t)

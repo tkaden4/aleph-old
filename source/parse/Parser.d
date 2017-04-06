@@ -3,15 +3,15 @@ module parse.Parser;
 import symbol.Type;
 
 import parse.lex.Lexer;
-import parse.nodes.ASTNode;
-import parse.nodes.VarDeclNode;
-import parse.nodes.ProcDeclNode;
-import parse.nodes.IntegerNode;
-import parse.nodes.CharNode;
-import parse.nodes.ExpressionNode;
-import parse.nodes.BlockNode;
-import parse.nodes.StatementNode;
-import parse.nodes.IdentifierNode;
+import syntax.tree.ASTNode;
+import syntax.tree.VarDeclNode;
+import syntax.tree.ProcDeclNode;
+import syntax.tree.IntegerNode;
+import syntax.tree.CharNode;
+import syntax.tree.ExpressionNode;
+import syntax.tree.BlockNode;
+import syntax.tree.StatementNode;
+import syntax.tree.IdentifierNode;
 import symbol.SymbolTable;
 
 import std.exception;

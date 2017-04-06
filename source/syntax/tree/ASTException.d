@@ -1,4 +1,4 @@
-module parse.ASTException;
+module syntax.tree.ASTException;
 
 import std.exception;
 

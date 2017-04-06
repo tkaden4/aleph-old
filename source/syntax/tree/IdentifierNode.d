@@ -1,6 +1,6 @@
-module parse.nodes.IdentifierNode;
+module syntax.tree.IdentifierNode;
 
-public import parse.nodes.ExpressionNode;
+public import syntax.tree.ExpressionNode;
 
 /* TODO add ID type + deferred types */
 class IdentifierNode : ExpressionNode {

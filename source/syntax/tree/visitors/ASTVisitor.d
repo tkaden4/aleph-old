@@ -1,17 +1,17 @@
-module parse.visitors.ASTVisitor;
+module syntax.tree.visitors.ASTVisitor;
 
-public import parse.ASTException;
-public import parse.nodes.ASTNode;
-public import parse.nodes.ProcDeclNode;
-public import parse.nodes.IntegerNode;
-public import parse.nodes.BlockNode;
-public import parse.nodes.CharNode;
-public import parse.nodes.IdentifierNode;
-public import parse.nodes.VarDeclNode;
-public import parse.nodes.ProgramNode;
-public import parse.nodes.CallNode;
-public import parse.nodes.ReturnNode;
-public import parse.nodes.StatementNode;
+public import syntax.tree.ASTException;
+public import syntax.tree.ASTNode;
+public import syntax.tree.ProcDeclNode;
+public import syntax.tree.IntegerNode;
+public import syntax.tree.BlockNode;
+public import syntax.tree.CharNode;
+public import syntax.tree.IdentifierNode;
+public import syntax.tree.VarDeclNode;
+public import syntax.tree.ProgramNode;
+public import syntax.tree.CallNode;
+public import syntax.tree.ReturnNode;
+public import syntax.tree.StatementNode;
 
 public import std.string;
 

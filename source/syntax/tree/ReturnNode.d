@@ -1,6 +1,7 @@
-module parse.nodes.ReturnNode;
+module syntax.tree.ReturnNode;
 
-import parse.nodes.StatementNode;
+import syntax.tree.StatementNode;
+import syntax.tree.ExpressionNode;
 
 class ReturnNode : StatementNode {
 public:

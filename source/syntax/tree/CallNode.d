@@ -1,6 +1,6 @@
-module parse.nodes.CallNode;
+module syntax.tree.CallNode;
 
-import parse.nodes.ExpressionNode;
+import syntax.tree.ExpressionNode;
 
 class CallNode : ExpressionNode {
     this(ExpressionNode toCall, ExpressionNode[] args)

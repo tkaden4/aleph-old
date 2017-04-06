@@ -1,6 +1,6 @@
-module parse.visitors.ResultVisitor;
+module syntax.tree.visitors.ResultVisitor;
 
-public import parse.visitors.ASTVisitor;
+public import syntax.tree.visitors.ASTVisitor;
 
 class ResultVisitor(T) : ASTVisitor {
     this(T t)

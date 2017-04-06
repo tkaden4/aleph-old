@@ -1,7 +1,7 @@
-module parse.visitors.ASTPrinter;
+module syntax.tree.visitors.ASTPrinter;
 
 import std.stdio;
-import parse.visitors.ASTVisitor;
+import syntax.tree.visitors.ASTVisitor;
 
 auto printTree(ASTNode node)
 {

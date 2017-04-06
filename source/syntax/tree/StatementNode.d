@@ -1,7 +1,6 @@
-module parse.nodes.StatementNode;
+module syntax.tree.StatementNode;
 
-public import parse.nodes.ASTNode;
-import parse.nodes.ExpressionNode;
+import syntax.tree.ExpressionNode;
 
 class StatementNode : ExpressionNode {
     abstract void visit(ASTVisitor tv);

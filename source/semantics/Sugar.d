@@ -4,7 +4,7 @@ import std.stdio;
 
 import symbol.SymbolTable;
 import symbol.Type;
-import parse.visitors.ResultVisitor;
+import syntax.tree.visitors.ResultVisitor;
 
 ASTNode desugar(ASTNode node)
 {

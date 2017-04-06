@@ -1,7 +1,8 @@
-module parse.nodes.VarDeclNode;
+module syntax.tree.VarDeclNode;
 
-import parse.nodes.StatementNode;
-import parse.nodes.ExpressionNode;
+import syntax.tree.StatementNode;
+import syntax.tree.ExpressionNode;
+
 import symbol.Type;
 
 class VarDeclNode : StatementNode {

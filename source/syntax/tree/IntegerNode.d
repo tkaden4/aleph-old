@@ -1,6 +1,6 @@
-module parse.nodes.IntegerNode;
+module syntax.tree.IntegerNode;
 
-import parse.nodes.ExpressionNode;
+import syntax.tree.ExpressionNode;
 
 import symbol.Type;
 

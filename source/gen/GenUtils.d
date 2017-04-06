@@ -1,7 +1,6 @@
 module gen.GenUtils;
 
-import parse.nodes.ExpressionNode;
-import parse.nodes.ASTNode;
+import syntax.tree.ExpressionNode;
 
 bool hasResult(ExpressionNode node)
 {
