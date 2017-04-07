@@ -43,13 +43,15 @@ override:
     void visit(ProcDeclNode node)
     {
         // Add a return node
-        node.addReturn.then!(x =>
-            // Add the implicit block node
-            node.bodyNode.match(
-                (BlockNode k){},
-                (ExpressionNode k){ node.bodyNode = new BlockNode([node.bodyNode]); }
-            ).then!(x => this.dispatch(x))
-        );
+        node.addReturn.use!(
+            (x){
+                node.bodyNode = node.bodyNode.match(
+                    (BlockNode k) => k,
+                    (ExpressionNode k) => new BlockNode([k])
+                );
+                return node.bodyNode;
+            }
+        ).then!(x => this.dispatch(x));
     }
 
     // Unused functions
@@ -58,7 +60,7 @@ override:
     void visit(BlockNode node){}
 }
 
-private auto addReturn(ref ProcDeclNode pnode)
+private auto addReturn(ProcDeclNode pnode)
 {
     pnode.bodyNode = pnode.bodyNode.use!(
         x => x.match(
@@ -66,17 +68,19 @@ private auto addReturn(ref ProcDeclNode pnode)
                 n.children.use!(x =>
                     x.back.match(
                         // No need to return a return node
-                        (ReturnNode sub) => x,
+                        (ReturnNode sub) => sub,
                         // Return the last expression
                         (ExpressionNode sub){
                             "added return to block".writeln;
-                            return x[0..$-1] ~ new ReturnNode(sub);
+                            return new ReturnNode(sub);
                         }
+                    ).or(new ReturnNode(null)).use!(
+                        end => n.children[0..$-1] ~ end
                     )
-                ),
+                ).use!(x => cast(ExpressionNode)new BlockNode(x)),
             (ExpressionNode node){
                 "added return to expression".writeln;
-                return new ReturnNode(node);
+                return cast(ExpressionNode)new ReturnNode(node);
             }
         )
     );
