@@ -10,7 +10,7 @@ enum CStorageClass {
     AUTO
 };
 
-class CDeclarationNode : CStatementNode, CTopLevelNode {
+class CDeclarationNode : CStatementNode {
     this(CStorageClass sclass)
     {
         this.storageClass = sclass;

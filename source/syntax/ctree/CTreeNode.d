@@ -1,4 +1,3 @@
 module syntax.ctree.CTreeNode;
 
-interface CTreeNode {
-};
+interface CTreeNode {};

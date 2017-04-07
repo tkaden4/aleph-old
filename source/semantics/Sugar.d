@@ -43,14 +43,11 @@ override:
     void visit(ProcDeclNode node)
     {
         // Add a return node
-        node.addReturn.use!(
-            (x){
-                node.bodyNode = node.bodyNode.match(
-                    (BlockNode k) => k,
-                    (ExpressionNode k) => new BlockNode([k])
-                );
-                return node.bodyNode;
-            }
+        node.bodyNode = node.addReturn.use!(
+            x => node.bodyNode.match(
+                     (BlockNode block) => block,
+                     (ExpressionNode sub) => new BlockNode([sub])
+                 )
         ).then!(x => this.dispatch(x));
     }
 
@@ -70,20 +67,17 @@ private auto addReturn(ProcDeclNode pnode)
                         // No need to return a return node
                         (ReturnNode sub) => sub,
                         // Return the last expression
-                        (ExpressionNode sub){
-                            "added return to block".writeln;
-                            return new ReturnNode(sub);
-                        }
-                    ).or(new ReturnNode(null)).use!(
+                        (ExpressionNode sub) => new ReturnNode(sub)
+                    )
+                    // If there is no back
+                    .or(new ReturnNode(null))
+                    .use!(
+                        // and append it to the block's children
                         end => n.children[0..$-1] ~ end
                     )
                 ).use!(x => cast(ExpressionNode)new BlockNode(x)),
-            (ExpressionNode node){
-                "added return to expression".writeln;
-                return cast(ExpressionNode)new ReturnNode(node);
-            }
+            (ExpressionNode node) => cast(ExpressionNode)new ReturnNode(node)
         )
     );
-    pnode.bodyNode.writeln;
     return pnode;
 }

@@ -49,11 +49,7 @@ public:
 
     override string toString()
     {
-        string ret;
-        foreach(k, v; this.symbols){
-            ret ~= "%s : %s\n".format(k, v.toString);
-        }
-        return ret;
+        return "SymbolTable(%s)".format(this.symbols.length);
     }
 private:
     Symbol[string] symbols;

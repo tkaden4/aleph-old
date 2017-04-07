@@ -10,10 +10,14 @@ import std.traits;
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
+
+import semantics.SemaTwo;
 import semantics.SemaOne;
 import semantics.Sugar;
+
+import gen.CGenerator;
 import symbol.SymbolTable;
-import gen.GenVisitor;
+import syntax.transform;
 import util;
 
 private auto usage()
@@ -33,7 +37,7 @@ void main(string[] args)
     "Compiling \"%s\"".writefln(args[1]);
     "Compilation took %d %s\n".writefln(
         time!timefmt({
-            Parser
+            auto cTree = Parser
                 .fromFile(args[1])
                 // parse the file
                 .program
@@ -41,9 +45,14 @@ void main(string[] args)
                 .buildTypes
                 // Desugar the tree
                 .then!(x => x[1].desugar)
+                // Collect parts
+                .then!(x => x[1].collect)
+                // TODO allow use! to take in tuples
+                .expand
+                .transform
                 // generate code
                 .expand
-                .generate(new FileStream(
+                .cgenerate(new FileStream(
                                 new File("%s.c".format(args[1]) ,"w")));
         }),
         timefmt

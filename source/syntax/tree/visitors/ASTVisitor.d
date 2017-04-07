@@ -40,46 +40,55 @@ class ASTVisitor {
 
     void visit(BlockNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(ReturnNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(CallNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(ProgramNode node)
     {
-
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(IntegerNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(CharNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(ProcDeclNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(IdentifierNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(VarDeclNode node)
     {
-    
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 };

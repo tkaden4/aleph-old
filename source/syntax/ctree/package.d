@@ -8,3 +8,4 @@ public import syntax.ctree.CFuncDeclNode;
 public import syntax.ctree.CTypedefNode;
 public import syntax.ctree.CBlockStatementNode;
 public import syntax.ctree.CProgramNode;
+public import syntax.ctree.visitors.CTreeVisitor;

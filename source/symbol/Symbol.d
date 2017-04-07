@@ -4,11 +4,11 @@ import symbol.Type;
 import symbol.SymbolTable;
 
 public class Symbol {
-    this(string name, Type type, SymbolTable table)
+    this(string name, Type type, SymbolTable parent)
     {
         this.name = name;
         this.type = type;
-        this.table = table;
+        this.parentTable = parent;
     }
 
     override string toString() const
@@ -17,7 +17,7 @@ public class Symbol {
         return "Symbol(%s, %s)".format(this.name, this.type);
     }
 public:
-    const(string) name;
+    string name;
     Type type;
-    SymbolTable table;
+    SymbolTable parentTable;
 };
