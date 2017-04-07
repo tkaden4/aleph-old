@@ -14,7 +14,6 @@ public:
     {
         return this._value;
     }
-override void visit(ASTVisitor tv){ tv.visitReturnNode(this); }
 private:
     ExpressionNode _value;
 };

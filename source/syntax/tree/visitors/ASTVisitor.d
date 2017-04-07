@@ -13,55 +13,73 @@ public import syntax.tree.CallNode;
 public import syntax.tree.ReturnNode;
 public import syntax.tree.StatementNode;
 
-public import std.string;
+import std.string;
+import util;
 
-// TODO add dispatch()
 class ASTVisitor {
-    protected final void dispatch(ASTNode node)
+    protected final auto dispatch(ASTNode node)
     {
-        if(node){
-            node.visit(this);
-        }
+        node.use_err!((x){
+            x.match(
+                (BlockNode node) => visit(node),
+                (ReturnNode node) => visit(node),
+                (CallNode node) => visit(node),
+                (ProgramNode node) => visit(node),
+                (IntegerNode node) => visit(node),
+                (CharNode node) => visit(node),
+                (ProcDeclNode node) => visit(node),
+                (IdentifierNode node) => visit(node),
+                (VarDeclNode node) => visit(node),
+                (ASTNode node) {
+                    throw new ASTException("Couldn't visit %s"
+                                                .format(typeid(node).toString));
+                } 
+            );
+        })(new ASTException("Unable dispatch null node"));
     }
 
-    void visitBasic(ASTNode node)
+    void visit(BlockNode node)
     {
-        throw new ASTException("Cannot visit basic node");
+    
     }
-    void visitReturnNode(ReturnNode node)
+
+    void visit(ReturnNode node)
     {
-        throw new ASTException("Cannot visit return node");
+    
     }
-    void visitCallNode(CallNode node)
+
+    void visit(CallNode node)
     {
-        throw new ASTException("Cannot visit call node");
+    
     }
-    void visitProgramNode(ProgramNode node)
+
+    void visit(ProgramNode node)
     {
-        throw new ASTException("Cannot visit program node");
+
     }
-    void visitIntegerNode(IntegerNode node)
+
+    void visit(IntegerNode node)
     {
-        throw new ASTException("Cannot visit integer node");
+    
     }
-    void visitCharNode(CharNode node)
+
+    void visit(CharNode node)
     {
-        throw new ASTException("Cannot visit char node");
+    
     }
-    void visitBlockNode(BlockNode node)
+
+    void visit(ProcDeclNode node)
     {
-        throw new ASTException("Cannot visit block node");
+    
     }
-    void visitProcDecl(ProcDeclNode node)
+
+    void visit(IdentifierNode node)
     {
-        throw new ASTException("Cannot visit procedure node");
+    
     }
-    void visitIdentifierNode(IdentifierNode node)
+
+    void visit(VarDeclNode node)
     {
-        throw new ASTException("Cannot visit identifier node");
-    }
-    void visitVarDecl(VarDeclNode node)
-    {
-        throw new ASTException("Cannot visit variable declaration node");
+    
     }
 };

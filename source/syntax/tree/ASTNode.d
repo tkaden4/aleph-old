@@ -8,5 +8,4 @@ public import syntax.tree.visitors.ASTVisitor;
  * all an ASTNode needs is a way to 
  * call the correct method in a visitor */
 public interface ASTNode {
-    void visit(ASTVisitor visitor);
 };

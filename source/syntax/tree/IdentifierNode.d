@@ -11,8 +11,6 @@ public:
         this.type = typ;
     }
     
-    override void visit(ASTVisitor tv){ tv.visitIdentifierNode(this); }
-
     @property override Type resultType()
     {
         return this.type;

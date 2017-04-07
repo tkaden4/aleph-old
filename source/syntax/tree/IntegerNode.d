@@ -22,8 +22,6 @@ public:
         return this.type;
     }
     
-    override void visit(ASTVisitor tv){ tv.visitIntegerNode(this); }
-
     override string toString() const
     {
         import std.string;

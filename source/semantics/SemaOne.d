@@ -4,38 +4,47 @@ module semantics.SemaOne;
  * Creates the symbol table and performs type inferencing
  */
 
+import syntax.tree.visitors.ASTVisitor;
 import symbol.SymbolTable;
 import symbol.Type;
-import syntax.tree.visitors.ResultVisitor;
+
 import util;
 
+import std.string;
+import std.range;
+import std.algorithm;
 import std.stdio;
 
-auto buildTypes(ASTNode node)
+auto buildTypes(ProgramNode node)
 {
-    return tuple(new SemaOne().visit(node), node);
+    return tuple(new SemaOne().apply(node), node);
 }
 
-class SemaOne : ResultVisitor!SymbolTable {
+class SemaOne : ASTVisitor {//ResultVisitor!SymbolTable {
 public:
+    SymbolTable result;
     this()
     {
-        super(new SymbolTable);
+        this.result = new SymbolTable;
+    }
+
+    SymbolTable apply(ASTNode node)
+    {
+        this.dispatch(node);
+        return this.result;
     }
 public override:
-    void visitProgramNode(ProgramNode node)
+    void visit(ProgramNode node)
     {
-        foreach(x; node.children){
-            x.visit(this);
-        }
+        node.children.each!(x => this.dispatch(x));
     }
 
-    void visitReturnNode(ReturnNode node)
+    void visit(ReturnNode node)
     {
-        node.value.apply!(x => x.visit(this));
+        node.value.apply!(x => this.dispatch(x));
     }
 
-    void visitProcDecl(ProcDeclNode node)
+    void visit(ProcDeclNode node)
     {
         /* Create the symbol to be added to table */
         Symbol sym;
@@ -59,7 +68,7 @@ public override:
         foreach(x; node.parameters){
             this.result.insert(x.name, new Symbol(x.name, x.type, this.result));
         }
-        node.bodyNode.visit(this);
+        this.dispatch(node.bodyNode);
         this.result = this.result.leaveScope;
 
         /* Check for unresolved type */
@@ -69,12 +78,10 @@ public override:
         }
     }
 
-    void visitCallNode(CallNode node)
+    void visit(CallNode node)
     {
-        node.toCall.visit(this);
-        foreach(x; node.arguments){
-            x.visit(this);
-        }
+        this.dispatch(node.toCall);
+        node.arguments.each!(x => this.dispatch(x));
 
         node.resultType = node.toCall
             .use!(exp => exp.resultType)
@@ -83,13 +90,10 @@ public override:
             .use_err!(ret => ret)(new ASTException("Unknown return type"));
     }
 
-    void visitBlockNode(BlockNode node)
+    void visit(BlockNode node)
     {
-        foreach(x; node.children){
-            x.visit(this);
-        }
+        node.children.each!(x => this.dispatch(x));
 
-        import std.range;
         static const unknown_type = new ASTException("Result type unknown");
         node.resultType = node.children
             .use_err!(x => x.back)(unknown_type)
@@ -97,14 +101,14 @@ public override:
             .use_err!(x => x)(unknown_type);
     }
 
-    void visitVarDecl(VarDeclNode node)
+    void visit(VarDeclNode node)
     {
-        node.init.visit(this);
+        this.dispatch(node.init);
         this.result.insert(node.name,
                 new Symbol(node.name, node.resultType, this.result));
     }
 
-    void visitIdentifierNode(IdentifierNode node)
+    void visit(IdentifierNode node)
     {
         auto sym = this.result[node.name];
         if(sym.isNull){
@@ -116,6 +120,6 @@ public override:
         }
     }
 
-    void visitIntegerNode(IntegerNode node){}
-    void visitCharNode(CharNode node){}
+    void visit(IntegerNode node){}
+    void visit(CharNode node){}
 };

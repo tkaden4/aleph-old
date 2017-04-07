@@ -11,7 +11,7 @@ import std.algorithm;
 class CTreeException : Exception { mixin basicExceptionCtors; };
 
 class CTreeVisitor {
-    final auto dispatch(CTreeNode node)
+    protected final auto dispatch(CTreeNode node)
     {
         node.match(
             (CProgramNode n) => this.visit(n),

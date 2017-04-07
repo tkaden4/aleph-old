@@ -14,8 +14,6 @@ class CallNode : ExpressionNode {
         assert(this.call !is null, "tocall is null");
     }
 
-    override void visit(ASTVisitor tv){ tv.visitCallNode(this); }
-
     override @property Type resultType()
     {
         return this.type;

@@ -19,8 +19,6 @@ public:
         assert(this._children);
     }
 
-    override void visit(ASTVisitor tv){ tv.visitBlockNode(this); }
-
     override @property Type resultType()
     {
         return this.result_type;

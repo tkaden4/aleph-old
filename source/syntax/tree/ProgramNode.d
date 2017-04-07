@@ -9,8 +9,6 @@ class ProgramNode : ASTNode {
         this._children = _children;
     }
 
-    override void visit(ASTVisitor vt){ vt.visitProgramNode(this); }
-
     @property StatementNode[] children()
     {
         return this._children;

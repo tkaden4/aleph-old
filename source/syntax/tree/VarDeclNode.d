@@ -14,10 +14,9 @@ public:
         this.init = exp;
     }
 
-    override void visit(ASTVisitor tv){ tv.visitVarDecl(this); }
-
     override string toString() const
     {
+        import std.string;
         return "VarDecl(%s) :: %s".format(this.name, this.type);
     }
 

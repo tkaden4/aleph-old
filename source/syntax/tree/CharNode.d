@@ -12,8 +12,6 @@ public:
         this.type = Primitives.Char;
     }
 
-    override void visit(ASTVisitor tv){ tv.visitCharNode(this); }
-
     override Type resultType()
     {
         return this.type;

@@ -5,6 +5,7 @@ import std.string;
 
 // Visit a value based on it's runtime type
 // if it doesnt match any, throw an exception
+// TODO only match on base classes
 auto match(T, Args...)(T value, Args args)
 {
     foreach(x; args){
@@ -14,8 +15,7 @@ auto match(T, Args...)(T value, Args args)
         static assert(isAssignable!(T, Parameters!x[0]), 
                       "%s is not assignable to %s".format(T.stringof, Parameters!x[0].stringof));
         if(auto v = cast(Parameters!x[0])value){
-            x(v);
-            return value;
+            return x(v);
         }
     }
     // TODO improve error handling

@@ -2,16 +2,16 @@ module semantics.Sugar;
 
 import std.stdio;
 
+import syntax.tree.visitors.ASTVisitor;
 import symbol.SymbolTable;
 import symbol.Type;
-import syntax.tree.visitors.ResultVisitor;
 import std.range;
 
 import util;
 
-ASTNode desugar(ASTNode node)
+ASTNode desugar(ProgramNode node)
 {
-    return new Sugar(node).visit(node);
+    return new Sugar(node).apply(node);
 }
 
 /* A few things the Desugarer does: 
@@ -19,21 +19,28 @@ ASTNode desugar(ASTNode node)
  * - transforms IfExpressions into IfStatements that 
  *   assign to a temporary */
 
-class Sugar : ResultVisitor!ASTNode {
-    this(ASTNode node){ super(node); }
+class Sugar : ASTVisitor {
+public:
+    ProgramNode result;
+    this(ProgramNode node){ this.result = node; }
+    auto apply(ASTNode node)
+    {
+        this.dispatch(node);
+        return this.result;
+    }
 override:
-    void visitProgramNode(ProgramNode node)
+    void visit(ProgramNode node)
     {
         import std.algorithm : each;
         node.children.each!(x => this.dispatch(x));
     }
 
-    void visitReturnNode(ReturnNode node)
+    void visit(ReturnNode node)
     {
         this.dispatch(node.value);
     }
 
-    void visitProcDecl(ProcDeclNode node)
+    void visit(ProcDeclNode node)
     {
         // Add a return node
         node.addReturn.then!(x =>
@@ -46,24 +53,33 @@ override:
     }
 
     // Unused functions
-    void visitIntegerNode(IntegerNode node){}
-    void visitIdentifierNode(IdentifierNode node){}
-    void visitBlockNode(BlockNode node){}
+    void visit(IntegerNode node){}
+    void visit(IdentifierNode node){}
+    void visit(BlockNode node){}
 }
 
 private auto addReturn(ref ProcDeclNode pnode)
 {
-    pnode.bodyNode = pnode.bodyNode.match(
-        (BlockNode n) =>
-            n.children.use!(x =>
-                x.back.match(
-                    // No need to return a return node
-                    (ReturnNode sub) => x,
-                    // Return the last expression
-                    (ExpressionNode sub) => x[0..$-1] ~ new ReturnNode(sub)
-                )
-            ).or(new ReturnNode(null)),
-        (ExpressionNode node) => new ReturnNode(node)
+    pnode.bodyNode = pnode.bodyNode.use!(
+        x => x.match(
+            (BlockNode n) =>
+                n.children.use!(x =>
+                    x.back.match(
+                        // No need to return a return node
+                        (ReturnNode sub) => x,
+                        // Return the last expression
+                        (ExpressionNode sub){
+                            "added return to block".writeln;
+                            return x[0..$-1] ~ new ReturnNode(sub);
+                        }
+                    )
+                ),
+            (ExpressionNode node){
+                "added return to expression".writeln;
+                return new ReturnNode(node);
+            }
+        )
     );
+    pnode.bodyNode.writeln;
     return pnode;
 }

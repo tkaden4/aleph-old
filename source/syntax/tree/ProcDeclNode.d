@@ -76,8 +76,6 @@ public:
         this.ret_type = type;
     }
 
-    override void visit(ASTVisitor tv){ tv.visitProcDecl(this); }
-
     override string toString()
     {
         import std.string;
