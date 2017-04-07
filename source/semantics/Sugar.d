@@ -20,13 +20,11 @@ ASTNode desugar(ASTNode node)
  *   assign to a temporary */
 
 class Sugar : ResultVisitor!ASTNode {
-
-    import std.algorithm : each;
-
     this(ASTNode node){ super(node); }
 override:
     void visitProgramNode(ProgramNode node)
     {
+        import std.algorithm : each;
         node.children.each!(x => this.dispatch(x));
     }
 
@@ -39,6 +37,7 @@ override:
     {
         // Add a return node
         node.addReturn.then!(x =>
+            // Add the implicit block node
             node.bodyNode.match(
                 (BlockNode k){},
                 (ExpressionNode k){ node.bodyNode = new BlockNode([node.bodyNode]); }
@@ -52,11 +51,11 @@ override:
     void visitBlockNode(BlockNode node){}
 }
 
-auto addReturn(ref ProcDeclNode pnode)
+private auto addReturn(ref ProcDeclNode pnode)
 {
     pnode.bodyNode = pnode.bodyNode.match(
         (BlockNode n) =>
-            n.children.map!(x =>
+            n.children.use!(x =>
                 x.back.match(
                     // No need to return a return node
                     (ReturnNode sub) => x,

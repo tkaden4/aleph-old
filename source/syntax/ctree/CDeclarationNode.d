@@ -1,7 +1,20 @@
 module syntax.ctree.CDeclarationNode;
 
 protected import syntax.ctree.CStatementNode;
+protected import syntax.ctree.CTopLevelNode;
 
-interface CDeclarationNode : CStatementNode {
 
+enum CStorageClass {
+    STATIC,
+    EXTERN,
+    AUTO
+};
+
+class CDeclarationNode : CStatementNode, CTopLevelNode {
+    this(CStorageClass sclass)
+    {
+        this.storageClass = sclass;
+    }
+public:
+    CStorageClass storageClass;
 };

@@ -12,7 +12,6 @@ public:
     this(ExpressionNode[] children)
     {
         this._children = children;
-        this.resolveType;
     }
 
     invariant
@@ -21,12 +20,6 @@ public:
     }
 
     override void visit(ASTVisitor tv){ tv.visitBlockNode(this); }
-
-    void resolveType()
-    {
-        this.result_type = this.children.empty ? Primitives.Void 
-                                               : this.children.back.resultType;
-    }
 
     override @property Type resultType()
     {

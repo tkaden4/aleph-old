@@ -16,7 +16,7 @@ public {
         }
     }
 
-    auto map(alias f, T)(T t)
+    auto use(alias f, T)(T t)
     {
         if(t){
             return f(t);
@@ -24,7 +24,7 @@ public {
         return null;
     }
 
-    auto map_err(alias f, T, Ex)(T t, Ex e)
+    auto use_err(alias f, T, Ex)(T t, Ex e)
     {
         if(t){
             return f(t);

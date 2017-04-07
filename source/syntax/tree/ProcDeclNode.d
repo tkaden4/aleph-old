@@ -34,8 +34,8 @@ public:
 
     invariant
     {
-        assert(this.id, "Null");
-        assert(this.exp, "Null expression");
+        assert(this.id, "Null id in ProcDeclNode");
+        assert(this.exp, "Null exp in ProcDeclNode");
     }
 
     @property auto bodyNode()

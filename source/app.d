@@ -10,14 +10,13 @@ import std.traits;
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
-import syntax.tree.visitors.ASTPrinter;
 import semantics.SemaOne;
 import semantics.Sugar;
 import symbol.SymbolTable;
 import gen.GenVisitor;
 import util;
 
-auto usage()
+private auto usage()
 {
     static enum usage_msg = "Usage: alephc <file>.al";
     stderr.writeln(usage_msg);
@@ -30,7 +29,7 @@ void main(string[] args)
         return;
     }
 
-    enum timefmt = "usecs";
+    static enum timefmt = "usecs";
     "Compiling \"%s\"".writefln(args[1]);
     "Compilation took %d %s\n".writefln(
         time!timefmt({
@@ -43,8 +42,9 @@ void main(string[] args)
                 // Desugar the tree
                 .then!(x => x[1].desugar)
                 // generate code
-                .expand.generate(new FileStream(
-                                    new File("%s.c".format(args[1]) ,"w")));
+                .expand
+                .generate(new FileStream(
+                                new File("%s.c".format(args[1]) ,"w")));
         }),
         timefmt
     );
