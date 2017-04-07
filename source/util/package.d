@@ -9,6 +9,13 @@ public {
         return f(t);
     }
 
+    auto apply(alias f, T)(T t)
+    {
+        if(t){
+            f(t);
+        }
+    }
+
     auto map(alias f, T)(T t)
     {
         if(t){
@@ -23,6 +30,14 @@ public {
             return f(t);
         }
         throw e;
+    }
+
+    auto or(T)(T t, T d)
+    {
+        if(t){
+            return t;
+        }
+        return d;
     }
 
     // time a function

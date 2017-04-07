@@ -7,7 +7,7 @@ import symbol.Type;
 import syntax.tree.visitors.ResultVisitor;
 import std.range;
 
-import util.match;
+import util;
 
 ASTNode desugar(ASTNode node)
 {
@@ -51,28 +51,19 @@ override:
     void visitBlockNode(BlockNode node){}
 }
 
-auto addReturn(ProcDeclNode pnode)
+auto addReturn(ref ProcDeclNode pnode)
 {
-    auto node = pnode.bodyNode;
-    node.match(
-        (BlockNode n){
-            auto children = n.children;
-            if(children.empty){
-                pnode.bodyNode = new ReturnNode(null);
-            }else{
-                auto exp = children.back;
-                exp.match(
-                    (ReturnNode sub){},
-                    (ExpressionNode sub){
-                        n.children = n.children[0..$-1] ~ new ReturnNode(exp);
-                    }
-                );
-                pnode.bodyNode = n;
-            }
-        },
-        (ExpressionNode node){
-            pnode.bodyNode = new ReturnNode(node);
-        }
+    pnode.bodyNode = pnode.bodyNode.match(
+        (BlockNode n) =>
+            n.children.map!(x =>
+                x.back.match(
+                    // No need to return a return node
+                    (ReturnNode sub) => x,
+                    // Everything else
+                    (ExpressionNode sub) => x[0..$-1] ~ new ReturnNode(sub)
+                )
+            ).or(new ReturnNode(null)),
+        (ExpressionNode node) => new ReturnNode(node)
     );
     return pnode;
 }

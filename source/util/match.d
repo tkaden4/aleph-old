@@ -15,7 +15,7 @@ auto match(T, Args...)(T value, Args args)
                       "%s is not assignable to %s".format(T.stringof, Parameters!x[0].stringof));
         if(auto v = cast(Parameters!x[0])value){
             x(v);
-            return;
+            return value;
         }
     }
     // TODO improve error handling

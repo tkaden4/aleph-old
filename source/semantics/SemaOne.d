@@ -32,9 +32,7 @@ public override:
 
     void visitReturnNode(ReturnNode node)
     {
-        if(node.value){
-            node.value.visit(this);
-        }
+        node.value.apply!(x => x.visit(this));
     }
 
     void visitProcDecl(ProcDeclNode node)
@@ -90,10 +88,13 @@ public override:
         foreach(x; node.children){
             x.visit(this);
         }
-        node.resolveType;
-        if(!node.resultType){
-            throw new ASTException("Result type unknown");
-        }
+
+        import std.range;
+        static const unknown_type = new ASTException("Result type unknown");
+        node.resultType = node.children
+            .map_err!(x => x.back)(unknown_type)
+            .map_err!(x => x.resultType)(unknown_type)
+            .map_err!(x => x)(unknown_type);
     }
 
     void visitVarDecl(VarDeclNode node)
