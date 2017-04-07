@@ -19,15 +19,15 @@ ASTNode desugar(ASTNode node)
  * - transforms IfExpressions into IfStatements that 
  *   assign to a temporary */
 
-
 class Sugar : ResultVisitor!ASTNode {
+
+    import std.algorithm : each;
+
     this(ASTNode node){ super(node); }
 override:
     void visitProgramNode(ProgramNode node)
     {
-        foreach(x; node.children){
-            x.visit(this);
-        }
+        node.children.each!(x => this.dispatch(x));
     }
 
     void visitReturnNode(ReturnNode node)
@@ -38,11 +38,12 @@ override:
     void visitProcDecl(ProcDeclNode node)
     {
         // Add a return node
-        node.addReturn.bodyNode.match(
-            (BlockNode k){},
-            (ExpressionNode k){ node.bodyNode = new BlockNode([node.bodyNode]); }
+        node.addReturn.then!(x =>
+            node.bodyNode.match(
+                (BlockNode k){},
+                (ExpressionNode k){ node.bodyNode = new BlockNode([node.bodyNode]); }
+            ).then!(x => this.dispatch(x))
         );
-        this.dispatch(node.bodyNode);
     }
 
     // Unused functions
@@ -59,7 +60,7 @@ auto addReturn(ref ProcDeclNode pnode)
                 x.back.match(
                     // No need to return a return node
                     (ReturnNode sub) => x,
-                    // Everything else
+                    // Return the last expression
                     (ExpressionNode sub) => x[0..$-1] ~ new ReturnNode(sub)
                 )
             ).or(new ReturnNode(null)),
