@@ -1,4 +1,6 @@
-//proc identity(a: int) = a
+proc identity(a: int) = a
 proc main = {
-    let k: int = 0
+    let k: (int) -> int = identity
+    k(0)
+    0
 }

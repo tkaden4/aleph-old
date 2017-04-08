@@ -186,6 +186,12 @@ public:
         case Token.Type.ID:
             return this.match(Token.Type.ID).lexeme.toPrimitive;
         case Token.Type.LPAREN: /* Function type */
+            this.match(Token.Type.LPAREN);
+            auto param = this.parseType;
+            this.match(Token.Type.RPAREN);
+            this.match(Token.Type.RARROW);
+            auto ret = this.parseType;
+            return new FunctionType(ret, [param]);
         default:
             throw new ParserException("Couldn't parse type");
         }

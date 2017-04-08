@@ -86,6 +86,7 @@ public override:
         node.resultType = node.toCall
             .use!(exp => exp.resultType)
             .use!(fnres => fnres.asFunction)
+            .then!(x => x.writeln)
             .use_err!(fn => fn.returnType)(new ASTException("Cannot call non-function"))
             .use_err!(ret => ret)(new ASTException("Unknown return type"));
     }
@@ -93,18 +94,16 @@ public override:
     void visit(BlockNode node)
     {
         node.children.each!(x => this.dispatch(x));
-        static const unknown_type = new ASTException("Result type unknown");
         node.resultType = node.children
-            .use_err!(x => x.back)(unknown_type)
-            .use_err!(x => x.resultType)(unknown_type)
-            .use_err!(x => x)(unknown_type);
+            .use!(x => x.back)
+            .use!(x => x.resultType)
+            .use_err!(x => x)(new ASTException("Result type unknown"));
     }
 
     void visit(VarDeclNode node)
     {
         this.dispatch(node.init);
-        this.result.insert(node.name,
-                new Symbol(node.name, node.resultType, this.result));
+        this.result.insert(node.name, new Symbol(node.name, node.type, this.result));
     }
 
     void visit(IdentifierNode node)
