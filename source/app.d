@@ -20,41 +20,49 @@ import gen.CGenerator;
 import syntax.transform;
 import util;
 
+import syntax.tree.ASTException;
+
 private auto usage()
 {
     static enum usage_msg = "Usage: alephc <file>.al";
     stderr.writeln(usage_msg);
 }
 
-void main(string[] args)
+int main(string[] args)
 {
     if(args.length != 2){
         usage;
-        return;
+        return 0;
     }
 
     static enum timefmt = "usecs";
     "Compiling \"%s\"".writefln(args[1]);
-    "Compilation took %d %s\n".writefln(
-        time!timefmt({
-            auto cTree = Parser
-                .fromFile(args[1])
-                // parse the file
-                .program
-                // build symbol table and inference types 
-                .buildTypes
-                // Desugar the tree
-                .then!(x => x[1].desugar)
-                // Collect parts
-                .then!(x => x[1].collect)
-                // TODO allow use! to take in tuples
-                .expand
-                .transform
-                // generate code
-                .expand
-                .cgenerate(new FileStream(
-                                new File("%s.c".format(args[1]) ,"w")));
-        }),
-        timefmt
-    );
+    try{
+        "Compilation took %d %s\n".writefln(
+            time!timefmt({
+                auto cTree = Parser
+                    .fromFile(args[1])
+                    // parse the file
+                    .program
+                    // build symbol table and inference types 
+                    .buildTypes
+                    // Desugar the tree
+                    .then!(x => x[1].desugar)
+                    // Collect parts
+                    .then!(x => x[1].collect)
+                    // TODO allow use! to take in tuples
+                    .expand
+                    .transform
+                    // generate code
+                    .expand
+                    .cgenerate(new FileStream(
+                                    new File("%s.c".format(args[1]) ,"w")));
+            }),
+            timefmt
+        );
+        return 0;
+    }catch(Exception ex){
+        "alephc: %s\n".format(ex.msg).writeln;
+        return 1;
+    }
 }

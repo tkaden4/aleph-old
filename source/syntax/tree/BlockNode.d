@@ -4,12 +4,18 @@ import syntax.tree.ASTNode;
 import syntax.tree.ExpressionNode;
 
 import std.range;
+import util;
 
 class BlockNode : ExpressionNode {
 public:
     this(ExpressionNode[] children)
     {
         this._children = children;
+        this.result_type = this._children.use!(
+            x => x.back.use!(
+                x => x.resultType
+            )
+        ).or(Primitives.Void);
     }
 
     invariant

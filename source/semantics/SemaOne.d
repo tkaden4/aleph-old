@@ -23,12 +23,10 @@ auto buildTypes(ProgramNode node)
 class SemaOne : ASTVisitor {//ResultVisitor!SymbolTable {
 public:
     SymbolTable result;
-    this()
-    {
-        this.result = new SymbolTable;
-    }
 
-    SymbolTable apply(ASTNode node)
+    this(){ this.result = new SymbolTable; }
+
+    auto apply(ASTNode node)
     {
         this.dispatch(node);
         return this.result;
@@ -46,32 +44,38 @@ public override:
 
     void visit(ProcDeclNode node)
     {
+
         /* Create the symbol to be added to table */
-        Symbol sym = node.returnType.use!(
+        auto sym = node.returnType.use!(
             x => new Symbol(node.name, node.functionType, this.result)
         ).or(
             node.bodyNode.resultType.use!(
                 (x){
                     node.returnType = x;
-                    return new Symbol(node.name, node.functionType, this.result);
+                    auto ret = new Symbol(node.name, node.functionType, this.result);
+                    return ret;
                 }
             ).or(new Symbol(node.name, null, this.result))
         );
 
         /* Add the symbol for the function */
-        this.result.insert(node.name, sym);
+        auto thissym = this.result.insert(node.name, sym);
+
         /* visit the body with a new scope*/
         this.result = this.result.enterScope;
+
         node.parameters
             .each!(x => this.result.insert(x.name, new Symbol(x.name, x.type, this.result)));
+
         this.dispatch(node.bodyNode);
         this.result = this.result.leaveScope;
 
         /* Check for unresolved type */
-        node.returnType = node.returnType.use!(
-            x => node.bodyNode.resultType
-                    /* if the result type was valid, set the symbol type */
-                     .if_then!({ this.result[node.name].type = node.functionType; })
+        node.bodyNode.resultType.if_then!(
+            (x){
+                node.returnType = x;
+                thissym.type = node.functionType;
+            }
         );
     }
 
@@ -106,13 +110,9 @@ public override:
     void visit(IdentifierNode node)
     {
         auto sym = this.result[node.name];
-        if(sym.isNull){
-            throw new ASTException("No symbol defined with name %s".format(node.name));
-        }else if(!sym.type){
-            throw new ASTException("Type of %s unknowable at this point".format(node.name));
-        }else{
-            node.resultType = sym.type;
-        }
+        node.resultType = sym
+            .use_err!(x => x.type)(new ASTException("No symbol defined with name %s".format(node.name)))
+            .use_err!(x => x)(new ASTException("Type of %s unknowable at this point".format(node.name)));
     }
 
     void visit(IntegerNode node){}
