@@ -62,7 +62,7 @@ int main(string[] args)
         );
         return 0;
     }catch(Exception ex){
-        "alephc: %s\n".format(ex.msg).writeln;
+        "error: %s\n".format(ex.msg).writeln;
         return 1;
     }
 }

@@ -1,1 +1,2 @@
-proc main = 0
+proc foo -> int = 0 // No parameters, but not inferred
+proc main = 0       // No parameters and inferred return

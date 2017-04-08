@@ -17,6 +17,7 @@ import std.stdio;
 import std.string;
 import std.typecons;
 
+import util;
 
 T getOrThrow(T)(Nullable!T n, const Exception ex) pure
 {
@@ -72,7 +73,6 @@ public:
         return new ProgramNode(res);
     }
 
-    /* CHAR, STRING, INTEGER, FLOAT */
     auto literalExpression()
     {
         import std.conv;
@@ -129,9 +129,9 @@ public:
         return ret;
     }
 
-    ParseResult!ExpressionNode postfixExpression()
+    auto postfixExpression()
     {
-        ParseResult!ExpressionNode postOp(ExpressionNode node)
+        auto postOp(ExpressionNode node)
         {
             switch(this.la.type){
             case Token.Type.LPAREN:
@@ -158,7 +158,7 @@ public:
         return this.postfixExpression;
     }
 
-    ParseResult!ExpressionNode statement()
+    auto statement()
     {
         switch(this.la.type){
         case Token.Type.LET:
@@ -173,7 +173,7 @@ public:
         ExpressionNode[] res;
         this.match(Token.Type.LBRACE);
         while(!this.test(Token.Type.RBRACE)){
-            auto exp = this.expression;
+            auto exp = this.statement;
             res ~= exp.getOrThrow(new ParserException("Invalid block body"));
         }
         this.match(Token.type.RBRACE);
@@ -185,6 +185,7 @@ public:
         switch(this.la.type){
         case Token.Type.ID:
             return this.match(Token.Type.ID).lexeme.toPrimitive;
+        case Token.Type.LPAREN: /* Function type */
         default:
             throw new ParserException("Couldn't parse type");
         }
@@ -208,42 +209,42 @@ public:
     {
         auto toks = this.match(Token.Type.PROC, Token.Type.ID);
 
-        Parameter[] params = null;
-        if(this.test(Token.Type.LPAREN)){
+        auto params = this.test(Token.Type.LPAREN).use!((x){
             this.match(Token.Type.LPAREN);
-            params = this.parameters;
+            auto params = this.parameters;
             this.match(Token.Type.RPAREN);
-        }
+            return params.get;
+        }).or(null);
 
-        Type ret_type = null;
-        if(this.test(Token.Type.RARROW)){
+        auto ret_type = this.test(Token.Type.RARROW).use!((x){
             this.match(Token.Type.RARROW);
-            ret_type = this.parseType;
-        }
+            return this.parseType;
+        }).or(null);
 
         this.match(Token.Type.EQ);
-        ExpressionNode exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
+
+        auto exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
         return presult(new ProcDeclNode(toks[1].lexeme, ret_type, params, exp));
     }
 
     auto varDecl()
     {
         auto toks = this.match(Token.Type.LET, Token.Type.ID);
-        Type type = null;
-        if(this.test(Token.Type.COLON)){
+
+        auto type = this.test(Token.Type.COLON).use!((x){
             this.match(Token.Type.COLON);
-            type = this.parseType;
-        }
-        if(!this.test(Token.Type.EQ)){
-            throw new ParserException("Variables must be initialized");
-        }
-        this.match(Token.Type.EQ);
-        ExpressionNode exp = this.expression.getOrThrow(
+            return this.parseType;
+        }).or(null);
+
+        this.test(Token.Type.EQ)
+            .use_err!(x => this.advance)(new ParserException("Variables must be initialized"));
+
+        auto exp = this.expression.getOrThrow(
                                     new ParserException("Variables must be initialized"));
         return presult(new VarDeclNode(toks[1].lexeme, type, exp));
     }
 
-    ParseResult!StatementNode declaration()
+    auto declaration()
     {
         switch(this.la.type){
         case Token.Type.PROC: return cast(ParseResult!StatementNode)this.procDecl;
@@ -264,17 +265,12 @@ private:
 
     auto advance()
     {
-        if(this.la_buff.empty){
-            throw new ParserException("Reached end of lookahead buffer");
-        }
-        auto ret = this.la_buff[0];
-        this.la_buff = this.la_buff[1..$];
-        if(this.lexer.hasNext){
+        return this.la_buff.use_err!((x){
+            auto ret = this.la_buff[0];
+            this.la_buff = this.la_buff[1..$];
             this.la_buff ~= this.lexer.next;
-        }else{
-            this.la_buff ~= this.lexer.next;
-        }
-        return ret;
+            return ret;
+        })(new ParserException("Reached end of lookahead buffer"));
     }
 
     auto match(U...)(Token.Type t, Token.Type t2, U args)
@@ -290,11 +286,9 @@ private:
     auto match(Token.Type c)
     {
         import std.string;
-        if(!this.test(c)){
-            throw new ParserException("Could not match %s with %s"
-                                            .format(this.la.type, c));
-        }
-        return this.advance;
+        return this.test(c).use_err!(
+            x => this.advance
+        )(new ParserException("Could not match %s with %s".format(this.la.type, c)));
     }
 
     bool test(Token.Type c, size_t n=0)
