@@ -14,9 +14,9 @@ import parse.Parser;
 import semantics.SemaTwo;
 import semantics.SemaOne;
 import semantics.Sugar;
+import semantics.symbol.SymbolTable;
 
 import gen.CGenerator;
-import symbol.SymbolTable;
 import syntax.transform;
 import util;
 

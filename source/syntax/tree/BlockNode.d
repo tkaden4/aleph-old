@@ -3,8 +3,6 @@ module syntax.tree.BlockNode;
 import syntax.tree.ASTNode;
 import syntax.tree.ExpressionNode;
 
-import symbol.Type;
-
 import std.range;
 
 class BlockNode : ExpressionNode {

@@ -2,8 +2,6 @@ module syntax.tree.CharNode;
 
 import syntax.tree.ExpressionNode;
 
-import symbol.Type;
-
 class CharNode : ExpressionNode {
 public:
     this(char value)

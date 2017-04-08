@@ -3,8 +3,6 @@ module syntax.tree.VarDeclNode;
 import syntax.tree.StatementNode;
 import syntax.tree.ExpressionNode;
 
-import symbol.Type;
-
 class VarDeclNode : StatementNode {
 public:
     this(string id, Type type, ExpressionNode exp)

@@ -1,7 +1,7 @@
-module symbol.SymbolTable;
+module semantics.symbol.SymbolTable;
 
-import symbol.Type;
-public import symbol.Symbol;
+public import semantics.symbol.Type;
+public import semantics.symbol.Symbol;
 
 import std.container;
 import std.typecons;

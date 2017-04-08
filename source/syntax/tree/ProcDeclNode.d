@@ -5,7 +5,7 @@ import syntax.tree.ExpressionNode;
 import syntax.tree.StatementNode;
 import syntax.tree.ReturnNode;
 
-import symbol.Type;
+import semantics.symbol.Type;
 
 import std.string;
 

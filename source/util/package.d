@@ -63,9 +63,9 @@ public {
     }
 
     // only applies a function based on a runtime boolean value
-    auto if_then(alias func, T)(T t, bool val)
+    auto if_then(alias func, T)(T t)
     {
-        if(val){
+        if(t){
             t.then!func;
         }
         return t;

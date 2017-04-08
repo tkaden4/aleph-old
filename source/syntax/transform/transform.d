@@ -4,12 +4,13 @@ import syntax.tree.visitors.ASTVisitor;
 import syntax.ctree;
 import syntax.tree.ProgramNode;
 
-import symbol.SymbolTable;
+import semantics.symbol.SymbolTable;
 
 import std.range;
 import std.algorithm;
 import std.string;
 import std.stdio;
+import std.typecons;
 
 import util;
 

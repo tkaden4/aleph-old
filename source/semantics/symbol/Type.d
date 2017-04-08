@@ -1,4 +1,4 @@
-module symbol.Type;
+module semantics.symbol.Type;
 
 interface Type {
     FunctionType asFunction();

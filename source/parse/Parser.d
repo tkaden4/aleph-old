@@ -1,7 +1,5 @@
 module parse.Parser;
 
-import symbol.Type;
-
 import parse.lex.Lexer;
 import syntax.tree.ASTNode;
 import syntax.tree.VarDeclNode;
@@ -12,7 +10,7 @@ import syntax.tree.ExpressionNode;
 import syntax.tree.BlockNode;
 import syntax.tree.StatementNode;
 import syntax.tree.IdentifierNode;
-import symbol.SymbolTable;
+import semantics.symbol.SymbolTable;
 
 import std.exception;
 import std.stdio;

@@ -3,8 +3,7 @@ module semantics.Sugar;
 import std.stdio;
 
 import syntax.tree.visitors.ASTVisitor;
-import symbol.SymbolTable;
-import symbol.Type;
+import semantics.symbol.SymbolTable;
 import std.range;
 
 import util;

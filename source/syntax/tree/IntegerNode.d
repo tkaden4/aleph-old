@@ -2,8 +2,6 @@ module syntax.tree.IntegerNode;
 
 import syntax.tree.ExpressionNode;
 
-import symbol.Type;
-
 class IntegerNode : ExpressionNode {
 public:
     this(long value)

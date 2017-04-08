@@ -1,7 +1,7 @@
-module symbol.Symbol;
+module semantics.symbol.Symbol;
 
-import symbol.Type;
-import symbol.SymbolTable;
+import semantics.symbol.Type;
+import semantics.symbol.SymbolTable;
 
 public class Symbol {
     this(string name, Type type, SymbolTable parent)
