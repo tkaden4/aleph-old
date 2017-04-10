@@ -11,7 +11,6 @@ import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
 
-import semantics.SemaTwo;
 import semantics.SemaOne;
 import semantics.Sugar;
 import semantics.symbol.SymbolTable;
@@ -40,7 +39,7 @@ int main(string[] args)
     try{
         "Compilation took %d %s\n".writefln(
             time!timefmt({
-                auto cTree = Parser
+                Parser
                     .fromFile(args[1])
                     // parse the file
                     .program
@@ -48,8 +47,6 @@ int main(string[] args)
                     .buildTypes
                     // Desugar the tree
                     .then!(x => x[1].desugar)
-                    // Collect parts
-                    .then!(x => x[1].collect)
                     // TODO allow use! to take in tuples
                     .expand
                     .transform

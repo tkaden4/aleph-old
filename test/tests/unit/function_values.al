@@ -1,6 +1,6 @@
 proc identity(a: int) = a
 proc main = {
-    let k: (int) -> int = identity
+    let k = identity
     k(0)
     0
 }

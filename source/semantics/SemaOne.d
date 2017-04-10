@@ -20,7 +20,7 @@ auto buildTypes(ProgramNode node)
     return tuple(new SemaOne().apply(node), node);
 }
 
-class SemaOne : ASTVisitor {//ResultVisitor!SymbolTable {
+class SemaOne : ASTVisitor {
 public:
     SymbolTable result;
 
@@ -44,7 +44,6 @@ public override:
 
     void visit(ProcDeclNode node)
     {
-
         /* Create the symbol to be added to table */
         auto sym = node.returnType.use!(
             x => new Symbol(node.name, node.functionType, this.result)
@@ -63,7 +62,7 @@ public override:
 
         /* visit the body with a new scope*/
         this.result = this.result.enterScope;
-
+        /* add parameters to the symbol table */
         node.parameters
             .each!(x => this.result.insert(x.name, new Symbol(x.name, x.type, this.result)));
 
@@ -86,7 +85,6 @@ public override:
         node.resultType = node.toCall
             .use!(exp => exp.resultType)
             .use!(fnres => fnres.asFunction)
-            .then!(x => x.writeln)
             .use_err!(fn => fn.returnType)(new ASTException("Cannot call non-function"))
             .use_err!(ret => ret)(new ASTException("Unknown return type"));
     }
@@ -102,8 +100,11 @@ public override:
 
     void visit(VarDeclNode node)
     {
+        auto res = this.result.insert(node.name, new Symbol(node.name, node.type, this.result));
         this.dispatch(node.init);
-        this.result.insert(node.name, new Symbol(node.name, node.type, this.result));
+        node.type = node.type
+            .or(node.init.resultType)
+            .if_then!(x => res.type = x);
     }
 
     void visit(IdentifierNode node)
