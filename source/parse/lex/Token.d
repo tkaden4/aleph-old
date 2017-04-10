@@ -1,6 +1,6 @@
 module parse.lex.Token;
 
-struct SourceLocation {
+public struct SourceLocation {
     string filename;
     size_t line_no;
     size_t col_no;
@@ -8,7 +8,7 @@ struct SourceLocation {
 
 public alias TokenType = Token.Type;
 
-struct Token {
+public struct Token {
 public:
     enum Type {
         EOF,

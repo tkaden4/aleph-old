@@ -3,7 +3,7 @@ module parse.lex.StringInputBuffer;
 import parse.lex.LexerInputBuffer;
 import parse.lex.Token;
 
-class StringInputBuffer : LexerInputBuffer {
+public class StringInputBuffer : LexerInputBuffer {
 public:
     this(string str)
     {

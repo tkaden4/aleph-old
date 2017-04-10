@@ -7,7 +7,7 @@ import std.container;
 import std.typecons;
 import std.string;
 
-final class SymbolTable {
+public final class SymbolTable {
 public:
     this(SymbolTable parent = null)
     {

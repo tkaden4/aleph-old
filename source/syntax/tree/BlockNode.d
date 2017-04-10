@@ -6,7 +6,7 @@ import syntax.tree.ExpressionNode;
 import std.range;
 import util;
 
-class BlockNode : ExpressionNode {
+public class BlockNode : ExpressionNode {
 public:
     this(ExpressionNode[] children)
     {

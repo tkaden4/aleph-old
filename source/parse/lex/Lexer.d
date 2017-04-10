@@ -1,27 +1,25 @@
 module parse.lex.Lexer;
 
 public import parse.lex.Token;
-import parse.lex.LexerInputBuffer;
+public import parse.lex.LexerInputBuffer;
+public import parse.lex.LexerException;
 
 import std.container;
 import std.stdio;
-import std.exception;
 import std.ascii;
 import std.string;
 
-class LexerException : Exception { mixin basicExceptionCtors; };
-
-bool isIdBody(dchar c) pure
+private bool isIdBody(dchar c) pure
 {
     return isAlpha(c) || isDigit(c) || c == '_';
 }
 
-bool isIdStart(dchar c) pure
+private bool isIdStart(dchar c) pure
 {
     return isAlpha(c) || c == '_';
 }
 
-final class Lexer {
+public final class Lexer {
     import std.functional;
 public:
     this(LexerInputBuffer input)

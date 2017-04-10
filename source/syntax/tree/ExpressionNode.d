@@ -3,6 +3,6 @@ module syntax.tree.ExpressionNode;
 public import syntax.tree.ASTNode;
 public import semantics.symbol.Type;
 
-interface ExpressionNode : ASTNode {
+public interface ExpressionNode : ASTNode {
     @property Type resultType();
 };

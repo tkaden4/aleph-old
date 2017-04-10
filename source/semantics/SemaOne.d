@@ -15,12 +15,12 @@ import std.algorithm;
 import std.stdio;
 import std.typecons;
 
-auto buildTypes(ProgramNode node)
+public auto buildTypes(ProgramNode node)
 {
     return tuple(new SemaOne().apply(node), node);
 }
 
-class SemaOne : ASTVisitor {
+private class SemaOne : ASTVisitor {
 public:
     SymbolTable result;
 

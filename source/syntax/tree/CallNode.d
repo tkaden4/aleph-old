@@ -2,7 +2,7 @@ module syntax.tree.CallNode;
 
 import syntax.tree.ExpressionNode;
 
-class CallNode : ExpressionNode {
+public class CallNode : ExpressionNode {
     this(ExpressionNode toCall, ExpressionNode[] args)
     {
         this.call = toCall;

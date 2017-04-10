@@ -2,7 +2,7 @@ module syntax.transform.transform;
 
 import syntax.tree.visitors.ASTVisitor;
 import syntax.ctree;
-import syntax.tree.ProgramNode;
+import syntax.tree;
 
 import semantics.symbol.SymbolTable;
 
@@ -15,15 +15,15 @@ import std.typecons;
 import util;
 
 // Sealed Class
-interface CType {};
+public interface CType {};
 
-class CSymbol {
+public class CSymbol {
 public:
     string name;
     CType type;
 };
 
-class CSymbolTable {
+public class CSymbolTable {
     this(CSymbolTable parentTable)
     {
         this.parent = parentTable;

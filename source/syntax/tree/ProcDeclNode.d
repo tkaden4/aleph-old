@@ -9,7 +9,7 @@ import semantics.symbol.Type;
 
 import std.string;
 
-struct Parameter {
+public struct Parameter {
     string name;
     Type type;
 
@@ -22,7 +22,7 @@ struct Parameter {
 /* A quick note :
  * the return node is included in the body node */
 
-class ProcDeclNode : StatementNode {
+public class ProcDeclNode : StatementNode {
 public:
     this(string id, Type ret, Parameter[] params, ExpressionNode exp)
     {

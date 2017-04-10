@@ -6,7 +6,7 @@ import std.string;
 // Visit a value based on it's runtime type
 // if it doesnt match any, throw an exception
 // TODO only match on concrete classes
-auto match(T, Args...)(T value, Args args)
+public auto match(T, Args...)(T value, Args args)
 {
     foreach(x; args){
         static assert(arity!x == 1,

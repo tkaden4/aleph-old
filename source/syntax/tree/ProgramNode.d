@@ -4,7 +4,7 @@ import syntax.tree.ASTNode;
 import syntax.tree.StatementNode;
 import semantics.symbol.SymbolTable;
 
-class ProgramNode : ASTNode {
+public class ProgramNode : ASTNode {
 public:
     this(StatementNode[] _children)
     {

@@ -8,7 +8,7 @@ import std.range;
 
 import util;
 
-ASTNode desugar(ProgramNode node)
+public ASTNode desugar(ProgramNode node)
 {
     return new Sugar(node).apply(node);
 }
@@ -18,7 +18,7 @@ ASTNode desugar(ProgramNode node)
  * - transforms IfExpressions into IfStatements that 
  *   assign to a temporary */
 
-class Sugar : ASTVisitor {
+private class Sugar : ASTVisitor {
 public:
     ProgramNode result;
     this(ProgramNode node){ this.result = node; }
@@ -60,6 +60,7 @@ private auto addReturn(ProcDeclNode pnode)
 {
     pnode.bodyNode = pnode.bodyNode.use!(
         x => x.match(
+            (ReturnNode n) => n,
             (BlockNode n) =>
                 n.children.use!(x =>
                     x.back.match(
@@ -71,7 +72,7 @@ private auto addReturn(ProcDeclNode pnode)
                     // If there is no back
                     .or(new ReturnNode(null))
                     .use!(
-                        // and append it to the block's children
+                        // append the new node to then end of the body
                         end => n.children[0..$-1] ~ end
                     )
                 ).use!(x => cast(ExpressionNode)new BlockNode(x)),

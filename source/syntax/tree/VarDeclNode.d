@@ -3,7 +3,7 @@ module syntax.tree.VarDeclNode;
 import syntax.tree.StatementNode;
 import syntax.tree.ExpressionNode;
 
-class VarDeclNode : StatementNode {
+public class VarDeclNode : StatementNode {
 public:
     this(string id, Type type, ExpressionNode exp)
     {
@@ -19,7 +19,7 @@ public:
     }
 
 public:
-    const(string) name;
+    string name;
     Type type;
     ExpressionNode init;
 };

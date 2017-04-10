@@ -7,5 +7,4 @@ public import syntax.tree.visitors.ASTVisitor;
 /* Currently, this is all we need,
  * all an ASTNode needs is a way to 
  * call the correct method in a visitor */
-public interface ASTNode {
-};
+public interface ASTNode {};

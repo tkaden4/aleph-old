@@ -3,7 +3,7 @@ module syntax.tree.IdentifierNode;
 public import syntax.tree.ExpressionNode;
 
 /* TODO add ID type + deferred types */
-class IdentifierNode : ExpressionNode {
+public class IdentifierNode : ExpressionNode {
 public:
     this(string id, Type typ)
     {

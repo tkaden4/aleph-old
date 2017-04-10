@@ -2,7 +2,7 @@ module syntax.tree.CharNode;
 
 import syntax.tree.ExpressionNode;
 
-class CharNode : ExpressionNode {
+public class CharNode : ExpressionNode {
 public:
     this(char value)
     {

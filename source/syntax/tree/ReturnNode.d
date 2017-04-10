@@ -3,7 +3,7 @@ module syntax.tree.ReturnNode;
 import syntax.tree.StatementNode;
 import syntax.tree.ExpressionNode;
 
-class ReturnNode : StatementNode {
+public class ReturnNode : StatementNode {
 public:
     this(ExpressionNode v)
     {

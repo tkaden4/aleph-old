@@ -17,7 +17,7 @@ public import syntax.tree.ASTException;
 import std.string;
 import util;
 
-class ASTVisitor {
+public class ASTVisitor {
     protected final auto dispatch(ASTNode node)
     {
         node.use_err!((x){

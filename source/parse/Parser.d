@@ -1,25 +1,17 @@
 module parse.Parser;
 
-import parse.lex.Lexer;
-import syntax.tree.ASTNode;
-import syntax.tree.VarDeclNode;
-import syntax.tree.ProcDeclNode;
-import syntax.tree.IntegerNode;
-import syntax.tree.CharNode;
-import syntax.tree.ExpressionNode;
-import syntax.tree.BlockNode;
-import syntax.tree.StatementNode;
-import syntax.tree.IdentifierNode;
-import semantics.symbol.SymbolTable;
+public import parse.ParserException;
 
-import std.exception;
+import parse.lex.Lexer;
+import syntax.tree;
+
 import std.stdio;
 import std.string;
 import std.typecons;
 
 import util;
 
-T getOrThrow(T)(Nullable!T n, const Exception ex) pure
+public T getOrThrow(T)(Nullable!T n, const Exception ex) pure
 {
     if(n.isNull){
         throw ex;
@@ -27,9 +19,8 @@ T getOrThrow(T)(Nullable!T n, const Exception ex) pure
     return n.get;
 }
 
-class ParserException : Exception { mixin basicExceptionCtors; };
 
-final class Parser {
+public final class Parser {
 private:
     alias ParseResult(T) = Nullable!T;
     auto presult(T)(T t)

@@ -2,7 +2,7 @@ module parse.lex.LexerInputBuffer;
 
 import parse.lex.Token;
 
-interface LexerInputBuffer {
+public interface LexerInputBuffer {
     /* gets the current location */
     SourceLocation getLocation() pure;
     /* read next character */

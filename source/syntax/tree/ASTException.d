@@ -2,4 +2,4 @@ module syntax.tree.ASTException;
 
 import std.exception;
 
-class ASTException : Exception { mixin basicExceptionCtors; }
+public class ASTException : Exception { mixin basicExceptionCtors; }

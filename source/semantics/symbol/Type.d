@@ -1,6 +1,6 @@
 module semantics.symbol.Type;
 
-interface Type {
+public interface Type {
     FunctionType asFunction();
 };
 
@@ -15,19 +15,19 @@ public Type toPrimitive(string s)
     }
 }
 
-enum Primitive {
+public enum Primitive {
     INT,
     VOID,
     CHAR
 };
 
-enum Primitives {
+public enum Primitives {
     Int = new PrimitiveType(Primitive.INT),
     Void = new PrimitiveType(Primitive.VOID),
     Char = new PrimitiveType(Primitive.CHAR)
 };
 
-class PrimitiveType : Type {
+public class PrimitiveType : Type {
 public:
 
     this(Primitive type)
@@ -52,7 +52,7 @@ private:
 };
 
 
-class FunctionType : Type {
+public class FunctionType : Type {
 public:
     this(Type ret, Type[] param)
     {

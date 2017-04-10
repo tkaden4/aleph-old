@@ -6,7 +6,7 @@ import std.file;
 import parse.lex.StringInputBuffer;
 import parse.lex.Token;
 
-class FileInputBuffer : StringInputBuffer {
+public class FileInputBuffer : StringInputBuffer {
 public:
     this(string filename)
     {
