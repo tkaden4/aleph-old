@@ -8,7 +8,6 @@ import std.conv;
 import syntax.ctree;
 import syntax.transform;
 
-public import gen.GenUtils;
 public import gen.OutputBuilder;
 
 auto cgenerate(CProgramNode node, CSymbolTable table, OutputStream outp)
