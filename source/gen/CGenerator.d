@@ -10,7 +10,7 @@ import syntax.transform;
 
 public import gen.OutputBuilder;
 
-auto cgenerate(CProgramNode node, CSymbolTable table, OutputStream outp)
+public auto cgenerate(CProgramNode node, CSymbolTable table, OutputStream outp)
 {
     return new CGenerator(table, new OutputBuilder(outp)).apply(node);
 }

@@ -59,6 +59,14 @@ public:
             return this.next;
         }
 
+        // Ignore multiline comments
+        if(this.test('`')){
+            this.match('`');
+            this.ignore(x => x != '`');
+            this.match('`');
+            return this.next;
+        }
+
         switch(this.la){
         /* Punctuation */
         case '{': return this.makeAndAdvance("{", Token.Type.LBRACE);
