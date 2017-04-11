@@ -1,8 +1,8 @@
 build:
 	dub build
 clean:
-	rm ./test/tests/unit/*.out ; rm ./test/tests/unit/*.c ; dub clean
+	rm ./test/unit/*.out ; rm ./test/unit/*.c ; dub clean
 tst:
-	./test/tests/test.sh
+	./test/test.sh
 run:
 	dub run
