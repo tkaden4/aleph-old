@@ -7,7 +7,6 @@ public:
     this(long value)
     {
         this.val = value;
-        this.type = Primitives.Int;
     }
 
     auto value()
@@ -17,7 +16,7 @@ public:
 
     override Type resultType()
     {
-        return this.type;
+        return Primitives.Int;
     }
     
     override string toString() const
@@ -27,5 +26,4 @@ public:
     }
 private:
     long val;
-    Type type;
 };

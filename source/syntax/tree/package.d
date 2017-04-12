@@ -12,3 +12,5 @@ public import syntax.tree.ProgramNode;
 public import syntax.tree.CallNode;
 public import syntax.tree.ReturnNode;
 public import syntax.tree.StatementNode;
+
+public import syntax.tree.ASTException;

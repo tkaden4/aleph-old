@@ -12,6 +12,7 @@ public struct Token {
 public:
     enum Type {
         EOF,
+        EOS,
         /* Literals */
         INTEGER,
         FLOAT,
@@ -23,6 +24,7 @@ public:
         LET,
         IF,
         ELSE,
+        /* Storage Classes */
         EXTERN,
         STATIC,
         /* Punctuation */
@@ -46,35 +48,23 @@ public:
         EQEQ,
         GTEQ,
         LTEQ,
-        NTEQ,
+        NEQ,
         REM,
         DEC,
         INC,
         /* Etc. */
-        ID,
-        EOS
+        ID
     };
     
     string lexeme;
     Type type;
     SourceLocation location;
 
-    string toString()
+    string toString() const
     {
         import std.string;
-        return "Token(\"%s\", %s) l:%u, c:%u"
-                    .format(this.lexeme, this.type, 
-                            this.location.line_no,
-                            this.location.col_no);
-    }
-
-    bool opEquals(in Token o) pure
-    {
-        return this.type == o.type;
+        return "Token(\"%s\", %s) l:%u, c:%u".format(this.lexeme, this.type, 
+                                                     this.location.line_no,
+                                                     this.location.col_no);
     }
 };
-
-unittest
-{
-    assert(Token("foo", TokenType.ID) == Token("bar", TokenType.ID));
-}

@@ -2,13 +2,11 @@ module syntax.ctree.visitors.CTreeVisitor;
 
 public import syntax.ctree;
 
-import util.match;
-import std.exception;
 import std.string;
 import std.range;
 import std.algorithm;
 
-class CTreeException : Exception { mixin basicExceptionCtors; };
+import util.match;
 
 class CTreeVisitor {
     protected final auto dispatch(CTreeNode node)
@@ -26,4 +24,6 @@ class CTreeVisitor {
     }
 
     abstract void visit(CStatementNode node);
+
+    // TODO finish implementing
 };

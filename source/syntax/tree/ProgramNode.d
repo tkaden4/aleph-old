@@ -15,8 +15,6 @@ public:
     {
         return this._children;
     }
-public:
-    SymbolTable globalTable;
 private:
     StatementNode[] _children;
 };

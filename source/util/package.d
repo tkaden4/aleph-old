@@ -2,6 +2,15 @@ module util;
 
 public {
     import util.match;
+    import std.typecons;
+
+    T getOrThrow(T)(Nullable!T n, const Exception ex) pure
+    {
+        if(n.isNull){
+            throw ex;
+        }
+        return n.get;
+    }
 
     auto foldOr(alias func, T, F)(T inRange, F defaultVal)
     {

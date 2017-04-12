@@ -11,15 +11,6 @@ import std.typecons;
 
 import util;
 
-public T getOrThrow(T)(Nullable!T n, const Exception ex) pure
-{
-    if(n.isNull){
-        throw ex;
-    }
-    return n.get;
-}
-
-
 public final class Parser {
 private:
     alias ParseResult(T) = Nullable!T;

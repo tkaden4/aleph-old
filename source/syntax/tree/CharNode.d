@@ -7,12 +7,11 @@ public:
     this(char value)
     {
         this._value = value;
-        this.type = Primitives.Char;
     }
 
     override Type resultType()
     {
-        return this.type;
+        return Primitives.Char;
     }
 
     override string toString() const
@@ -27,5 +26,4 @@ public:
     }
 private:
     char _value;
-    Type type;
 };
