@@ -15,7 +15,7 @@ import syntax.transform;
 import syntax.tree.ASTException;
 
 import semantics.SemaOne;
-import semantics.Sugar;
+import semantics.Desugar;
 import semantics.symbol.SymbolTable;
 
 import gen.CGenerator;
@@ -48,7 +48,7 @@ int main(string[] args)
                     .buildTypes
                     // Desugar the tree
                     .then!(x => x[1].desugar)
-                    // TODO allow use! to take in tuples
+                    // transform Aleph AST to C AST
                     .expand
                     .transform
                     // generate code

@@ -1,4 +1,4 @@
-module semantics.Sugar;
+module semantics.Desugar;
 
 import std.stdio;
 
@@ -10,7 +10,7 @@ import util;
 
 public ASTNode desugar(ProgramNode node)
 {
-    return new Sugar(node).apply(node);
+    return new Desugar(node).apply(node);
 }
 
 /* A few things the Desugarer does: 
@@ -18,7 +18,7 @@ public ASTNode desugar(ProgramNode node)
  * - transforms IfExpressions into IfStatements that 
  *   assign to a temporary */
 
-private class Sugar : ASTVisitor {
+private class Desugar : ASTVisitor {
 public:
     ProgramNode result;
     this(ProgramNode node){ this.result = node; }
