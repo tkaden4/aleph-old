@@ -53,8 +53,7 @@ int main(string[] args)
                     .transform
                     // generate code
                     .expand
-                    .cgenerate(new FileStream(
-                                    new File("%s.c".format(args[1]) ,"w")));
+                    .cgenerate(new FileStream("%s.c".format(args[1])));
             }),
             timefmt
         );

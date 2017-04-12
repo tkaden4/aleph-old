@@ -22,6 +22,11 @@ public class FileStream : OutputStream {
         this(&f);
     }
 
+    this(string filename)
+    {
+        this(new File(filename, "w"));
+    }
+
     override void write(string s)
     {
         this.file.write(s);
