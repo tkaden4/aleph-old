@@ -30,7 +30,7 @@ private auto usage()
 int main(string[] args)
 {
     if(args.length != 2){
-        usage;
+        usage();
         return 0;
     }
 

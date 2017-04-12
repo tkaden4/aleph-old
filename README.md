@@ -53,3 +53,16 @@ proc main = {
     0
 }
 </pre>
+
+### Inline Assembly ###
+<pre>
+import std.asm
+
+proc main() = {
+    .asm(x86) {     // using the x86 variant of the .asm label (experimental)
+        .result eax // register holding result
+        ...         // code
+    }
+    0
+}
+</pre>
