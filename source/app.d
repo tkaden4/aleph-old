@@ -11,15 +11,16 @@ import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
 
+import syntax.transform;
+import syntax.tree.ASTException;
+
 import semantics.SemaOne;
 import semantics.Sugar;
 import semantics.symbol.SymbolTable;
 
 import gen.CGenerator;
-import syntax.transform;
-import util;
 
-import syntax.tree.ASTException;
+import util;
 
 private auto usage()
 {

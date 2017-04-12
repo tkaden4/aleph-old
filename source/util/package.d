@@ -3,6 +3,14 @@ module util;
 public {
     import util.match;
 
+    auto foldOr(alias func, T, F)(T inRange, F defaultVal)
+    {
+        if(inRange.empty){
+            return defaultVal;
+        }
+        return inRange.fold!func;
+    }
+
     // map the value of a tuple
     auto map(T, V, alias f)(Tuple!(T, V) t)
     {

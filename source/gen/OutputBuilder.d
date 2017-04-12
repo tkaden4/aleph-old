@@ -5,12 +5,13 @@ import std.range;
 import std.algorithm;
 import std.stdio;
 
+import util;
 
-interface OutputStream {
+public interface OutputStream {
     void write(string s);
 };
 
-class FileStream : OutputStream {
+public class FileStream : OutputStream {
     this(File *f)
     {
         this.file = f;
@@ -29,7 +30,7 @@ private:
     File *file;
 };
 
-class StringStream : OutputStream {
+public class StringStream : OutputStream {
     this(ref string s)
     {
         this.str = &s; 
@@ -43,7 +44,7 @@ private:
     string *str;
 };
 
-struct OutputBuilder {
+public struct OutputBuilder {
     static enum TAB_WIDTH = 4u;
     OutputStream output;
     uint tablevel = 0;
@@ -81,11 +82,11 @@ struct OutputBuilder {
         this.usetabs = def;
     }
 
-    auto untabbed(Func)(Func fun)
+    auto untabbed(Func)(Func body_fun)
     {
         auto def = this.usetabs;
         this.usetabs = false;
-        fun();
+        body_fun();
         this.usetabs = def;
     }
 
@@ -109,12 +110,3 @@ struct OutputBuilder {
         return this;
     }
 };
-
-auto foldOr(alias func, T, F)(T inRange, F defaultVal)
-{
-    if(inRange.empty){
-        return defaultVal;
-    }
-    return inRange.fold!func;
-}
-
