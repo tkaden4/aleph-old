@@ -5,7 +5,9 @@ module semantics.SemaOne;
  */
 
 import syntax.tree.visitors.ASTVisitor;
-import semantics.symbol.SymbolTable;
+
+import semantics.symbol;
+import semantics.type;
 
 import util;
 
@@ -45,35 +47,47 @@ public override:
     void visit(ProcDeclNode node)
     {
         /* Create the symbol to be added to table */
+        auto bodyScope = new SymbolTable(this.result);
+
         auto sym = node.returnType.use!(
-            x => new Symbol(node.name, node.functionType, this.result)
+            x => new FunctionSymbol(node.name, node.functionType, bodyScope)
         ).or(
             node.bodyNode.resultType.use!(
                 (x){
                     node.returnType = x;
-                    auto ret = new Symbol(node.name, node.functionType, this.result);
+                    auto ret = new FunctionSymbol(node.name, node.functionType, bodyScope);
                     return ret;
                 }
-            ).or(new Symbol(node.name, null, this.result))
+            ).or(new FunctionSymbol(node.name, null, bodyScope))
         );
 
         /* Add the symbol for the function */
         auto thissym = this.result.insert(node.name, sym);
 
         /* visit the body with a new scope*/
-        this.result = this.result.enterScope;
-        /* add parameters to the symbol table */
-        node.parameters
-            .each!(x => this.result.insert(x.name, new Symbol(x.name, x.type, this.result)));
+        this.result = bodyScope;
+
+        foreach(x; node.parameters){
+            /* add parameters to the symbol table */
+            bodyScope.insert(x.name, new VarSymbol(x.name, x.type, bodyScope.parent));
+        }
+
 
         this.dispatch(node.bodyNode);
-        this.result = this.result.leaveScope;
+
+        this.result = this.result.parent;
 
         /* Check for unresolved type */
         node.bodyNode.resultType.if_then!(
             (x){
                 node.returnType = x;
-                thissym.type = node.functionType;
+                thissym.match(
+                    (FunctionSymbol fun){
+                        if(!fun.type){
+                            fun.type = node.functionType;
+                        }
+                    }
+                );
             }
         );
     }
@@ -84,7 +98,7 @@ public override:
         node.arguments.each!(x => this.dispatch(x));
         node.resultType = node.toCall
             .use!(exp => exp.resultType)
-            .use!(fnres => fnres.asFunction)
+            .use!(fnres => fnres.match((FunctionType f) => f))
             .use_err!(fn => fn.returnType)(new ASTException("Cannot call non-function"))
             .use_err!(ret => ret)(new ASTException("Unknown return type"));
     }
@@ -100,7 +114,7 @@ public override:
 
     void visit(VarDeclNode node)
     {
-        auto res = this.result.insert(node.name, new Symbol(node.name, node.type, this.result));
+        auto res = this.result.insert(node.name, new VarSymbol(node.name, node.type, this.result));
         this.dispatch(node.init);
         node.type = node.type
             .or(node.init.resultType)

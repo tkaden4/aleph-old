@@ -1,32 +1,29 @@
 module semantics.symbol.SymbolTable;
 
-public import semantics.symbol.Type;
 public import semantics.symbol.Symbol;
+public import semantics.type.Type;
 
 import std.container;
 import std.typecons;
 import std.string;
 
+import util;
+
 public final class SymbolTable {
 public:
-    this(SymbolTable parent = null)
+    this(SymbolTable _parent = null)
     {
-        this.parent = parent;
+        this._parent = _parent;
     }
 
-    Nullable!(Symbol) opIndex(string id)
+    Symbol *opIndex(string id)
     {
         auto sym = id in this.symbols;
         if(this.parent){
             auto tmp = parent[id];
-            if(!tmp.isNull){
-                sym = sym ? sym : &tmp.get();
-            }
+            sym = tmp.or(sym);
         }
-        if(sym){
-            return nullable(*sym);
-        }
-        return Nullable!(Symbol).init;
+        return sym;
     }
 
     Symbol insert(string id, Symbol s)
@@ -35,16 +32,9 @@ public:
         return this.symbols[id];
     }
 
-
-    SymbolTable enterScope()
+    @property SymbolTable parent()
     {
-        this.children.insertFront(new SymbolTable(this));
-        return this.children.front;
-    }
-
-    SymbolTable leaveScope()
-    {
-        return this.parent;
+        return this._parent;
     }
 
     override string toString()
@@ -53,6 +43,5 @@ public:
     }
 private:
     Symbol[string] symbols;
-    SymbolTable parent;
-    SList!SymbolTable children;
+    SymbolTable _parent;
 };

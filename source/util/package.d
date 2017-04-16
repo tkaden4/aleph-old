@@ -2,6 +2,8 @@ module util;
 
 public {
     import util.match;
+    import std.range;
+    import std.algorithm;
     import std.typecons;
 
     T getOrThrow(T)(Nullable!T n, const Exception ex) pure

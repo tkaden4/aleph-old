@@ -5,7 +5,7 @@ import syntax.tree.ExpressionNode;
 import syntax.tree.StatementNode;
 import syntax.tree.ReturnNode;
 
-import semantics.symbol.Type;
+import semantics.type : Type, FunctionType;
 
 import std.string;
 
@@ -18,9 +18,6 @@ public struct Parameter {
         return "Parameter(%s, %s)".format(this.name, this.type);
     }
 };
-
-/* A quick note :
- * the return node is included in the body node */
 
 public class ProcDeclNode : StatementNode {
 public:
@@ -83,10 +80,8 @@ public:
                     .format(this.id, this.params, this.ret_type, this.exp);
     }
 public:
-    const(string) id;
-
+    string id;
     Type ret_type;
-
     Parameter[] params;
     ExpressionNode exp;
 };

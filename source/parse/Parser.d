@@ -4,6 +4,7 @@ public import parse.ParserException;
 
 import parse.lex.Lexer;
 import syntax.tree;
+import semantics.type.FunctionType;
 
 import std.stdio;
 import std.string;
@@ -162,12 +163,16 @@ public:
         return presult!ExpressionNode(new BlockNode(res));
     }
 
-    auto parseType()
+    /* TODO add more complex types */
+    Type parseType()
     {
         switch(this.la.type){
+        /* Primitive type */
         case Token.Type.ID:
             return this.match(Token.Type.ID).lexeme.toPrimitive;
-        case Token.Type.LPAREN: /* Function type */
+        /* Function types */
+        /* TODO add multiple parameter types */
+        case Token.Type.LPAREN:
             this.match(Token.Type.LPAREN);
             auto param = this.parseType;
             this.match(Token.Type.RPAREN);
