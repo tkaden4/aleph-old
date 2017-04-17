@@ -2,27 +2,27 @@ module syntax.ctree.CFuncDeclNode;
 
 import syntax.ctree.CDeclarationNode;
 import syntax.ctree.CBlockStatementNode;
-
+import syntax.transform.CType;
 
 struct CParameter {
-    string type;
+    CType type;
     string name;
 };
 
-class CFuncDeclNode : CDeclarationNode {
+class CFuncDeclNode : CDeclarationNode, CTopLevelNode {
 public:
-    this(CStorageClass cl, string ret, string func_name, 
+    this(CStorageClass cl, CType ret, string func_name, 
             CParameter[] params, CBlockStatementNode c)
     {
         super(cl);
         this.returnType = ret;
         this.name = func_name;
         this.parameters = params;
-        this.child = c;
+        this.bodyNode = c;
     }
 
-    string returnType;
+    CType returnType;
     string name;
     CParameter[] parameters;
-    CBlockStatementNode child;
+    CBlockStatementNode bodyNode;
 };

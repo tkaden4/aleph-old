@@ -5,11 +5,13 @@ import stdio = std.stdio;
 import std.range;
 import std.conv;
 
-import util.match;
+import util;
 import syntax.ctree;
 import syntax.transform;
 
 public import gen.OutputBuilder;
+import std.range;
+import std.algorithm;
 
 public auto cgenerate(CProgramNode node, CSymbolTable table, OutputStream outp)
 {
@@ -26,6 +28,12 @@ public:
     {
         this.symtab = table;
         this.ob = builder;
+    }
+
+    invariant
+    {
+        assert(this.ob, "No output builder");
+        assert(this.symtab, "No symbol table");
     }
     
     auto apply(CProgramNode node)
@@ -51,9 +59,68 @@ public:
 
     void visit(CFuncDeclNode node)
     {
+        this.untabbed({
+            this.printf("%s %s %s(", node.storageClass.toString,
+                                     node.returnType.typeString,
+                                     node.name);
+            node.parameters.headLast!(
+                    i => this.printf("%s %s, ", i.type.typeString, i.name),
+                    k => this.printf("%s %s", k.type.typeString, k.name));
+            this.printfln(")");
+        });
+        this.visit(node.bodyNode);
+    }
+
+    void visit(CBlockStatementNode node)
+    {
         this.block({
-            this.printfln("Well i guess");
+            node.children.each!(x => this.visit(x));
         });
     }
+
+    void visit(CStatementNode node)
+    {
+        node.match(
+            (CBlockStatementNode n) => this.visit(n),
+            (CTypedefNode n) => this.visit(n),
+            (CVarDeclNode n) => this.visit(n),
+            (CStatementNode n){ this.printfln(";"); }
+        );
+    }
+
+    void visit(CVarDeclNode node)
+    {
+        import std.string;
+        this.printf("%s %s %s", node.storageClass.toString, node.type.typeString, node.name);
+        this.untabbed({
+            node.init.use!(
+                (x){
+                    this.printfln(" = %s;", x.match(
+                                                (IntLiteral n) => n.value.to!string
+                                            ));
+                    return null;
+                }
+            );
+        });
+    }
+
+    void visit(CExpressionNode node)
+    {
+        node.match(
+            (CLiteralNode x) => x.match((IntLiteral x) => x.value.to!string)
+        );
+    }
+
+    void visit(CTypedefNode node)
+    {
+        this.printfln("typedef %s %s;", node.ctype.typeString, node.totype);
+    }
 };
+
+private string typeString(CType t)
+{
+    import util;
+    return t.use_err!(t => t.match((CPrimitive t) => t.name,
+                            (CType t) => "unknown"))(new Exception("Null type"));
+}
 

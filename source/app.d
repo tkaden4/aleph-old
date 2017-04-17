@@ -59,7 +59,7 @@ int main(string[] args)
         );
         return 0;
     }catch(Exception ex){
-        "error: %s\n".format(ex.msg).writeln;
+        "error: %s\n".writefln(ex.msg);
         return 1;
     }
 }

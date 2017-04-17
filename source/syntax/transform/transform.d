@@ -13,9 +13,7 @@ import std.stdio;
 import std.typecons;
 
 import util;
-
-// Sealed Class
-public interface CType {};
+import syntax.transform.CType;
 
 public class CSymbol {
 public:
@@ -24,7 +22,7 @@ public:
 };
 
 public class CSymbolTable {
-    this(CSymbolTable parentTable)
+    this(CSymbolTable parentTable=null)
     {
         this.parent = parentTable;
     }
@@ -53,45 +51,75 @@ private:
 
 public auto transform(SymbolTable tab, ProgramNode node)
 {
-    return tuple(node.visit, new CSymbolTable(null));
+    return node.visit(tab);
 }
 
-private CProgramNode visit(ProgramNode node)
+private auto visit(ProgramNode node, SymbolTable tab)
 {
-    node.children.each!((x){
-        x.match(
-            (ProcDeclNode proc){
-                proc.visit(new CSymbolTable(null), new SymbolTable);
-            },
-            (ASTNode node){
-                throw new CTreeException("Invalid Top-Level Declaration");
-            }
+    auto table = new CSymbolTable;
+    CTopLevelNode[] top = [];
+    node.children.match_each(
+        (ProcDeclNode proc){
+            top ~= proc.visit(table, tab);
+        },
+        (ASTNode node){
+            throw new CTreeException("Invalid Top-Level Declaration");
+        }
+    );
+    return tuple(new CProgramNode(top), table);
+}
+
+private auto visit(ProcDeclNode node, CSymbolTable ctable, SymbolTable table)
+{
+    import std.conv;
+    CStatementNode[] bod_s;
+    auto ret_type = node.returnType.visit(table);
+    auto params = node.parameters.map!(x => CParameter(x.type.visit(table), x.name)).array;
+    node.bodyNode.to!BlockNode.children.match_each(
+        (ExpressionNode n) => bod_s ~= cast(CStatementNode)n.visit(table)
+    );
+    auto bod = new CBlockStatementNode(bod_s);
+    return new CFuncDeclNode(CStorageClass.EXTERN, 
+                             ret_type, node.name, 
+                             params, bod);
+}
+
+private CExpressionNode visit(ExpressionNode n, SymbolTable table)
+{
+    try{
+        auto ret = n.match(
+            (IntegerNode n) => cast(CExpressionNode)new IntLiteral(n.value),
+            (VarDeclNode n) => cast(CExpressionNode)new CVarDeclNode(CStorageClass.AUTO, n.type.visit(table), n.name),
+            (ReturnNode n) => cast(CExpressionNode)new CReturnNode(n.value.visit(table))
         );
-    });
-    return new CProgramNode(null);
+        if(!ret){
+            throw new Exception("couldnt");
+        }
+        return ret;
+    }catch(Exception e){
+        throw new Exception("Couldn't convert %s to expression node".format(n));
+    }
 }
 
-private CFuncDeclNode visit(ProcDeclNode node, CSymbolTable ctable, SymbolTable table)
+private auto visit(ASTNode n)
 {
-    "%s: ".writef(node.name);
-    //node.writeln;
-    node.functionType.getTypeId.writeln;
-    return new CFuncDeclNode(CStorageClass.STATIC, "", "", [], null);
+    import std.random;
+    return new CBlockStatementNode(
+                [
+                    new CVarDeclNode(CStorageClass.AUTO,
+                                      CPrimitives.Int,
+                                      "x",
+                                      new IntLiteral(uniform(0, 200)))
+                ]);
 }
 
-private string getTypeId(Type type)
+private CType visit(Type type, SymbolTable table)
 {
+    import std.conv;
     return type.match(
         (FunctionType t){
-            string ret = "";
-            ret = t.parameterTypes.use!((x){
-                x.each!(
-                    (k){ ret ~= k.getTypeId; }
-                );
-                return ret;
-            }).or("void");
-            return ret ~ " -> %s".format(t.returnType.getTypeId);
+            return new CPrimitive("void", false);
         },
-        (PrimitiveType t) => t.primString
+        (Type t){ return new CPrimitive("int", true); }
     );
 }

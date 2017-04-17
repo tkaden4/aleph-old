@@ -6,6 +6,23 @@ public {
     import std.algorithm;
     import std.typecons;
 
+    auto headLast(alias first, alias last, T)(T range)
+    {
+        foreach(i, x; range){
+            if(i == range.length - 1){
+                last(x);
+                break;
+            }
+            first(x);
+        }
+    }
+
+    auto match_each(T, Funcs...)(T t, Funcs fs)
+    {
+        import util.match;
+        t.each!(x => x.match(fs));
+    }
+
     T getOrThrow(T)(Nullable!T n, const Exception ex) pure
     {
         if(n.isNull){

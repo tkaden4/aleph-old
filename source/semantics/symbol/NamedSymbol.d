@@ -1,7 +1,7 @@
 module semantics.symbol.NamedSymbol;
 
 import semantics.symbol.Symbol;
-import semantics.type.Type;
+public import semantics.type.Type;
 
 public class NamedSymbol : Symbol {
 public:

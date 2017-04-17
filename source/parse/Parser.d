@@ -61,7 +61,7 @@ public:
         import std.conv;
         switch(this.la.type){
         case Token.Type.INTEGER:
-            auto num = this.match(Token.Type.INTEGER).lexeme.to!long;
+            auto num = this.match(Token.Type.INTEGER).lexeme.to!int;
             return presult!ExpressionNode(new IntegerNode(num));
         case Token.Type.CHAR:
             auto tok = this.match(Token.Type.CHAR);
@@ -167,6 +167,9 @@ public:
     Type parseType()
     {
         switch(this.la.type){
+        case Token.Type.STAR:
+            this.advance;
+            return new PointerType(this.parseType);
         /* Primitive type */
         case Token.Type.ID:
             return this.match(Token.Type.ID).lexeme.toPrimitive;
@@ -178,7 +181,6 @@ public:
             this.match(Token.Type.RPAREN);
             this.match(Token.Type.RARROW);
             auto ret = this.parseType;
-            ret.writeln;
             return new FunctionType(ret, [param]);
         default:
             throw new ParserException("Couldn't parse type");

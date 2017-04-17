@@ -4,7 +4,7 @@ import syntax.tree.ExpressionNode;
 
 public class IntegerNode : ExpressionNode {
 public:
-    this(long value)
+    this(int value)
     {
         this.val = value;
     }
@@ -25,5 +25,5 @@ public:
         return "IntegerNode(%d)".format(this.val);
     }
 private:
-    long val;
+    int val;
 };

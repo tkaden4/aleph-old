@@ -1,10 +1,11 @@
 module syntax.ctree.CTypedefNode;
 
-import syntax.ctree.CTreeNode;
+import syntax.ctree.CStatementNode;
+import syntax.transform.CType;
 
-class CTypedefNode : CTreeNode {
+class CTypedefNode : CStatementNode {
 public:
-    this(string ct, string tt)
+    this(CType ct, string tt)
     {
         this.ctype = ct;
         this.totype = tt;
@@ -16,6 +17,6 @@ public:
         return "Typedef(%s = %s)".format(this.totype, this.ctype);
     }
 
-    string ctype;
+    CType ctype;
     string totype;
 };
