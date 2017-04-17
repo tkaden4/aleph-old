@@ -33,6 +33,12 @@ public class CallNode : ExpressionNode {
     {
         return this.args;
     }
+
+    override string toString() const
+    {
+        import std.string;
+        return "Call(%s, %s, %s)".format(this.call, this.type, this.args);
+    }
 private:
     Type type;
     ExpressionNode call;

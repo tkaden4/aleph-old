@@ -14,6 +14,12 @@ public:
     {
         return this._value;
     }
+
+    override string toString() const
+    {
+        import std.string;
+        return "ReturnNode(%s)".format(this._value);
+    }
 private:
     ExpressionNode _value;
 };

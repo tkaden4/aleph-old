@@ -80,7 +80,9 @@ public override:
         /* Check for unresolved type */
         node.bodyNode.resultType.if_then!(
             (x){
-                node.returnType = x;
+                if(!node.returnType){
+                    node.returnType = x;
+                }
                 thissym.match(
                     (FunctionSymbol fun){
                         if(!fun.type){

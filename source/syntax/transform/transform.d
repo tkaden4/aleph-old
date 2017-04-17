@@ -58,7 +58,6 @@ public auto transform(SymbolTable tab, ProgramNode node)
 
 private CProgramNode visit(ProgramNode node)
 {
-    auto prog = new CProgramNode(null);
     node.children.each!((x){
         x.match(
             (ProcDeclNode proc){
@@ -69,10 +68,30 @@ private CProgramNode visit(ProgramNode node)
             }
         );
     });
-    return prog;
+    return new CProgramNode(null);
 }
 
 private CFuncDeclNode visit(ProcDeclNode node, CSymbolTable ctable, SymbolTable table)
 {
-    return null;
+    "%s: ".writef(node.name);
+    //node.writeln;
+    node.functionType.getTypeId.writeln;
+    return new CFuncDeclNode(CStorageClass.STATIC, "", "", [], null);
+}
+
+private string getTypeId(Type type)
+{
+    return type.match(
+        (FunctionType t){
+            string ret = "";
+            ret = t.parameterTypes.use!((x){
+                x.each!(
+                    (k){ ret ~= k.getTypeId; }
+                );
+                return ret;
+            }).or("void");
+            return ret ~ " -> %s".format(t.returnType.getTypeId);
+        },
+        (PrimitiveType t) => t.primString
+    );
 }

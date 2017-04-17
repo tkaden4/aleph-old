@@ -1,5 +1,5 @@
-proc foo() -> int = 8
-proc foo_ret() = foo
+proc foo -> int = 8
+proc foo_ret -> (void) -> (int) -> void = foo
 
 proc main() = {
     foo_ret()()

@@ -5,6 +5,7 @@ import stdio = std.stdio;
 import std.range;
 import std.conv;
 
+import util.match;
 import syntax.ctree;
 import syntax.transform;
 
@@ -36,7 +37,23 @@ public:
 
     void visit(CProgramNode node)
     {
-    
+        foreach(x; node.children){
+            this.visit(x);
+        }
+    }
+
+    void visit(CTopLevelNode node)
+    {
+        node.match(
+            (CFuncDeclNode func) => this.visit(func)
+        );
+    }
+
+    void visit(CFuncDeclNode node)
+    {
+        this.block({
+            this.printfln("Well i guess");
+        });
     }
 };
 

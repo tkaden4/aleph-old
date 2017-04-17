@@ -178,6 +178,7 @@ public:
             this.match(Token.Type.RPAREN);
             this.match(Token.Type.RARROW);
             auto ret = this.parseType;
+            ret.writeln;
             return new FunctionType(ret, [param]);
         default:
             throw new ParserException("Couldn't parse type");

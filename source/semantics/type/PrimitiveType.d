@@ -17,22 +17,30 @@ public enum Primitives {
 public class PrimitiveType : Type {
 public:
 
-    this(Primitive type)
+    this(Primitive _type)
     {
-        this.type = type;
+        this._type = _type;
     }
 
-    auto getType() pure
+    @property auto type() pure
     {
-        return this.type;
+        return this._type;
     }
 
     override string toString() const
     {
         import std.string;
-        return "Primitive(%s)".format(this.type);
+        return "Primitive(%s)".format(this._type);
     }
 private:
-    Primitive type;
+    Primitive _type;
 };
 
+public string primString(PrimitiveType type)
+{
+    final switch(type.type){
+    case Primitive.INT: return "int";
+    case Primitive.CHAR: return "char";
+    case Primitive.VOID: return "void";
+    }
+}
