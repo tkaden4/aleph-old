@@ -18,120 +18,50 @@ import std.algorithm;
 import std.stdio;
 import std.typecons;
 
+private alias AlephTable = SymbolTable!Symbol;
+
 public auto buildTypes(ProgramNode node)
 {
-    return tuple(new SemaOne().apply(node), node);
+    return node.resolve(new AlephTable);
 }
 
-private class SemaOne : ASTVisitor {
-public:
-    SymbolTable!Symbol result;
+private auto resolve(ProgramNode node, AlephTable table)
+{
+    return tuple(table, new ProgramNode(
+                                node.children.map!(x => x.resolve(table)).array
+                            ));
+}
 
-    this(){ this.result = new SymbolTable!Symbol; }
+private auto resolve(ReturnNode node, AlephTable table)
+{
+    node.value.apply!(x => x.resolve(table));
+    return node;
+}
+private StatementNode resolve(StatementNode node, AlephTable table)
+{
+    return node.match(
+        (ReturnNode n) => cast(StatementNode)n.resolve(table),
+        (VarDeclNode n) => cast(StatementNode)n.resolve(table),
+        (ProcDeclNode n) => cast(StatementNode)n.resolve(table)
+    );
+}
 
-    auto apply(ASTNode node)
-    {
-        this.dispatch(node);
-        return this.result;
-    }
-public override:
-    void visit(ProgramNode node)
-    {
-        node.children.each!(x => this.dispatch(x));
-    }
+private auto resolve(ProcDeclNode n, AlephTable t)
+{
+    return new ProcDeclNode(n.name, n.returnType, n.parameters, n.bodyNode.resolve(t));
+}
 
-    void visit(ReturnNode node)
-    {
-        node.value.apply!(x => this.dispatch(x));
-    }
+private auto resolve(VarDeclNode n, AlephTable t)
+{
+    return new VarDeclNode(n.name, n.type, n.init.use!(x => x.resolve(t)));
+}
 
-    void visit(ProcDeclNode node)
-    {
-        /* Create the symbol to be added to table */
-        auto bodyScope = new SymbolTable!Symbol(this.result);
+private auto resolve(BlockNode node, AlephTable t)
+{
+    return new BlockNode(node.children.map!(x => x.resolve(t)).array);
+}
 
-        auto sym = node.returnType.use!(
-            x => new FunctionSymbol(node.name, node.functionType, bodyScope)
-        ).or(
-            node.bodyNode.resultType.use!(
-                (x){
-                    node.returnType = x;
-                    auto ret = new FunctionSymbol(node.name, node.functionType, bodyScope);
-                    return ret;
-                }
-            ).or(new FunctionSymbol(node.name, null, bodyScope))
-        );
-
-        /* Add the symbol for the function */
-        auto thissym = this.result.insert(node.name, sym);
-
-        /* visit the body with a new scope*/
-        this.result = bodyScope;
-
-        foreach(x; node.parameters){
-            /* add parameters to the symbol table */
-            bodyScope.insert(x.name, new VarSymbol(x.name, x.type, bodyScope.parent));
-        }
-
-
-        this.dispatch(node.bodyNode);
-
-        this.result = this.result.parent;
-
-        /* Check for unresolved type */
-        node.bodyNode.resultType.if_then!(
-            (x){
-                if(!node.returnType){
-                    node.returnType = x;
-                }
-                thissym.match(
-                    (FunctionSymbol fun){
-                        if(!fun.type){
-                            fun.type = node.functionType;
-                        }
-                    }
-                );
-            }
-        );
-    }
-
-    void visit(CallNode node)
-    {
-        this.dispatch(node.toCall);
-        node.arguments.each!(x => this.dispatch(x));
-        node.resultType = node.toCall
-            .use!(exp => exp.resultType)
-            .use!(fnres => fnres.match((FunctionType f) => f))
-            .use_err!(fn => fn.returnType)(new ASTException("Cannot call non-function"))
-            .use_err!(ret => ret)(new ASTException("Unknown return type"));
-    }
-
-    void visit(BlockNode node)
-    {
-        node.children.each!(x => this.dispatch(x));
-        node.resultType = node.children
-            .use!(x => x.back)
-            .use!(x => x.resultType)
-            .use_err!(x => x)(new ASTException("Result type unknown"));
-    }
-
-    void visit(VarDeclNode node)
-    {
-        auto res = this.result.insert(node.name, new VarSymbol(node.name, node.type, this.result));
-        this.dispatch(node.init);
-        node.type = node.type
-            .or(node.init.resultType)
-            .if_then!(x => res.type = x);
-    }
-
-    void visit(IdentifierNode node)
-    {
-        auto sym = this.result.find(node.name);
-        node.resultType = sym
-            .use_err!(x => x.type)(new ASTException("No symbol defined with name %s".format(node.name)))
-            .use_err!(x => x)(new ASTException("Type of %s unknowable at this point".format(node.name)));
-    }
-
-    void visit(IntegerNode node){}
-    void visit(CharNode node){}
-};
+private auto resolve(ExpressionNode node, AlephTable table)
+{
+    return node;
+}

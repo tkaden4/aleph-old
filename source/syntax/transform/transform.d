@@ -92,7 +92,6 @@ private CExpressionNode visit(ExpressionNode n, SymbolTable!Symbol table)
     try{
         auto ret = n.match(
             (IntegerNode n) => cast(CExpressionNode)new IntLiteral(n.value),
-            //,(CallNode n) => cast(CExpressionNode)new CCallNode(n.toCall.visit(table)));
         );
         if(!ret){
             throw new Exception("couldnt");

@@ -18,6 +18,8 @@ public ASTNode desugar(ProgramNode node)
  * - transforms IfExpressions into IfStatements that 
  *   assign to a temporary */
 
+
+/* TODO make pure functions */
 private class Desugar : ASTVisitor {
 public:
     ProgramNode result;
