@@ -2,7 +2,9 @@ module semantics.symbol.Symbol;
 
 import semantics.type.Type;
 
-public interface Symbol {
-    @property Type type();
-    @property void type(Type t);
+alias Symbol = SymbolT!Type;
+
+public interface SymbolT(TypeType) {
+    @property TypeType type();
+    @property void type(TypeType t);
 };
