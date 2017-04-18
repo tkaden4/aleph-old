@@ -4,25 +4,16 @@ import syntax.ctree.CDeclarationNode;
 import syntax.ctree.CBlockStatementNode;
 import syntax.transform.CType;
 
-struct CParameter {
-    CType type;
-    string name;
-};
+import syntax.builders.routine;
 
-class CFuncDeclNode : CDeclarationNode, CTopLevelNode {
-public:
+public alias CParameter = CFuncDeclNode.Parameter;
+
+public class CFuncDeclNode: CDeclarationNode, CTopLevelNode {
+    mixin routineNodeClass!(CType, CBlockStatementNode);
     this(CStorageClass cl, CType ret, string func_name, 
-            CParameter[] params, CBlockStatementNode c)
+         CParameter[] params, CBlockStatementNode c)
     {
         super(cl);
-        this.returnType = ret;
-        this.name = func_name;
-        this.parameters = params;
-        this.bodyNode = c;
+        this.init(func_name, ret, params, c);
     }
-
-    CType returnType;
-    string name;
-    CParameter[] parameters;
-    CBlockStatementNode bodyNode;
 };

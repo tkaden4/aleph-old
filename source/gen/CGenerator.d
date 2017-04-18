@@ -91,16 +91,13 @@ public:
     void visit(CVarDeclNode node)
     {
         import std.string;
-        this.printf("%s %s %s", node.storageClass.toString, node.type.typeString, node.name);
-        this.untabbed({
-            node.init.use!(
-                (x){
-                    this.printfln(" = %s;", x.match(
-                                                (IntLiteral n) => n.value.to!string
-                                            ));
-                    return null;
-                }
-            );
+        this.statement({
+            this.printf("%s %s %s", node.storageClass.toString, node.type.typeString, node.name);
+            if(node.init){
+                this.untabbed({
+                    this.printf(" = %s", node.init.match((IntLiteral n) => n.value.to!string));
+                });
+            }
         });
     }
 

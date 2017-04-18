@@ -76,7 +76,15 @@ public struct OutputBuilder {
 
     auto printfln(Args...)(string fmt, Args args)
     {
-        return this.printf(fmt ~ '\n', args);
+        return this.printf(fmt ~ (this.statem ? ";" : "") ~ '\n', args);
+    }
+
+    auto statement(Func)(Func f)
+    {
+        f();
+        this.untabbed({
+            this.printfln(";");
+        });
     }
 
     auto tabbed(Func)(Func body_fun)

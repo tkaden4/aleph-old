@@ -76,6 +76,7 @@ private auto visit(ProcDeclNode node, CSymbolTable ctable, SymbolTable table)
     auto ret_type = node.returnType.visit(table);
     auto params = node.parameters.map!(x => CParameter(x.type.visit(table), x.name)).array;
     node.bodyNode.to!BlockNode.children.match_each(
+        (StatementNode n) => bod_s ~= cast(CStatementNode)n.visit(table),
         (ExpressionNode n) => bod_s ~= cast(CStatementNode)n.visit(table)
     );
     auto bod = new CBlockStatementNode(bod_s);
@@ -84,13 +85,23 @@ private auto visit(ProcDeclNode node, CSymbolTable ctable, SymbolTable table)
                              params, bod);
 }
 
+
+private CStatementNode visit(StatementNode n, SymbolTable table)
+{
+    return n.match(
+        (VarDeclNode n) => cast(CStatementNode)new CVarDeclNode(CStorageClass.AUTO,
+                                                                 n.type.visit(table),
+                                                                 n.name),
+        (ReturnNode n) => cast(CStatementNode)new CReturnNode(n.value.visit(table))
+    );
+}
+
 private CExpressionNode visit(ExpressionNode n, SymbolTable table)
 {
     try{
         auto ret = n.match(
             (IntegerNode n) => cast(CExpressionNode)new IntLiteral(n.value),
-            (VarDeclNode n) => cast(CExpressionNode)new CVarDeclNode(CStorageClass.AUTO, n.type.visit(table), n.name),
-            (ReturnNode n) => cast(CExpressionNode)new CReturnNode(n.value.visit(table))
+            //,(CallNode n) => cast(CExpressionNode)new CCallNode(n.toCall.visit(table)));
         );
         if(!ret){
             throw new Exception("couldnt");

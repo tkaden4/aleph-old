@@ -7,5 +7,12 @@ public class PointerType : Type {
     {
         this.type = to;
     }
+
+    override string toString() const
+    {
+        import std.format;
+        return "PointerType(%s)".format(this.type);
+    }
+
     Type type;
 };

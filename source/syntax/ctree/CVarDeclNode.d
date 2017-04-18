@@ -4,16 +4,13 @@ import syntax.ctree.CStatementNode;
 import syntax.ctree.CDeclarationNode;
 import syntax.ctree.CExpressionNode;
 import syntax.transform.CType;
+import syntax.builders.variable;
 
 public class CVarDeclNode : CDeclarationNode {
+    mixin variableClass!(CType, CExpressionNode);
     this(CStorageClass sc, CType type, string id, CExpressionNode init=null)
     {
         super(sc);
-        this.type = type;
-        this.name = id;
-        this.init = init;
+        this.initv(id, type, init);
     }
-    CType type;
-    string name;
-    CExpressionNode init;
 };

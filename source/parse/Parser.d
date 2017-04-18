@@ -172,7 +172,8 @@ public:
             return new PointerType(this.parseType);
         /* Primitive type */
         case Token.Type.ID:
-            return this.match(Token.Type.ID).lexeme.toPrimitive;
+            auto x = this.match(Token.Type.ID);
+            return x.lexeme.toPrimitive;
         /* Function types */
         /* TODO add multiple parameter types */
         case Token.Type.LPAREN:
@@ -191,9 +192,10 @@ public:
     {
         Parameter[] params;
         while(this.test(Token.Type.ID)){
-            params ~= Parameter(this.match(Token.Type.ID,
-                                           Token.Type.COLON)[0].lexeme,
-                                           this.parseType);
+            auto name = this.match(Token.Type.ID);
+            this.match(Token.Type.COLON);
+            auto type = this.parseType;
+            params ~= Parameter(type, name.lexeme);
             if(this.test(Token.Type.COMMA)){
                 this.advance;
             }

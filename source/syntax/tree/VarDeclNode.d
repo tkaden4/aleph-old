@@ -2,24 +2,20 @@ module syntax.tree.VarDeclNode;
 
 import syntax.tree.StatementNode;
 import syntax.tree.ExpressionNode;
+import syntax.builders.variable;
 
 public class VarDeclNode : StatementNode {
 public:
-    this(string id, Type type, ExpressionNode exp)
+    mixin variableClass!(Type, ExpressionNode);
+
+    this(string name, Type type, ExpressionNode node)
     {
-        this.name = id;
-        this.type = type;
-        this.init = exp;
+        this.initv(name, type, node);
     }
 
     override string toString() const
     {
         import std.string;
-        return "VarDecl(%s) :: %s".format(this.name, this.type);
+        return "VarDecl(%s, %s)".format(this.name, this.type);
     }
-
-public:
-    string name;
-    Type type;
-    ExpressionNode init;
 };
