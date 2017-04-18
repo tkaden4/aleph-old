@@ -11,22 +11,17 @@ public:
 
     SymbolTable globalTable()
     {
-        if(this.parent){
-            return this._parent.globalTable;
-        }
-        return this;
+        return this.parent.use!(x => x.globalTable).or(this);
     }
 
     SymbolType *find(string id)
     {
-        auto ret = id in this.symbols;
-        return ret.or(this._parent.use!(x => x.find(id)));
+        return (id in this.symbols).or(this._parent.use!(x => x.find(id)));
     }
 
     SymbolType insert(string id, SymbolType sym)
     {
-        this.symbols[id] = sym;
-        return sym;
+        return sym.then!(x => this.symbols[id] = sym);
     }
 
     @property auto parent()
