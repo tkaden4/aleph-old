@@ -16,7 +16,7 @@ import syntax.tree.ASTException;
 
 import semantics.SemaOne;
 import semantics.Desugar;
-import semantics.symbol.SymbolTable;
+import semantics.SymbolTable;
 
 import gen.CGenerator;
 

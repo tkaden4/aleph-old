@@ -3,7 +3,7 @@ module semantics.Desugar;
 import std.stdio;
 
 import syntax.tree.visitors.ASTVisitor;
-import semantics.symbol.SymbolTable;
+import semantics.symbol.Symbol;
 import std.range;
 
 import util;

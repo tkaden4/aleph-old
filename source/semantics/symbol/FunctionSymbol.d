@@ -1,13 +1,14 @@
 module semantics.symbol.FunctionSymbol;
 
 import semantics.symbol.NamedSymbol;
-import semantics.symbol.SymbolTable;
+import semantics.SymbolTable;
+import semantics.symbol.Symbol;
 import semantics.type.FunctionType;
 
 import util.match;
 
 public class FunctionSymbol : NamedSymbol {
-    this(string _name, FunctionType ftype, SymbolTable bodyScope)
+    this(string _name, FunctionType ftype, SymbolTable!Symbol bodyScope)
     {
         super(_name, ftype);
     }

@@ -7,7 +7,6 @@ import syntax.transform.CType;
 import syntax.builders.routine;
 
 public alias CParameter = CFuncDeclNode.Parameter;
-
 public class CFuncDeclNode: CDeclarationNode, CTopLevelNode {
     mixin routineNodeClass!(CType, CBlockStatementNode);
     this(CStorageClass cl, CType ret, string func_name, 

@@ -9,11 +9,13 @@ import util;
 import syntax.ctree;
 import syntax.transform;
 
+import semantics.SymbolTable;
+
 public import gen.OutputBuilder;
 import std.range;
 import std.algorithm;
 
-public auto cgenerate(CProgramNode node, CSymbolTable table, OutputStream outp)
+public auto cgenerate(CProgramNode node, SymbolTable!CSymbol table, OutputStream outp)
 {
     return new CGenerator(table, new OutputBuilder(outp)).apply(node);
 }
@@ -22,9 +24,9 @@ private class CGenerator {
 private:
     OutputBuilder *ob;
     alias ob this;
-    CSymbolTable symtab;
+    SymbolTable!CSymbol symtab;
 public:
-    this(CSymbolTable table, OutputBuilder *builder)
+    this(SymbolTable!CSymbol table, OutputBuilder *builder)
     {
         this.symtab = table;
         this.ob = builder;

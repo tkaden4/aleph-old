@@ -4,7 +4,8 @@ import syntax.tree.visitors.ASTVisitor;
 import syntax.ctree;
 import syntax.tree;
 
-import semantics.symbol.SymbolTable;
+import semantics.SymbolTable;
+import semantics.symbol.Symbol;
 
 import std.range;
 import std.algorithm;
@@ -21,42 +22,19 @@ public:
     CType type;
 };
 
-public class CSymbolTable {
-    this(CSymbolTable parentTable=null)
-    {
-        this.parent = parentTable;
-    }
-
-    CSymbolTable globalTable()
-    {
-        if(this.parent){
-            return this.parent.globalTable();
-        }
-        return this;
-    }
-
-    auto insert(string name, CSymbol symbol)
-    {
-        this.symbols[name] = symbol;
-    }
-private:
-    CSymbol[string] symbols;
-    CSymbolTable parent;
-};
-
 //TODO finish implementing
 
 /* Transform the Aleph AST into the C AST, for 
  * improved error checking and code generation */
 
-public auto transform(SymbolTable tab, ProgramNode node)
+public auto transform(SymbolTable!Symbol tab, ProgramNode node)
 {
     return node.visit(tab);
 }
 
-private auto visit(ProgramNode node, SymbolTable tab)
+private auto visit(ProgramNode node, SymbolTable!Symbol tab)
 {
-    auto table = new CSymbolTable;
+    auto table = new SymbolTable!CSymbol;
     CTopLevelNode[] top = [];
     node.children.match_each(
         (ProcDeclNode proc){
@@ -69,7 +47,7 @@ private auto visit(ProgramNode node, SymbolTable tab)
     return tuple(new CProgramNode(top), table);
 }
 
-private auto visit(ProcDeclNode node, CSymbolTable ctable, SymbolTable table)
+private auto visit(ProcDeclNode node, SymbolTable!CSymbol ctable, SymbolTable!Symbol table)
 {
     import std.conv;
     CStatementNode[] bod_s;
@@ -86,7 +64,7 @@ private auto visit(ProcDeclNode node, CSymbolTable ctable, SymbolTable table)
 }
 
 
-private CStatementNode visit(StatementNode n, SymbolTable table)
+private CStatementNode visit(StatementNode n, SymbolTable!Symbol table)
 {
     return n.match(
         (VarDeclNode n) => cast(CStatementNode)new CVarDeclNode(CStorageClass.AUTO,
@@ -96,7 +74,7 @@ private CStatementNode visit(StatementNode n, SymbolTable table)
     );
 }
 
-private CExpressionNode visit(ExpressionNode n, SymbolTable table)
+private CExpressionNode visit(ExpressionNode n, SymbolTable!Symbol table)
 {
     try{
         auto ret = n.match(
@@ -124,7 +102,7 @@ private auto visit(ASTNode n)
                 ]);
 }
 
-private CType visit(Type type, SymbolTable table)
+private CType visit(Type type, SymbolTable!Symbol table)
 {
     import std.conv;
     return type.match(

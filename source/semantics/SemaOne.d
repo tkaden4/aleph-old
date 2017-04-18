@@ -7,6 +7,7 @@ module semantics.SemaOne;
 import syntax.tree.visitors.ASTVisitor;
 
 import semantics.symbol;
+import semantics.SymbolTable;
 import semantics.type;
 
 import util;
@@ -24,9 +25,9 @@ public auto buildTypes(ProgramNode node)
 
 private class SemaOne : ASTVisitor {
 public:
-    SymbolTable result;
+    SymbolTable!Symbol result;
 
-    this(){ this.result = new SymbolTable; }
+    this(){ this.result = new SymbolTable!Symbol; }
 
     auto apply(ASTNode node)
     {
@@ -47,7 +48,7 @@ public override:
     void visit(ProcDeclNode node)
     {
         /* Create the symbol to be added to table */
-        auto bodyScope = new SymbolTable(this.result);
+        auto bodyScope = new SymbolTable!Symbol(this.result);
 
         auto sym = node.returnType.use!(
             x => new FunctionSymbol(node.name, node.functionType, bodyScope)
@@ -125,7 +126,7 @@ public override:
 
     void visit(IdentifierNode node)
     {
-        auto sym = this.result[node.name];
+        auto sym = this.result.find(node.name);
         node.resultType = sym
             .use_err!(x => x.type)(new ASTException("No symbol defined with name %s".format(node.name)))
             .use_err!(x => x)(new ASTException("Type of %s unknowable at this point".format(node.name)));

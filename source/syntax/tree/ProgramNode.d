@@ -2,7 +2,6 @@ module syntax.tree.ProgramNode;
 
 import syntax.tree.ASTNode;
 import syntax.tree.StatementNode;
-import semantics.symbol.SymbolTable;
 
 public class ProgramNode : ASTNode {
 public:
