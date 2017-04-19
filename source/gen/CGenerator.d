@@ -95,7 +95,11 @@ public:
     void visit(CStatementNode node)
     {
         node.match(
-            (CExpressionNode n) => this.visit(n),
+            (CExpressionNode n){
+                this.statement({
+                    this.visit(n);
+                });
+            },
             (CReturnNode n){
                 this.statement({
                     this.printf("return ");
@@ -137,6 +141,15 @@ public:
             },
             (CIdentifierNode n){
                 this.printf("%s", n.name);
+            },
+            (CCallNode n){
+                this.visit(n.toCall);
+                this.untabbed({
+                    this.printf("(");
+                    n.arguments.headLast!((x){ this.visit(x); this.printf(", "); },
+                                          (k){ this.visit(k); });
+                    this.printf(")");
+                });
             }
         );
     }
@@ -151,6 +164,6 @@ private string typeString(CType t)
 {
     import util;
     return t.use_err!(t => t.match((CPrimitive t) => t.name,
-                            (CType t) => "unknown"))(new Exception("Null type"));
+                                   (CType t) => "unknown"))(new Exception("Null type"));
 }
 

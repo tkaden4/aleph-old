@@ -19,6 +19,17 @@ private:
     CType under;
 };
 
+public class CFunctionType : CType {
+    this(CType ret, CType[] params)
+    {
+        this.returnType = ret;
+        this.parameterTypes = params;
+    }
+
+    CType returnType;
+    CType[] parameterTypes;
+};
+
 public class CPrimitive : CType {
 public:
     this(string name, bool signed, size_t size)
@@ -31,12 +42,6 @@ public:
     bool signed;
     size_t size;
 };
-
-/* TODO
-public static CPrimitive[string] prims = {
-    {CPrimitives.Int, "int"}
-};
-*/
 
 public enum CPrimitives {
     Int = new CPrimitive("int", true, 4),

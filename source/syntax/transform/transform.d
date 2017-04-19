@@ -80,9 +80,10 @@ private CStatementNode visit(StatementNode n, SymbolTable!Symbol table)
 private CExpressionNode visit(ExpressionNode n, SymbolTable!Symbol table)
 {
     return n.match(
-        (IntegerNode n) => cast(CExpressionNode)new IntLiteral(n.value),
-        (StringNode n)  => cast(CExpressionNode)new StringLiteral(n.value),
+        (IntegerNode n)    => cast(CExpressionNode)new IntLiteral(n.value),
+        (StringNode n)     => cast(CExpressionNode)new StringLiteral(n.value),
         (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
+        (CallNode n)       => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
         // XXX
         (Object n) => null.err(new Exception("Couldn't convert %s to C expresion".format(n)))
     );
@@ -99,7 +100,7 @@ private CType visit(Type type, SymbolTable!Symbol table)
     import std.conv;
     return type.match(
         (FunctionType t){
-            return CPrimitives.Void;
+            return cast(CType)new CFunctionType(t.returnType.visit(table), t.parameterTypes.map!(x => x.visit(table)).array);
         },
         (Type t){ return CPrimitives.Int; }
     );
