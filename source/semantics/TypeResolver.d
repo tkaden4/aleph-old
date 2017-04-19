@@ -44,6 +44,7 @@ private StatementNode resolve(StatementNode node, AlephTable table)
 
 private auto resolve(VarDeclNode n, AlephTable t)
 {
+    // XXX
     return n;
 }
 
@@ -69,7 +70,11 @@ private auto resolve(CallNode n, AlephTable table)
     n.toCall = n.toCall.resolve(table);
     n.arguments = n.arguments.map!(x => x.resolve(table)).array;
     if(!n.resultType){
-        n.resultType = n.toCall.resultType;
+        n.resultType = n.toCall.resultType.use!(x =>
+                        x.match(
+                            (FunctionType t) => t.returnType,
+                            (Type t) => null.err(new Exception("exist"))
+                        ));
     }
     return n;
 }
@@ -77,14 +82,16 @@ private auto resolve(CallNode n, AlephTable table)
 private auto resolve(ProcDeclNode node, AlephTable table)
 {
     auto sym = table.find(node.name).err(new Exception("Function %s not defined".format(node.name)));
-    if(!sym.type){
-        node.returnType = node.bodyNode.resultType;
-        sym.type = node.functionType.err(new Exception("Recursive type checking problem"));
-        "Resolved function %s".writefln(node);
-    }
+
     auto symtab = (cast(FunctionSymbol)sym);
     auto tab = symtab.bodyScope;
     node.bodyNode = node.bodyNode.resolve(tab);
+
+    if(!sym.type){
+        node.returnType = node.bodyNode.resultType;
+        sym.type = node.functionType.err(new Exception("Recursive type checking problem of %s".format(node.name)));
+        "Resolved function %s".writefln(node);
+    }
     return node;
 }
 
@@ -95,9 +102,12 @@ private auto resolve(IdentifierNode node, AlephTable table)
            .err(new Exception("Identifier %s not defined".format(node.name)))
            .type
       ){
-        node.resultType = node.use!(x => x.resultType);
         sym.type = node.resultType.err(new Exception("Couldn't infer type for %s".format(node.name)));
         "Resolved identifier %s".writefln(node);
+    }else{
+        if(!node.resultType){
+            node.resultType = sym.type;
+        }
     }
     return node;
 }

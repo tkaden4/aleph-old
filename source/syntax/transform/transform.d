@@ -27,7 +27,11 @@ public auto transform(Tuple)(Tuple t)
 
 public auto transform(SymbolTable!Symbol tab, ProgramNode node)
 {
-    return node.visit(tab);
+    try{
+        return node.visit(tab);
+    }catch(Exception e){
+        throw new Exception("Couldn't transform tree: %s".format(e.msg));
+    }
 }
 
 private auto visit(ProgramNode node, SymbolTable!Symbol tab)

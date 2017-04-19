@@ -76,10 +76,10 @@ private auto build(CallNode n, AlephTable t)
 {
     n.toCall = n.toCall.build(t);
     n.arguments = n.arguments.map!(x => x.build(t)).array;
-    n.resultType = n.toCall.resultType.match(
-        (FunctionType f) => f,
-        (Type t) => null
-    ).err(new Exception("Cannot call non-function"));
+    n.resultType = n.toCall.resultType.use!(x => x.match(
+        (FunctionType f) => f.returnType,
+        (Type t) => null.err(new Exception("Cannot call non-function"))
+    ));
     return n;
 }
 
@@ -102,8 +102,9 @@ private auto build(BlockNode node, AlephTable t)
 
 private auto build(IdentifierNode node, AlephTable t)
 {
-    node.resultType = t.find(node.name)
-                       .err(new Exception("Symbol %s not defined".format(node.name)))
-                       .type;
+    auto sym = t.find(node.name);
+    node.resultType = sym 
+                         .err(new Exception("Symbol %s not defined".format(node.name)))
+                         .type;
     return node;
 }

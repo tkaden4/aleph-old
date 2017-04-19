@@ -1,8 +1,8 @@
-proc add -> int = 8
-proc bar -> int = add()
-proc foo -> int = bar()
+proc add = 8
+proc bar = add()
+proc foo = bar()
 
-proc main -> int = {
-    bar()
+proc main = {
+    foo()
     0
 }
