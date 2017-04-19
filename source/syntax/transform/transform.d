@@ -17,6 +17,8 @@ import util;
 
 //TODO finish implementing
 
+alias CSymbolTable = SymbolTable!CSymbol;
+
 /* Transform the Aleph AST into the C AST, for 
  * improved error checking and code generation */
 
@@ -25,7 +27,7 @@ public auto transform(Tuple)(Tuple t)
     return t.expand.transform;
 }
 
-public auto transform(SymbolTable!Symbol tab, ProgramNode node)
+public auto transform(AlephTable tab, ProgramNode node)
 {
     try{
         return node.visit(tab);
@@ -34,9 +36,9 @@ public auto transform(SymbolTable!Symbol tab, ProgramNode node)
     }
 }
 
-private auto visit(ProgramNode node, SymbolTable!Symbol tab)
+private auto visit(ProgramNode node, AlephTable tab)
 {
-    auto table = new SymbolTable!CSymbol;
+    auto table = new CSymbolTable;
     CTopLevelNode[] top = [];
     node.children.match_each(
         (ProcDeclNode proc){
@@ -49,7 +51,7 @@ private auto visit(ProgramNode node, SymbolTable!Symbol tab)
     return tuple(new CProgramNode(top), table);
 }
 
-private auto visit(ProcDeclNode node, SymbolTable!CSymbol ctable, SymbolTable!Symbol table)
+private auto visit(ProcDeclNode node, CSymbolTable ctable, AlephTable table)
 {
     import std.conv;
     CStatementNode[] bod_s;
@@ -66,7 +68,7 @@ private auto visit(ProcDeclNode node, SymbolTable!CSymbol ctable, SymbolTable!Sy
 }
 
 
-private CStatementNode visit(StatementNode n, SymbolTable!Symbol table)
+private CStatementNode visit(StatementNode n, AlephTable table)
 {
     return n.match(
         (VarDeclNode n) => cast(CStatementNode)new CVarDeclNode(CStorageClass.AUTO,
@@ -77,7 +79,7 @@ private CStatementNode visit(StatementNode n, SymbolTable!Symbol table)
     );
 }
 
-private CExpressionNode visit(ExpressionNode n, SymbolTable!Symbol table)
+private CExpressionNode visit(ExpressionNode n, AlephTable table)
 {
     return n.match(
         (IntegerNode n)    => cast(CExpressionNode)new IntLiteral(n.value),
@@ -95,13 +97,24 @@ private auto visit(ASTNode n)
     throw new Exception("Couldn't visit %s".format(n));
 }
 
-private CType visit(Type type, SymbolTable!Symbol table)
+private CType visit(Type type, AlephTable table)
 {
     import std.conv;
     return type.match(
         (FunctionType t){
+            // TODO add typedef
             return cast(CType)new CFunctionType(t.returnType.visit(table), t.parameterTypes.map!(x => x.visit(table)).array);
         },
-        (Type t){ return CPrimitives.Int; }
+        (PrimitiveType t){
+            switch(t.type){
+            case Primitive.INT: return CPrimitives.Int;
+            case Primitive.CHAR: return CPrimitives.Char;
+            case Primitive.VOID: return CPrimitives.Void;
+            default:
+                throw new Exception("Unknown primitive %s".format(t));
+            }
+        },
+        (PointerType t) => new CPointerType(t.type.visit(table))
+        
     );
 }

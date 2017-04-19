@@ -177,7 +177,7 @@ public:
             if(this.test(Token.Type.RARROW, 1)){
                 return this.advance.lexeme.toPrimitive.use!((x){
                     this.match(Token.Type.RARROW);
-                    return this.parseType.use!(k => new FunctionType(x, [k]));
+                    return this.parseType.use!(k => new FunctionType(k, [x]));
                 });
             }else{
                 auto x = this.match(Token.Type.ID);

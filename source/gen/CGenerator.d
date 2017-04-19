@@ -74,13 +74,16 @@ public:
     void visit(CFuncDeclNode node)
     {
         this.untabbed({
-            this.printf("%s %s %s(", node.storageClass.toString,
-                                     node.returnType.typeString,
-                                     node.name);
+            string inside = node.name ~ "(";
             node.parameters.headLast!(
-                    i => this.printf("%s %s, ", i.type.typeString, i.name),
-                    k => this.printf("%s %s", k.type.typeString, k.name));
-            this.printfln(")");
+                    i => inside ~= ("%s, ".format(i.type.typeString(i.name))),
+                    k => inside ~= ("%s".format(k.type.typeString(k.name))));
+            inside ~= ")";
+            import std.stdio;
+            inside.writeln;
+
+            this.printf("%s %s",  node.storageClass.toString,
+                                  node.returnType.typeString(inside));
         });
         this.visit(node.bodyNode);
     }
@@ -119,7 +122,7 @@ public:
     {
         import std.string;
         this.statement({
-            this.printf("%s %s %s", node.storageClass.toString, node.type.typeString, node.name);
+            this.printf("%s %s", node.storageClass.toString, node.type.typeString(node.name));
             if(node.initVal){
                 this.untabbed({
                     this.printf(" = ");
@@ -156,14 +159,28 @@ public:
 
     void visit(CTypedefNode node)
     {
-        this.printfln("typedef %s %s;", node.ctype.typeString, node.totype);
+        node.ctype.match(
+            (CFunctionType x) => this.printfln("typedef %s", node.ctype.typeString(node.totype)),
+            (CType x) => this.printfln("typedef %s %s;", node.ctype.typeString(node.totype), node.totype)
+        );
+        
     }
 };
 
-private string typeString(CType t)
+private string typeString(CType t, string id)
 {
     import util;
-    return t.use_err!(t => t.match((CPrimitive t) => t.name,
+    return t.use_err!(t => t.match((CPrimitive t) => "%s%s".format(t.name, (id.length == 0 ? "" : " " ~ id)),
+                                   (CPointerType t) => t.type.typeString("*" ~ id),
+                                   (CFunctionType t){
+                                       string inside = "(*" ~ id ~ ")";
+                                       inside ~= "(";
+                                       t.parameterTypes.each!(
+                                           x => inside ~= x.typeString("")
+                                       );
+                                       inside ~= ")";
+                                       return t.returnType.typeString(inside);
+                                   },
                                    (CType t) => "unknown"))(new Exception("Null type"));
 }
 
