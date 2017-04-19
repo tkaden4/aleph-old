@@ -67,7 +67,24 @@ public:
     void visit(CTopLevelNode node)
     {
         node.match(
-            (CFuncDeclNode func) => this.visit(func)
+            (CFuncDeclNode func) => this.visit(func),
+            (CExternFuncNode node){
+                this.statement({
+                    this.untabbed({
+                        this.printf("extern ");
+                        string inside = node.name ~ "(";
+                        node.parameterTypes.headLast!(x => inside ~= x.typeString("") ~ ", ",
+                                                      x => inside ~= x.typeString(""));
+                        inside ~= ")";
+                        this.printf("%s", node.returnType.typeString(inside));
+                    });
+                });
+            },
+            (CPreprocessorNode pre){
+                this.untabbed({
+                    this.printfln("#%s", pre.value);
+                });
+            }
         );
     }
 
@@ -157,11 +174,7 @@ public:
 
     void visit(CTypedefNode node)
     {
-        node.ctype.match(
-            (CFunctionType x) => this.printfln("typedef %s", node.ctype.typeString(node.totype)),
-            (CType x) => this.printfln("typedef %s %s;", node.ctype.typeString(node.totype), node.totype)
-        );
-        
+        this.printfln("typedef %s", node.ctype.typeString(node.totype));
     }
 };
 

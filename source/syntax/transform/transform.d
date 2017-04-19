@@ -44,11 +44,24 @@ private auto visit(ProgramNode node, AlephTable tab)
         (ProcDeclNode proc){
             top ~= proc.visit(table, tab);
         },
+        (ExternImportNode node){
+            top.insertInPlace(0, new CPreprocessorNode("include<%s>".format(node.file)));
+        },
+        (ExternProcNode node){
+            top ~= node.visit(table, tab);
+        },
         (ASTNode node){
             throw new CTreeException("Invalid Top-Level Declaration");
         }
     );
     return tuple(new CProgramNode(top), table);
+}
+
+private auto visit(ExternProcNode node, CSymbolTable ctable, AlephTable table)
+{
+    return new CExternFuncNode(node.name,
+                               node.returnType.visit(table),
+                               node.parameterTypes.map!(x => x.visit(table)).array);
 }
 
 private auto visit(ProcDeclNode node, CSymbolTable ctable, AlephTable table)

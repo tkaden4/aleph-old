@@ -43,10 +43,22 @@ private auto build(StatementNode node, AlephTable table)
     return node.match(
         (ReturnNode n)   => cast(StatementNode)n.build(table),
         (VarDeclNode n)  => cast(StatementNode)n.build(table),
-        (ProcDeclNode n) => cast(StatementNode)n.build(table)
+        (ProcDeclNode n) => cast(StatementNode)n.build(table),
+        (ExternProcNode n) => n.build(table),
+        (ExternImportNode n) => n,
     );
 }
 
+
+private auto build(ExternProcNode node, AlephTable table)
+{
+    auto sym = table.find(node.name);
+    if(sym){
+        throw new Exception("Symbol %s already defined".format(node.name));
+    }
+    table.insert(node.name, new FunctionSymbol(node.name, node.functionType, table, true));
+    return node;
+}
 
 private ExpressionNode build(ExpressionNode node, AlephTable table)
 {
@@ -67,7 +79,7 @@ private auto build(ProcDeclNode n, AlephTable t)
         throw new Exception("function %s already defined".format(n.name));
     }
     auto k = new AlephTable(t);
-    t.insert(n.name, new FunctionSymbol(n.name, n.functionType, k));
+    t.insert(n.name, new FunctionSymbol(n.name, n.functionType, k, false));
     n.parameters.each!(l => k.insert(l.name, new VarSymbol(l.name, l.type, k)));
     n.bodyNode = n.bodyNode.build(k);
     return n;

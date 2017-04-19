@@ -53,7 +53,8 @@ public:
         DEC,
         INC,
         /* Etc. */
-        ID
+        ID,
+        IMPORT
     };
     
     string lexeme;

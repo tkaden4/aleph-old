@@ -47,13 +47,17 @@ public:
 
     auto program()
     {
-        StatementNode[] res;
-        while(this.lexer.hasNext){
-            res ~= this.declaration.getOrThrow(
-                       new ParserException("Unable to parse declaration") 
-                   );
+        try{
+            StatementNode[] res;
+            while(this.lexer.hasNext){
+                res ~= this.declaration.getOrThrow(
+                           new ParserException("Unable to parse declaration") 
+                       );
+            }
+            return new ProgramNode(res);
+        }catch(Exception e){
+            throw new Exception("parser error: %s".format(e.msg));
         }
-        return new ProgramNode(res);
     }
 
     auto literalExpression()
@@ -146,6 +150,8 @@ public:
     auto statement()
     {
         switch(this.la.type){
+        case Token.Type.EXTERN:
+        case Token.Type.STATIC:
         case Token.Type.LET:
         case Token.Type.PROC:
             return cast(ParseResult!ExpressionNode)this.declaration;
@@ -193,7 +199,7 @@ public:
             auto ret = this.parseType;
             return new FunctionType(ret, [param]);
         default:
-            throw new ParserException("Couldn't parse type");
+            throw new ParserException("Couldn't parse type from %s".format(*this.la));
         }
     }
 
@@ -228,9 +234,10 @@ public:
             return this.parseType;
         }).or(null);
 
+        ExpressionNode exp = null;
         this.match(Token.Type.EQ);
+        exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
 
-        auto exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
         return presult(new ProcDeclNode(toks[1].lexeme, ret_type, params, exp));
     }
 
@@ -253,11 +260,48 @@ public:
 
     auto declaration()
     {
+        bool external = false;
         switch(this.la.type){
-        case Token.Type.PROC: return cast(ParseResult!StatementNode)this.procDecl;
+        case Token.Type.EXTERN:
+            this.advance;
+            if(this.test(Token.Type.IMPORT)){
+                auto toks = this.match(Token.Type.IMPORT, Token.Type.STRING);
+                return cast(ParseResult!StatementNode)new ExternImportNode(toks[1].lexeme[1..$-1]);
+            }else{
+                external = true;
+                goto case;
+            }
+        case Token.Type.PROC: 
+            StatementNode ret = null;
+            if(external){
+                ret = this.externProc;
+            }else{
+                ret = this.procDecl;
+            }
+            return cast(ParseResult!StatementNode)ret;
         case Token.Type.LET: return cast(ParseResult!StatementNode)this.varDecl;
         default: throw new ParserException("Couldn't parse declaration");
         }
+    }
+
+    auto externProc()
+    {
+        auto name = this.match(Token.Type.PROC, Token.Type.ID)[1].lexeme;
+        Type[] params = [];
+        if(this.test(Token.Type.LPAREN)){
+            this.advance;
+            while(!this.test(Token.Type.RPAREN)){
+                params ~= this.parseType;
+                if(this.test(Token.Type.COMMA)){
+                    this.advance;
+                }
+            }
+            this.advance;
+        }
+
+        this.match(Token.Type.RARROW);
+        auto ret = this.parseType;
+        return presult(new ExternProcNode(name, ret, params));
     }
 private:
     /* UTILITY FUNCTIONS */
@@ -272,12 +316,12 @@ private:
 
     auto advance()
     {
-        return this.la_buff.use_err!((x){
+        return this.la_buff.err(new ParserException("Reached end of lookahead buffer")).use!((x){
             auto ret = this.la_buff[0];
             this.la_buff = this.la_buff[1..$];
             this.la_buff ~= this.lexer.next;
             return ret;
-        })(new ParserException("Reached end of lookahead buffer"));
+        });
     }
 
     auto match(U...)(Token.Type t, Token.Type t2, U args)
@@ -295,7 +339,7 @@ private:
         import std.string;
         return this.test(c).use_err!(
             x => this.advance
-        )(new ParserException("Could not match %s with %s".format(this.la.type, c)));
+        )(new ParserException("Could not match given token %s with expected token %s : %s".format(this.la.type, c, this.la.location)));
     }
 
     bool test(Token.Type c, size_t n=0)

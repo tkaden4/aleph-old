@@ -18,6 +18,8 @@ public class ASTVisitor {
                 (CharNode node) => visit(node),
                 (ProcDeclNode node) => visit(node),
                 (IdentifierNode node) => visit(node),
+                (ExternImportNode node) => visit(node),
+                (ExternProcNode node) => visit(node),
                 (VarDeclNode node) => visit(node),
                 (ASTNode node) {
                     throw new ASTException("Couldn't visit %s"
@@ -25,6 +27,18 @@ public class ASTVisitor {
                 } 
             );
         })(new ASTException("Unable dispatch null node"));
+    }
+
+    void visit(ExternImportNode node)
+    {
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
+    }
+
+    void visit(ExternProcNode node)
+    {
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
     }
 
     void visit(BlockNode node)

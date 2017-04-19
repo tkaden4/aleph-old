@@ -9,6 +9,7 @@ public template variableClass(Type, Expression){
     }
     
     string name;
+    bool external;
     Type type;
     Expression initVal;
 };

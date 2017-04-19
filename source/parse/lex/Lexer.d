@@ -191,6 +191,7 @@ private:
             case "else": tok.type = Token.Type.ELSE; break;
             case "extern": tok.type = Token.Type.EXTERN; break;
             case "static": tok.type = Token.Type.STATIC; break;
+            case "import": tok.type = Token.Type.IMPORT; break;
             default: break;
             }
         }

@@ -39,8 +39,15 @@ private StatementNode resolve(StatementNode node, AlephTable table)
 {
     return node.match(
         (ProcDeclNode n) => cast(StatementNode)n.resolve(table),
-        (VarDeclNode n)  => cast(StatementNode)n.resolve(table)
+        (ExternProcNode n) => cast(StatementNode)n.resolve(table),
+        (VarDeclNode n)  => cast(StatementNode)n.resolve(table),
+        (ExternImportNode n) => n,
     );
+}
+
+private auto resolve(ExternProcNode node, AlephTable table)
+{
+    return node;
 }
 
 private auto resolve(VarDeclNode n, AlephTable t)

@@ -8,10 +8,11 @@ import semantics.type.FunctionType;
 import util.match;
 
 public class FunctionSymbol : NamedSymbol {
-    this(string _name, FunctionType ftype, SymbolTable!Symbol _bodyScope)
+    this(string _name, FunctionType ftype, SymbolTable!Symbol _bodyScope, bool external)
     {
         super(_name, ftype);
         this.bodyScope = _bodyScope;
+        this.external = external;
     }
 
     invariant
@@ -39,4 +40,5 @@ public class FunctionSymbol : NamedSymbol {
     }
 
     SymbolTable!Symbol bodyScope;
+    bool external;
 };

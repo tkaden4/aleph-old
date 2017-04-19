@@ -31,8 +31,13 @@ public:
     this(ProgramNode node){ this.result = node; }
     auto apply(ASTNode node)
     {
-        this.dispatch(node);
-        return this.result;
+        try {
+            this.dispatch(node);
+            return this.result;
+        }catch(Exception e){
+            import std.string;
+            throw new Exception("desugarer error: %s".format(e.msg));
+        }
     }
 override:
     void visit(ProgramNode node)
@@ -58,6 +63,8 @@ override:
     }
 
     // Unused functions
+    void visit(ExternImportNode node){}
+    void visit(ExternProcNode node){}
     void visit(IntegerNode node){}
     void visit(IdentifierNode node){}
     void visit(BlockNode node){}
