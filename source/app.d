@@ -50,7 +50,7 @@ int main(string[] args)
                     // inference all types
                     .resolveTypes
                     // Desugar the tree
-                    .then!(x => x[1].desugar)
+                    .desugar
                     // transform Aleph AST to C AST
                     .transform
                     // generate code

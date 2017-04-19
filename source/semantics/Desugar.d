@@ -8,7 +8,12 @@ import std.range;
 
 import util;
 
-public ASTNode desugar(ProgramNode node)
+public auto desugar(Tuple)(Tuple node)
+{
+    return tuple(node[0], node[1].desugar);
+}
+
+public ProgramNode desugar(ProgramNode node)
 {
     return new Desugar(node).apply(node);
 }
