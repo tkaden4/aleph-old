@@ -13,7 +13,8 @@ import std.range;
 import std.algorithm;
 import util;
 
-alias Parameter = ProcDeclNode.Parameter;
+public alias Parameter = ProcDeclNode.Parameter;
+
 public class ProcDeclNode : StatementNode {
     mixin routineNodeClass!(Type, ExpressionNode);
     this(string name, Type type, Parameter[] params, ExpressionNode init=null)
@@ -23,7 +24,11 @@ public class ProcDeclNode : StatementNode {
 
     auto functionType()
     {
-        import std.stdio;
-        return this.returnType.use!(k => new FunctionType(k, this.parameters.map!(x => x.type).array)).then!(x => x.writeln);
+        return this.returnType.use!(k => new FunctionType(k, this.parameters.map!(x => x.type).array));
+    }
+
+    override string toString() const
+    {
+        return "Procedure(%s, ret: %s, params: %s)".format(this.name, this.returnType, this.parameters.map!(x => x.type).array);
     }
 };

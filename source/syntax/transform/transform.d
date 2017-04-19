@@ -14,26 +14,6 @@ import std.stdio;
 import std.typecons;
 
 import util;
-import syntax.transform.CType;
-
-public class CSymbol : SymbolT!CType {
-    this(string name, CType t)
-    {
-        this.name = name;
-        this._type = t;
-    }
-    override @property CType type()
-    {
-        return this._type;
-    }
-    override @property void type(CType t)
-    {
-        this._type = t;
-    }
-private:
-    string name;
-    CType _type;
-};
 
 //TODO finish implementing
 

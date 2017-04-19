@@ -60,7 +60,7 @@ int main(string[] args)
         );
         return 0;
     }catch(Exception ex){
-        "error: %s\n".writefln(ex.msg);
+        "alephc error:\n    %s\n".writefln(ex.msg);
         return 1;
     }
 }

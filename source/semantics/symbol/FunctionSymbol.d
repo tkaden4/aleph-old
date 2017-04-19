@@ -8,9 +8,15 @@ import semantics.type.FunctionType;
 import util.match;
 
 public class FunctionSymbol : NamedSymbol {
-    this(string _name, FunctionType ftype, SymbolTable!Symbol bodyScope)
+    this(string _name, FunctionType ftype, SymbolTable!Symbol _bodyScope)
     {
         super(_name, ftype);
+        this.bodyScope = _bodyScope;
+    }
+
+    invariant
+    {
+        assert(this.bodyScope);
     }
 
     override @property void type(Type t)
@@ -25,4 +31,12 @@ public class FunctionSymbol : NamedSymbol {
     {
         return super.type;
     }
+
+    override string toString()
+    {
+        import std.string;
+        return "FuncSym(%s)".format(this.type);
+    }
+
+    SymbolTable!Symbol bodyScope;
 };

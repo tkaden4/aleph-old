@@ -1,14 +1,14 @@
 module syntax.builders.variable;
 
 public template variableClass(Type, Expression){
-    private void initv(string name, Type t, Expression init=null)
+    private void initv(string name, Type t, Expression initl=null)
     {
         this.name = name;
         this.type = t;
-        this.init = init;
+        this.initVal = initl;
     }
     
     string name;
     Type type;
-    Expression init;
+    Expression initVal;
 };

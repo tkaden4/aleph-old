@@ -26,7 +26,9 @@ public auto buildSymbols(ProgramNode node)
 
 private auto build(ProgramNode node, AlephTable table)
 {
-    return tuple(table, node.then!((auto ref k) => 
+    node.err(new Exception("Null node"));
+    return tuple(table, 
+            node.then!(k => 
                 k.children = k.children.map!(x => 
                     x.build(table)).array));
 }
@@ -63,27 +65,29 @@ private auto build(ProcDeclNode n, AlephTable t)
     if(t.find(n.name)){
         throw new Exception("function %s already defined".format(n.name));
     }
-    // TODO fix inferred types
-    return new AlephTable(t).use!((x){
-        t.insert(n.name, new FunctionSymbol(n.name, n.functionType, x));
-        n.parameters.each!(k => x.insert(k.name, new VarSymbol(k.name, k.type, x)));
-        n.bodyNode = n.bodyNode.build(x);
-        return n;
-    });
+    auto k = new AlephTable(t);
+    t.insert(n.name, new FunctionSymbol(n.name, n.functionType, k));
+    n.parameters.each!(l => k.insert(l.name, new VarSymbol(l.name, l.type, k)));
+    n.bodyNode = n.bodyNode.build(k);
+    return n;
 }
 
 private auto build(CallNode n, AlephTable t)
 {
     n.toCall = n.toCall.build(t);
     n.arguments = n.arguments.map!(x => x.build(t)).array;
+    n.resultType = n.toCall.resultType.match(
+        (FunctionType f) => f,
+        (Type t) => null
+    ).err(new Exception("Cannot call non-function"));
     return n;
 }
 
 private auto build(VarDeclNode n, AlephTable t)
 {
-    n.init = n.init.build(t);
-    if(t.find(n.name, true)){
-        throw new Exception("Shadowing of local variable %s".format(n.name));
+    n.initVal = n.initVal.build(t);
+    if(t.find(n.name)){
+        throw new Exception("Shadowing of variable %s".format(n.name));
     }else{
         t.insert(n.name, new VarSymbol(n.name, n.type, t));
     }
@@ -98,8 +102,8 @@ private auto build(BlockNode node, AlephTable t)
 
 private auto build(IdentifierNode node, AlephTable t)
 {
-    if(!t.find(node.name)){
-        throw new Exception("Symbol %s is not defined".format(node.name));
-    }
+    node.resultType = t.find(node.name)
+                       .err(new Exception("Symbol %s not defined".format(node.name)))
+                       .type;
     return node;
 }

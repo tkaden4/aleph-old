@@ -3,14 +3,15 @@ module semantics.SymbolTable;
 import util;
 
 private import semantics.symbol.Symbol;
+private import std.stdio;
 
 public alias AlephTable = SymbolTable!Symbol;
 
 public final class SymbolTable(SymbolType) {
 public:
-    this(SymbolTable!SymbolType _parent=null)
+    this(SymbolTable!SymbolType p=null)
     {
-        this._parent = _parent;
+        this._parent = p;
     }
 
     SymbolTable globalTable()
@@ -18,10 +19,11 @@ public:
         return this.parent.use!(x => x.globalTable).or(this);
     }
 
-    SymbolType *find(string id, bool local=false)
+    SymbolType find(string id, bool upper=true)
     {
         return (id in this.symbols)
-                    .or(local ? null : this._parent.use!(x => x.find(id)));
+                    .use!(x => *x)
+                    .or(upper ? this.parent.use!(x => x.find(id)) : null);
     }
 
     SymbolType insert(string id, SymbolType sym)

@@ -17,6 +17,14 @@ public {
         }
     }
 
+    auto err(T, Ex)(T t, Ex e)
+    {
+        if(!t){
+            throw e;
+        }
+        return t;
+    }
+
     auto match_each(T, Funcs...)(T t, Funcs fs)
     {
         import util.match;

@@ -7,8 +7,13 @@ public class NamedSymbol : Symbol {
 public:
     this(string _name, Type t)
     {
-        this.name = _name;
+        this._name = _name;
         this.t = t;
+    }
+
+    @property string name()
+    {
+        return this._name;
     }
 
     override @property Type type()
@@ -21,6 +26,6 @@ public:
         this.t = ty;
     }
 private:
-    string name;
+    string _name;
     Type t;
 };

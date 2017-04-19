@@ -10,8 +10,10 @@ import syntax.ctree;
 import syntax.transform;
 
 import semantics.SymbolTable;
+import semantics.symbol.Symbol;
 
 public import gen.OutputBuilder;
+
 import std.range;
 import std.algorithm;
 

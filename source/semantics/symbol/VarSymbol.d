@@ -12,6 +12,12 @@ public class VarSymbol : NamedSymbol {
         super(_name, _type);
         this.enclosing_scope = _upper;
     }
+
+    override string toString()
+    {
+        import std.string;
+        return "VarSym(%s, %s)".format(this.name, this.type);
+    }
 private:
     SymbolTable!Symbol enclosing_scope;
 };
