@@ -80,8 +80,6 @@ public:
                     k => inside ~= ("%s".format(k.type.typeString(k.name))));
             inside ~= ")";
             import std.stdio;
-            inside.writeln;
-
             this.printf("%s %s",  node.storageClass.toString,
                                   node.returnType.typeString(inside));
         });
@@ -181,6 +179,5 @@ private string typeString(CType t, string id)
                                        inside ~= ")";
                                        return t.returnType.typeString(inside);
                                    },
-                                   (CType t) => "unknown"))(new Exception("Null type"));
+                                   (CType t) => null))(new Exception("Unknown type %s".format(t)));
 }
-

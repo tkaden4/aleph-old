@@ -105,7 +105,7 @@ private auto resolve(ProcDeclNode node, AlephTable table)
     if(!sym.type){
         node.returnType = node.bodyNode.resultType;
         sym.type = node.functionType.err(new Exception("Recursive type checking problem of %s".format(node.name)));
-        "Resolved %s".writefln(node);
+        //"Resolved %s".writefln(node);
     }
     return node;
 }
@@ -118,11 +118,11 @@ private auto resolve(IdentifierNode node, AlephTable table)
            .type
       ){
         sym.type = node.resultType.err(new Exception("Couldn't infer type for %s".format(node.name)));
-        "Resolved identifier %s".writefln(node);
+        //"Resolved identifier %s".writefln(node);
     }else{
         if(!node.resultType){
             node.resultType = sym.type;
-            "Resolved node %s %s".writefln(node, node.resultType);
+            //"Resolved node %s %s".writefln(node, node.resultType);
         }
     }
     return node;
