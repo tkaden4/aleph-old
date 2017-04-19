@@ -40,6 +40,11 @@ private:
 /* Transform the Aleph AST into the C AST, for 
  * improved error checking and code generation */
 
+public auto transform(Tuple)(Tuple t)
+{
+    return t.expand.transform;
+}
+
 public auto transform(SymbolTable!Symbol tab, ProgramNode node)
 {
     return node.visit(tab);

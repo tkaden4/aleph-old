@@ -15,6 +15,11 @@ public import gen.OutputBuilder;
 import std.range;
 import std.algorithm;
 
+public auto cgenerate(Tuple)(Tuple t, OutputStream outp)
+{
+    return t.expand.cgenerate(outp);
+}
+
 public auto cgenerate(CProgramNode node, SymbolTable!CSymbol table, OutputStream outp)
 {
     return new CGenerator(table, new OutputBuilder(outp)).apply(node);

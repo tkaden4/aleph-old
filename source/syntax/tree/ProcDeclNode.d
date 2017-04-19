@@ -11,6 +11,7 @@ import syntax.builders.routine;
 import std.string;
 import std.range;
 import std.algorithm;
+import util;
 
 alias Parameter = ProcDeclNode.Parameter;
 public class ProcDeclNode : StatementNode {
@@ -22,6 +23,7 @@ public class ProcDeclNode : StatementNode {
 
     auto functionType()
     {
-        return new FunctionType(this.returnType, this.parameters.map!(x => x.type).array);
+        import std.stdio;
+        return this.returnType.use!(k => new FunctionType(k, this.parameters.map!(x => x.type).array)).then!(x => x.writeln);
     }
 };

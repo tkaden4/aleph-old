@@ -2,6 +2,10 @@ module semantics.SymbolTable;
 
 import util;
 
+private import semantics.symbol.Symbol;
+
+public alias AlephTable = SymbolTable!Symbol;
+
 public final class SymbolTable(SymbolType) {
 public:
     this(SymbolTable!SymbolType _parent=null)
@@ -14,9 +18,10 @@ public:
         return this.parent.use!(x => x.globalTable).or(this);
     }
 
-    SymbolType *find(string id)
+    SymbolType *find(string id, bool local=false)
     {
-        return (id in this.symbols).or(this._parent.use!(x => x.find(id)));
+        return (id in this.symbols)
+                    .or(local ? null : this._parent.use!(x => x.find(id)));
     }
 
     SymbolType insert(string id, SymbolType sym)

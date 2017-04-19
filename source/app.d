@@ -15,6 +15,7 @@ import syntax.transform;
 import syntax.tree.ASTException;
 
 import semantics.SymbolBuilder;
+import semantics.TypeResolver;
 import semantics.Desugar;
 import semantics.SymbolTable;
 
@@ -44,15 +45,15 @@ int main(string[] args)
                     .fromFile(args[1])
                     // parse the file
                     .program
-                    // build symbol table and inference types 
+                    // build symbol table
                     .buildSymbols
+                    // inference all types
+                    .resolveTypes
                     // Desugar the tree
                     .then!(x => x[1].desugar)
                     // transform Aleph AST to C AST
-                    .expand
                     .transform
                     // generate code
-                    .expand
                     .cgenerate(new FileStream("%s.c".format(args[1])));
             }),
             timefmt

@@ -1,24 +1,19 @@
 module semantics.SymbolBuilder;
 
 /* 
- * Creates the symbol table and performs type inferencing
+ * Creates the symbol table
  */
 
 import syntax.tree.visitors.ASTVisitor;
 
 import semantics.symbol;
 import semantics.SymbolTable;
-import semantics.type;
 
 import util;
 
 import std.string;
-import std.range;
 import std.algorithm;
 import std.stdio;
-import std.typecons;
-
-private alias AlephTable = SymbolTable!Symbol;
 
 public auto buildSymbols(ProgramNode node)
 {
@@ -31,8 +26,8 @@ public auto buildSymbols(ProgramNode node)
 
 private auto build(ProgramNode node, AlephTable table)
 {
-    return tuple(table, node.then!(k => 
-                k.children.map!(x => 
+    return tuple(table, node.then!((auto ref k) => 
+                k.children = k.children.map!(x => 
                     x.build(table)).array));
 }
 
@@ -87,6 +82,11 @@ private auto build(CallNode n, AlephTable t)
 private auto build(VarDeclNode n, AlephTable t)
 {
     n.init = n.init.build(t);
+    if(t.find(n.name, true)){
+        throw new Exception("Shadowing of local variable %s".format(n.name));
+    }else{
+        t.insert(n.name, new VarSymbol(n.name, n.type, t));
+    }
     return n;
 }
 
