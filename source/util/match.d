@@ -19,18 +19,3 @@ public auto match(T, Args...)(T value, Args args)
     // TODO improve error handling
     throw new Exception("Could not visit %s".format(value));
 }
-
-public auto try_type(Func, T)(T t)
-{
-    if(auto x = cast(Parameters!Func[0])t){
-        return Func(x);
-    }
-    return null;
-}
-
-public auto orf(Func, T)(T t)
-{
-    if(!t){
-        return Func(t);
-    }
-}

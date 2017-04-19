@@ -24,14 +24,24 @@ public class CallNode : ExpressionNode {
         this.type = t;
     }
 
-    @property ExpressionNode toCall()
+    @property auto toCall()
     {
         return this.call;
     }
 
-    @property ExpressionNode[] arguments()
+    @property void toCall(ExpressionNode to)
+    {
+        this.call = to;
+    }
+
+    @property auto arguments()
     {
         return this.args;
+    }
+
+    @property void arguments(ExpressionNode[] n)
+    {
+        this.args = n;
     }
 
     override string toString() const

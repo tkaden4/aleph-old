@@ -1,1 +1,1 @@
-proc main = 0 //return 0
+proc main -> int = 0 //return 0

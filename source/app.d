@@ -14,7 +14,7 @@ import parse.Parser;
 import syntax.transform;
 import syntax.tree.ASTException;
 
-import semantics.SemaOne;
+import semantics.SymbolBuilder;
 import semantics.Desugar;
 import semantics.SymbolTable;
 
@@ -45,7 +45,7 @@ int main(string[] args)
                     // parse the file
                     .program
                     // build symbol table and inference types 
-                    .buildTypes
+                    .buildSymbols
                     // Desugar the tree
                     .then!(x => x[1].desugar)
                     // transform Aleph AST to C AST

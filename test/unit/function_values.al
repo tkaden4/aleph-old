@@ -1,6 +1,6 @@
-proc identity(a: int) = a
-proc main = {
-    let k = identity
+proc identity(a: int) -> int = a
+proc main -> int = {
+    let k: (int) -> int = identity
     k(0)
     0
 }
