@@ -12,6 +12,7 @@ public import syntax.ctree.CVarDeclNode;
 public import syntax.ctree.CExpressionNode;
 public import syntax.ctree.CLiteralNode;
 public import syntax.ctree.CReturnNode;
+public import syntax.ctree.CIdentifierNode;
 
 public import syntax.ctree.CTreeException;
 public import syntax.ctree.visitors.CTreeVisitor;

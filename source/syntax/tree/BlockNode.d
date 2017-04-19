@@ -11,11 +11,6 @@ public:
     this(ExpressionNode[] children)
     {
         this._children = children;
-        this.result_type = this._children.use!(
-            x => x.back.use!(
-                x => x.resultType
-            )
-        ).or(Primitives.Void);
     }
 
     invariant

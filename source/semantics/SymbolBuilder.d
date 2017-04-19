@@ -20,7 +20,7 @@ public auto buildSymbols(ProgramNode node)
     try{
         return node.build(new AlephTable);
     }catch(Exception ex){
-        throw new Exception("couldn't build types: %s".format(ex.msg));
+        throw new Exception("type builder error: %s".format(ex.msg));
     }
 }
 
@@ -55,6 +55,7 @@ private ExpressionNode build(ExpressionNode node, AlephTable table)
         (BlockNode n)      => cast(ExpressionNode)n.build(table),
         (IdentifierNode n) => cast(ExpressionNode)n.build(table),
         (CallNode n)       => cast(ExpressionNode)n.build(table),
+        (StringNode n)     => n,
         (IntegerNode n)    => n,
         (CharNode n)       => n
     ));

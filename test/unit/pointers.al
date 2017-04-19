@@ -1,4 +1,5 @@
 proc main() -> int = {
-    let k: *int = 0
+    let string: *char = "string"
+    let string2: *char = "value"
     0
 }

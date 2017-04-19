@@ -1,8 +1,10 @@
-proc add = 8
-proc bar = add()
-proc foo = bar()
+proc add(a: int) = a
+proc bar = add
+proc foo = bar
+proc fubar = foo
+proc fubar2 = fubar
 
 proc main = {
-    foo()
+    fubar2()()()()(8)
     0
 }

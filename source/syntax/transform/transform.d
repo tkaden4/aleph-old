@@ -71,36 +71,27 @@ private CStatementNode visit(StatementNode n, SymbolTable!Symbol table)
     return n.match(
         (VarDeclNode n) => cast(CStatementNode)new CVarDeclNode(CStorageClass.AUTO,
                                                                  n.type.visit(table),
-                                                                 n.name),
+                                                                 n.name,
+                                                                 n.initVal.visit(table)),
         (ReturnNode n) => cast(CStatementNode)new CReturnNode(n.value.visit(table))
     );
 }
 
 private CExpressionNode visit(ExpressionNode n, SymbolTable!Symbol table)
 {
-    try{
-        auto ret = n.match(
-            (IntegerNode n) => cast(CExpressionNode)new IntLiteral(n.value),
-        );
-        if(!ret){
-            throw new Exception("couldnt");
-        }
-        return ret;
-    }catch(Exception e){
-        throw new Exception("Couldn't convert %s to expression node".format(n));
-    }
+    return n.match(
+        (IntegerNode n) => cast(CExpressionNode)new IntLiteral(n.value),
+        (StringNode n)  => cast(CExpressionNode)new StringLiteral(n.value),
+        (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
+        // XXX
+        (Object n) => null.err(new Exception("Couldn't convert %s to C expresion".format(n)))
+    );
 }
 
+// visits anything
 private auto visit(ASTNode n)
 {
-    import std.random;
-    return new CBlockStatementNode(
-                [
-                    new CVarDeclNode(CStorageClass.AUTO,
-                                      CPrimitives.Int,
-                                      "x",
-                                      new IntLiteral(uniform(0, 200)))
-                ]);
+    throw new Exception("Couldn't visit %s".format(n));
 }
 
 private CType visit(Type type, SymbolTable!Symbol table)
@@ -108,8 +99,8 @@ private CType visit(Type type, SymbolTable!Symbol table)
     import std.conv;
     return type.match(
         (FunctionType t){
-            return new CPrimitive("void", false);
+            return CPrimitives.Void;
         },
-        (Type t){ return new CPrimitive("int", true); }
+        (Type t){ return CPrimitives.Int; }
     );
 }

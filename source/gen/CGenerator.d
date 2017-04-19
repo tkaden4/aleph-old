@@ -16,6 +16,7 @@ public import gen.OutputBuilder;
 
 import std.range;
 import std.algorithm;
+import std.string;
 
 public auto cgenerate(Tuple)(Tuple t, OutputStream outp)
 {
@@ -24,7 +25,11 @@ public auto cgenerate(Tuple)(Tuple t, OutputStream outp)
 
 public auto cgenerate(CProgramNode node, SymbolTable!CSymbol table, OutputStream outp)
 {
-    return new CGenerator(table, new OutputBuilder(outp)).apply(node);
+    try{
+        return new CGenerator(table, new OutputBuilder(outp)).apply(node);
+    }catch(Exception e){
+        throw new Exception("generation error: %s".format(e.msg));
+    }
 }
 
 private class CGenerator {
@@ -90,6 +95,15 @@ public:
     void visit(CStatementNode node)
     {
         node.match(
+            (CExpressionNode n) => this.visit(n),
+            (CReturnNode n){
+                this.statement({
+                    this.printf("return ");
+                    this.untabbed({
+                        this.visit(n.exp);
+                    });
+                });
+            },
             (CBlockStatementNode n) => this.visit(n),
             (CTypedefNode n) => this.visit(n),
             (CVarDeclNode n) => this.visit(n),
@@ -102,9 +116,10 @@ public:
         import std.string;
         this.statement({
             this.printf("%s %s %s", node.storageClass.toString, node.type.typeString, node.name);
-            if(node.init){
+            if(node.initVal){
                 this.untabbed({
-                    this.printf(" = %s", node.init.match((IntLiteral n) => n.value.to!string));
+                    this.printf(" = ");
+                    this.visit(node.initVal);
                 });
             }
         });
@@ -112,8 +127,17 @@ public:
 
     void visit(CExpressionNode node)
     {
+        import std.stdio;
         node.match(
-            (CLiteralNode x) => x.match((IntLiteral x) => x.value.to!string)
+            (CLiteralNode x){
+                this.printf(x.match(
+                                   (StringLiteral x) => x.value,
+                                   (IntLiteral x) => x.value.to!string)
+                );
+            },
+            (CIdentifierNode n){
+                this.printf("%s", n.name);
+            }
         );
     }
 

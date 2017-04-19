@@ -2,6 +2,8 @@ module syntax.ctree.CLiteralNode;
 
 import syntax.ctree.CExpressionNode;
 
+private import std.string;
+
 public interface CLiteralNode : CExpressionNode {};
 
 public class IntLiteral : CLiteralNode {
@@ -15,10 +17,15 @@ public class IntLiteral : CLiteralNode {
         return CPrimitives.Int;
     }
 
+    override string toString()
+    {
+        return "IntLiteral(%d)".format(this.value);
+    }
+
     int value;
 };
 
-public class StringLIteral : CLiteralNode {
+public class StringLiteral : CLiteralNode {
     this(string value)
     {
         this.value = value;
@@ -27,6 +34,11 @@ public class StringLIteral : CLiteralNode {
     @property CType type()
     {
         return new CPointerType(CPrimitives.Char);
+    }
+
+    override string toString() const
+    {
+        return "StringLiteral(%s)".format(this.value);
     }
 
     string value;

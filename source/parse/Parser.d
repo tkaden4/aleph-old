@@ -67,6 +67,8 @@ public:
             auto tok = this.match(Token.Type.CHAR);
             auto ch = tok.lexeme[1..$-1].to!char;
             return presult!ExpressionNode(new CharNode(ch));
+        case Token.Type.STRING:
+            return presult!ExpressionNode(new StringNode(this.advance.lexeme));
         default:
             "Literal not implemented".writeln;
             return ParseResult!ExpressionNode.init;
@@ -170,10 +172,17 @@ public:
         case Token.Type.STAR:
             this.advance;
             return new PointerType(this.parseType);
-        /* Primitive type */
+        /* Primitive type or single-parameter function */
         case Token.Type.ID:
-            auto x = this.match(Token.Type.ID);
-            return x.lexeme.toPrimitive;
+            if(this.test(Token.Type.RARROW, 1)){
+                return this.advance.lexeme.toPrimitive.use!((x){
+                    this.match(Token.Type.RARROW);
+                    return this.parseType.use!(k => new FunctionType(x, [k]));
+                });
+            }else{
+                auto x = this.match(Token.Type.ID);
+                return x.lexeme.toPrimitive;
+            }
         /* Function types */
         /* TODO add multiple parameter types */
         case Token.Type.LPAREN:
