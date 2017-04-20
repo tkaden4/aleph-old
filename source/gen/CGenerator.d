@@ -79,11 +79,13 @@ public:
                         this.printf("%s", node.returnType.typeString(inside));
                     });
                 });
+                this.printfln("");
             },
             (CPreprocessorNode pre){
                 this.untabbed({
                     this.printfln("#%s", pre.value);
                 });
+                this.printfln("");
             }
         );
     }
@@ -101,6 +103,7 @@ public:
                                   node.returnType.typeString(inside));
         });
         this.visit(node.bodyNode);
+        this.printfln("");
     }
 
     void visit(CBlockStatementNode node)

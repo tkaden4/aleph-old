@@ -88,7 +88,7 @@ private CStatementNode visit(StatementNode n, AlephTable table)
                                                                  n.type.visit(table),
                                                                  n.name,
                                                                  n.initVal.visit(table)),
-        (ReturnNode n) => cast(CStatementNode)new CReturnNode(n.value.visit(table))
+        (ReturnNode n) => cast(CStatementNode)new CReturnNode(n.value.visit(table)),
     );
 }
 

@@ -33,7 +33,7 @@ public class StringLiteral : CLiteralNode {
 
     @property CType type()
     {
-        return new CPointerType(CPrimitives.Char);
+        return new CPointerType(new CQualifiedType(CTypeQualifier.Const, CPrimitives.Char));
     }
 
     override string toString() const

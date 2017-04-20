@@ -51,7 +51,7 @@ int main(string[] args)
                     .resolveTypes
                     // Desugar the tree
                     .desugar
-                    // transform Aleph AST to C AST
+                    // transform Aleph AST into C AST
                     .transform
                     // generate code
                     .cgenerate(new FileStream("%s.c".format(args[1])));

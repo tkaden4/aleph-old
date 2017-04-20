@@ -3,6 +3,10 @@ extern import "stdio.h"
 extern proc putchar(int) -> int
 extern proc puts(*const char) -> int
 
+proc print(x: *const char) = {
+    puts(x)
+}
+
 proc main = {
     putchar('H')
     putchar('e')
@@ -18,6 +22,6 @@ proc main = {
     putchar('d')
     putchar('!')
     putchar(10)
-    puts("Hello, World!")
+    print("Hello, World!")
     0
 }
