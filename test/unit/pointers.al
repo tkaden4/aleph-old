@@ -1,5 +1,5 @@
 proc main() -> int = {
-    let string: *char = "string"
-    let string2: *char = "value"
+    let string: *const char = "string"
+    let string2: *const char = "value"
     0
 }

@@ -282,9 +282,21 @@ public:
                 ret = this.procDecl;
             }
             return cast(ParseResult!StatementNode)ret;
+        case Token.Type.STRUCT:
+            throw new ParserException("Structs not supported");
         case Token.Type.LET: return cast(ParseResult!StatementNode)this.varDecl;
         default: throw new ParserException("Couldn't parse declaration");
         }
+    }
+
+    auto structDecl()
+    {
+        auto name = this.match(Token.Type.STRUCT, Token.Type.ID)[1];
+        this.match(Token.Type.LBRACE);
+        while(!this.test(Token.Type.RBRACE)){
+            // Get a struct declarator "x: int"
+        }
+        // return new StructDeclNode(name, variables);
     }
 
     auto externProc()

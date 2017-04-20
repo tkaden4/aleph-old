@@ -56,7 +56,8 @@ public:
         INC,
         /* Etc. */
         ID,
-        IMPORT
+        IMPORT,
+        STRUCT
     };
     
     string lexeme;

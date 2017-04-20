@@ -59,10 +59,14 @@ public:
         }
 
         // Ignore multiline comments
-        if(this.test('`')){
-            this.match('`');
-            this.ignore(x => x != '`');
-            this.match('`');
+        if(this.test('/') && this.test('*', 1)){
+            this.advance;
+            this.advance;
+            while(!(this.test('*') && this.test('/', 1))){
+                this.advance;
+            }
+            this.advance;
+            this.advance;
             return this.next;
         }
 
@@ -192,6 +196,7 @@ private:
             case "static": tok.type = Token.Type.STATIC; break;
             case "import": tok.type = Token.Type.IMPORT; break;
             case "const": tok.type = Token.Type.CONST; break;
+            case "struct": tok.type = Token.Type.STRUCT; break;
             default: break;
             }
         }
