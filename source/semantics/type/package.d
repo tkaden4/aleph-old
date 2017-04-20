@@ -5,4 +5,5 @@ public {
     import semantics.type.PrimitiveType;
     import semantics.type.PointerType;
     import semantics.type.Type;
+    import semantics.type.QualifiedType;
 };

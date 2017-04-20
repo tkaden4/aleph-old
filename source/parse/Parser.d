@@ -175,6 +175,9 @@ public:
     Type parseType()
     {
         switch(this.la.type){
+        case Token.Type.CONST:
+            this.advance;
+            return new QualifiedType(TypeQualifier.Const, this.parseType);
         case Token.Type.STAR:
             this.advance;
             return new PointerType(this.parseType);

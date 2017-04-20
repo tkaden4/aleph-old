@@ -43,3 +43,22 @@ public class StringLiteral : CLiteralNode {
 
     string value;
 };
+
+public class CharLiteral : CLiteralNode {
+    this(char value)
+    {
+        this.value = value;
+    }
+
+    @property CType type()
+    {
+        return CPrimitives.Char;
+    }
+
+    override string toString()
+    {
+        return "CharLiteral(%d)".format(this.value);
+    }
+
+    char value;
+};

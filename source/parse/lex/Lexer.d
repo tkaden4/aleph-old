@@ -36,7 +36,6 @@ public:
         assert(this.buff);
     }
 
-
     Token *next()
     {
         if(!this.hasNext){
@@ -192,6 +191,7 @@ private:
             case "extern": tok.type = Token.Type.EXTERN; break;
             case "static": tok.type = Token.Type.STATIC; break;
             case "import": tok.type = Token.Type.IMPORT; break;
+            case "const": tok.type = Token.Type.CONST; break;
             default: break;
             }
         }

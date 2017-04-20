@@ -97,6 +97,7 @@ private CExpressionNode visit(ExpressionNode n, AlephTable table)
     return n.match(
         (IntegerNode n)    => cast(CExpressionNode)new IntLiteral(n.value),
         (StringNode n)     => cast(CExpressionNode)new StringLiteral(n.value),
+        (CharNode n)       => cast(CExpressionNode)new CharLiteral(n.value),
         (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
         (CallNode n)       => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
         // XXX

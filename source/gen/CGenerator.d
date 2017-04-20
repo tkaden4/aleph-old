@@ -154,7 +154,8 @@ public:
             (CLiteralNode x){
                 this.printf(x.match(
                                    (StringLiteral x) => x.value,
-                                   (IntLiteral x) => x.value.to!string)
+                                   (CharLiteral x)   => "\'" ~ x.value ~ "\'",
+                                   (IntLiteral x)    => x.value.to!string)
                 );
             },
             (CIdentifierNode n){

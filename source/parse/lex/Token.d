@@ -27,6 +27,8 @@ public:
         /* Storage Classes */
         EXTERN,
         STATIC,
+        /* Qualifiers */
+        CONST,
         /* Punctuation */
         SEMI,
         COLON,
