@@ -128,7 +128,11 @@ private CType visit(Type type, AlephTable table)
                 throw new Exception("Unknown primitive %s".format(t));
             }
         },
+        (QualifiedType t){
+            final switch(t.qualifier){
+            case TypeQualifier.Const: return new CQualifiedType(CTypeQualifier.Const, t.type.visit(table));
+            }
+        },
         (PointerType t) => new CPointerType(t.type.visit(table))
-        
     );
 }

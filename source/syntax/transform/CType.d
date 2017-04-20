@@ -1,7 +1,29 @@
 module syntax.transform.CType;
 
+import std.string;
+
 // Sealed Class
 public interface CType {};
+
+public enum CTypeQualifier {
+    Const,
+};
+
+public class CQualifiedType : CType {
+    this(CTypeQualifier q, CType to)
+    {
+        this.qualifier = q;
+        this.type = to;
+    }
+
+    override string toString() const
+    {
+        return "CQualifiedType(%s, %s)".format(this.qualifier, this.type);
+    }
+
+    CTypeQualifier qualifier;
+    CType type;
+};
 
 public class CAliasType : CType {
     this(string name, CType t)
@@ -38,6 +60,12 @@ public:
         this.signed = signed;
         this.size = size;
     }
+
+    override string toString() const
+    {
+        return "CPrimitive(%s)".format(this.name);
+    }
+
     string name;
     bool signed;
     size_t size;

@@ -182,8 +182,13 @@ public:
 private string typeString(CType t, string id)
 {
     import util;
-    return t.use_err!(t => t.match((CPrimitive t) => "%s%s".format(t.name, (id.length == 0 ? "" : " " ~ id)),
+    return t.use!(t => t.match((CPrimitive t) => "%s%s".format(t.name, (id.length == 0 ? "" : " " ~ id)),
                                    (CPointerType t) => t.type.typeString("*" ~ id),
+                                   (CQualifiedType t){
+                                       final switch(t.qualifier){
+                                       case CTypeQualifier.Const: return t.type.typeString("const " ~ id);
+                                       }
+                                   },
                                    (CFunctionType t){
                                        string inside = "(*" ~ id ~ ")";
                                        inside ~= "(";
@@ -193,5 +198,5 @@ private string typeString(CType t, string id)
                                        inside ~= ")";
                                        return t.returnType.typeString(inside);
                                    },
-                                   (CType t) => null))(new Exception("Unknown type %s".format(t)));
+                                   (CType t) => null)).err(new Exception("Unknown type %s".format(t)));
 }
