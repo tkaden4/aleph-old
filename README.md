@@ -29,7 +29,7 @@ proc main() -> int = {
 <pre>
 import std.c.stdio
 
-proc hello = "Hello";   // Semicolon is optional, type inferred as const char *
+proc hello = "Hello";   // Semicolon is optional, type inferred as \*const char
 
 proc main = {       // Parameters and return type optional
     puts(hello())
@@ -41,7 +41,7 @@ proc main = {       // Parameters and return type optional
 <pre>
 proc add_two(a: int) = a + 2
 
-proc map_sum(a: int, b: int, fn: (int) -> int) = {
+proc map_sum(a: int, b: int, fn: int -> int) = {
     if a == b then fn(b)
     else fn(a) + map_sum(a+1, b, fn)
 }
@@ -54,15 +54,18 @@ proc main = {
 }
 </pre>
 
-### Inline Assembly ###
+### Compound Data Types ###
 <pre>
-import std.asm
+import std.c.stdio
 
-proc main() = {
-    .asm(x86) {     // using the x86 variant of the .asm label (experimental)
-        .result eax // register holding result
-        ...         // code
-    }
+struct Point {
+    x: long
+    y: long
+}
+
+proc main = {
+    let point = Point { x = 0, y = 0 }
+    printf("x: %d, y: %d", point.x, point.y)
     0
 }
 </pre>
