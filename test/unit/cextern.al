@@ -2,12 +2,14 @@ extern import "stdio.h"
 
 extern proc putchar(int) -> int
 extern proc puts(*const char) -> int
+extern proc printf(*const char, ...) -> int
 
 proc print(x: *const char) = {
     puts(x)
 }
 
 proc main = {
+    printf("%d", 1)
     putchar('H')
     putchar('e')
     putchar('l')

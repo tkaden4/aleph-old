@@ -303,9 +303,15 @@ public:
     {
         auto name = this.match(Token.Type.PROC, Token.Type.ID)[1].lexeme;
         Type[] params = [];
+        bool vararg = false;
         if(this.test(Token.Type.LPAREN)){
             this.advance;
             while(!this.test(Token.Type.RPAREN)){
+                if(this.test(Token.Type.VARARG)){
+                    this.advance;
+                    vararg = true;
+                    break;
+                }
                 params ~= this.parseType;
                 if(this.test(Token.Type.COMMA)){
                     this.advance;
@@ -316,7 +322,7 @@ public:
 
         this.match(Token.Type.RARROW);
         auto ret = this.parseType;
-        return presult(new ExternProcNode(name, ret, params));
+        return presult(new ExternProcNode(name, ret, params, vararg));
     }
 private:
     /* UTILITY FUNCTIONS */

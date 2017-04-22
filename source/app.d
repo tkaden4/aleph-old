@@ -17,11 +17,14 @@ import syntax.tree.ASTException;
 import semantics.SymbolBuilder;
 import semantics.TypeResolver;
 import semantics.Desugar;
+import semantics.TypeChecker;
 import semantics.SymbolTable;
 
 import gen.CGenerator;
 
 import util;
+import syntax.builders.routine;
+import syntax.ctree;
 
 private auto usage()
 {
@@ -42,19 +45,21 @@ int main(string[] args)
         "Compilation took %d %s\n".writefln(
             time!timefmt({
                 Parser
-                    .fromFile(args[1])
-                    // parse the file
-                    .program
-                    // build symbol table
-                    .buildSymbols
-                    // inference all types
-                    .resolveTypes
-                    // Desugar the tree
-                    .desugar
-                    // transform Aleph AST into C AST
-                    .transform
-                    // generate code
-                    .cgenerate(new FileStream("%s.c".format(args[1])));
+                      .fromFile(args[1])
+                      // parse the file
+                      .program
+                      // build symbol table
+                      .buildSymbols
+                      // inference all types
+                      .resolveTypes
+                      // Perform all type checking
+                      .checkTypes
+                      // Desugar the tree
+                      .desugar
+                      // transform Aleph AST into C AST
+                      .transform
+                      // generate code
+                      .cgenerate(new FileStream("%s.c".format(args[1])));
             }),
             timefmt
         );

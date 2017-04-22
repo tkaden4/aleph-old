@@ -61,7 +61,8 @@ private auto visit(ExternProcNode node, CSymbolTable ctable, AlephTable table)
 {
     return new CExternFuncNode(node.name,
                                node.returnType.visit(table),
-                               node.parameterTypes.map!(x => x.visit(table)).array);
+                               node.parameterTypes.map!(x => x.visit(table)).array,
+                               node.isvararg);
 }
 
 private auto visit(ProcDeclNode node, CSymbolTable ctable, AlephTable table)

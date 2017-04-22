@@ -1,6 +1,6 @@
 module syntax.builders.routine;
 
-template routineNodeClass(Type, BodyExpression)
+mixin template routineNodeClass(Type, BodyExpression)
 {
     public:
     struct Parameter {
@@ -20,4 +20,16 @@ template routineNodeClass(Type, BodyExpression)
     Type returnType;
     BodyExpression bodyNode;
     Parameter[] parameters;
+}
+
+mixin template routineNode(alias Name, Type, BodyNode, alias Parent)
+{
+    public class Name : Parent {
+        mixin routineNodeClass!(Type, BodyNode);
+
+        this(string _name, Type ret, Parameter[] params, BodyNode b=null)
+        {
+            this.init(_name, ret, params, b);
+        }
+    };
 }

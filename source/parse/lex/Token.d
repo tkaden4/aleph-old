@@ -1,9 +1,16 @@
 module parse.lex.Token;
 
+import std.string;
+
 public struct SourceLocation {
     string filename;
     size_t line_no;
     size_t col_no;
+
+    string toString() const
+    {
+        return "SourceLocation(%s, l:%s, c:%s)".format(this.filename, this.line_no, this.col_no);
+    }
 };
 
 public alias TokenType = Token.Type;
@@ -23,6 +30,7 @@ public:
         FUNC,
         LET,
         IF,
+        THEN,
         ELSE,
         /* Storage Classes */
         EXTERN,
@@ -57,7 +65,8 @@ public:
         /* Etc. */
         ID,
         IMPORT,
-        STRUCT
+        STRUCT,
+        VARARG
     };
     
     string lexeme;

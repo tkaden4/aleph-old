@@ -70,6 +70,13 @@ public:
             return this.next;
         }
 
+        if(this.test("...")){
+            this.advance;
+            this.advance;
+            this.advance;
+            return this.makeToken("...", Token.Type.VARARG);
+        }
+
         switch(this.la){
         /* Punctuation */
         case '{': return this.makeAndAdvance("{", Token.Type.LBRACE);
@@ -197,6 +204,7 @@ private:
             case "import": tok.type = Token.Type.IMPORT; break;
             case "const": tok.type = Token.Type.CONST; break;
             case "struct": tok.type = Token.Type.STRUCT; break;
+            case "then": tok.type = Token.Type.THEN; break;
             default: break;
             }
         }
@@ -254,6 +262,16 @@ private:
     bool test(bool delegate(dchar) t)
     {
         return t(this.la);
+    }
+
+    bool test(string s)
+    {
+        foreach(x; s){
+            if(!this.test(x)){
+                return false;
+            }
+        }
+        return true;
     }
 
     void ignore(char c)

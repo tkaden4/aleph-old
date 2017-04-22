@@ -75,6 +75,9 @@ public:
                         string inside = node.name ~ "(";
                         node.parameterTypes.headLast!(x => inside ~= x.typeString("") ~ ", ",
                                                       x => inside ~= x.typeString(""));
+                        if(node.isVararg){
+                            inside ~= ", ...";
+                        }
                         inside ~= ")";
                         this.printf("%s", node.returnType.typeString(inside));
                     });
@@ -155,7 +158,7 @@ public:
         import std.stdio;
         node.match(
             (CLiteralNode x){
-                this.printf(x.match(
+                this.printf("%s", x.match(
                                    (StringLiteral x) => x.value,
                                    (CharLiteral x)   => "\'" ~ x.value ~ "\'",
                                    (IntLiteral x)    => x.value.to!string)

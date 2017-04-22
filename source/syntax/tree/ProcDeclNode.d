@@ -14,9 +14,10 @@ import std.algorithm;
 import util;
 
 public alias Parameter = ProcDeclNode.Parameter;
-
 public class ProcDeclNode : StatementNode {
+
     mixin routineNodeClass!(Type, ExpressionNode);
+
     this(string name, Type type, Parameter[] params, ExpressionNode init=null)
     {
         this.init(name, type, params, init);
@@ -29,6 +30,6 @@ public class ProcDeclNode : StatementNode {
 
     override string toString() const
     {
-        return "Procedure(%s, ret: %s, params: %s)".format(this.name, this.returnType, this.parameters.map!(x => x.type).array);
+        return "Procedure(name: %s, ret: %s, params: %s)".format(this.name, this.returnType, this.parameters.map!(x => x.type).array);
     }
 };
