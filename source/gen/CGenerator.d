@@ -13,6 +13,7 @@ import semantics.SymbolTable;
 import semantics.symbol.Symbol;
 
 public import gen.OutputBuilder;
+import gen.TypeUtils;
 
 import std.range;
 import std.algorithm;
@@ -76,7 +77,7 @@ public:
                         node.parameterTypes.headLast!(x => inside ~= x.typeString("") ~ ", ",
                                                       x => inside ~= x.typeString(""));
                         if(node.isVararg){
-                            inside ~= ", ...";
+                            inside ~= "%s...".format(node.parameterTypes.length == 0 ? "" : ", ");
                         }
                         inside ~= ")";
                         this.printf("%s", node.returnType.typeString(inside));
@@ -185,24 +186,3 @@ public:
     }
 };
 
-private string typeString(CType t, string id)
-{
-    import util;
-    return t.use!(t => t.match((CPrimitive t) => "%s%s".format(t.name, (id.length == 0 ? "" : " " ~ id)),
-                                   (CPointerType t) => t.type.typeString("*" ~ id),
-                                   (CQualifiedType t){
-                                       final switch(t.qualifier){
-                                       case CTypeQualifier.Const: return t.type.typeString("const " ~ id);
-                                       }
-                                   },
-                                   (CFunctionType t){
-                                       string inside = "(*" ~ id ~ ")";
-                                       inside ~= "(";
-                                       t.parameterTypes.each!(
-                                           x => inside ~= x.typeString("")
-                                       );
-                                       inside ~= ")";
-                                       return t.returnType.typeString(inside);
-                                   },
-                                   (CType t) => null)).err(new Exception("Unknown type %s".format(t)));
-}

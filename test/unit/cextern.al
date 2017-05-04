@@ -10,6 +10,7 @@ proc print(x: *const char) = {
 
 proc main = {
     printf("%d", 1)
+    putchar(10)
     putchar('H')
     putchar('e')
     putchar('l')
