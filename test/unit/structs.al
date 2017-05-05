@@ -4,6 +4,6 @@ struct Point {
 };
 
 proc main = {
-    let mydick = Point { x = 0; y = 0 }
+    let test = Point { x = 0; y = 0 }
     0
 }
