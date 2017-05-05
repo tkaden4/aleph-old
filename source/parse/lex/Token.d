@@ -1,17 +1,8 @@
 module parse.lex.Token;
 
 import std.string;
-
-public struct SourceLocation {
-    string filename;
-    size_t line_no;
-    size_t col_no;
-
-    string toString() const
-    {
-        return "SourceLocation(%s, l:%s, c:%s)".format(this.filename, this.line_no, this.col_no);
-    }
-};
+public import parse.SourceLocation;
+public import parse.StringView;
 
 public alias TokenType = Token.Type;
 
@@ -69,11 +60,24 @@ public:
         VARARG
     };
     
-    string lexeme;
+    StringView _lexeme;
     Type type;
     SourceLocation location;
 
-    string toString() const
+    this(in string _lexeme, Type type, in SourceLocation loc)
+    {
+        this._lexeme = new StringView(loc, _lexeme.ptr, _lexeme.length);
+        this.type = type;
+        this.location = loc;
+    }
+
+
+    @property ref const(string) lexeme()
+    {
+        return this._lexeme.asString;
+    }
+
+    string toString()
     {
         import std.string;
         return "Token(\"%s\", %s) l:%u, c:%u".format(this.lexeme, this.type, 

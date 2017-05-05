@@ -4,7 +4,7 @@ import syntax.tree.ExpressionNode;
 
 public class StringNode : ExpressionNode {
 public:
-    this(string value)
+    this(in string value)
     {
         this._value = value;
     }
@@ -20,7 +20,7 @@ public:
         return "StringNode(%s)".format(this.value);
     }
 
-    @property auto value() const
+    @property ref const(string) value() const
     {
         return this._value;
     }

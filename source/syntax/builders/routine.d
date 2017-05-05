@@ -5,10 +5,10 @@ mixin template routineNodeClass(Type, BodyExpression)
     public:
     struct Parameter {
         Type type;
-        string name;
+        const(string) name;
     };
 
-    protected void init(string name, Type ret, Parameter[] params, BodyExpression b=null)
+    protected void init(in string name, Type ret, Parameter[] params, BodyExpression b=null)
     { 
         this.name = name;
         this.returnType = ret;
@@ -27,7 +27,7 @@ mixin template routineNode(alias Name, Type, BodyNode, alias Parent)
     public class Name : Parent {
         mixin routineNodeClass!(Type, BodyNode);
 
-        this(string _name, Type ret, Parameter[] params, BodyNode b=null)
+        this(in string _name, Type ret, Parameter[] params, BodyNode b=null)
         {
             this.init(_name, ret, params, b);
         }

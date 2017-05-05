@@ -18,7 +18,7 @@ public class ProcDeclNode : StatementNode {
 
     mixin routineNodeClass!(Type, ExpressionNode);
 
-    this(string name, Type type, Parameter[] params, ExpressionNode init=null)
+    this(in string name, Type type, Parameter[] params, ExpressionNode init=null)
     {
         this.init(name, type, params, init);
     }

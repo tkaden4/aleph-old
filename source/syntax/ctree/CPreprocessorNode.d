@@ -3,7 +3,7 @@ module syntax.ctree.CPreprocessorNode;
 import syntax.ctree.CTopLevelNode;
 
 public class CPreprocessorNode : CTopLevelNode {
-    this(string value)
+    this(in string value)
     {
         this.value = value;
     }

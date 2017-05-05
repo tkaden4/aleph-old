@@ -8,7 +8,7 @@ import std.stdio;
 import util;
 
 public interface OutputStream {
-    void write(string s);
+    void write(in string s);
 };
 
 public class FileStream : OutputStream {
@@ -22,12 +22,12 @@ public class FileStream : OutputStream {
         this(&f);
     }
 
-    this(string filename)
+    this(in string filename)
     {
         this(new File(filename, "w"));
     }
 
-    override void write(string s)
+    override void write(in string s)
     {
         this.file.write(s);
     }
@@ -41,7 +41,7 @@ public class StringStream : OutputStream {
         this.str = &s; 
     }
 
-    override void write(string s)
+    override void write(in string s)
     {
         *this.str ~= s;
     }
@@ -51,18 +51,18 @@ private:
 
 public struct OutputBuilder {
     static enum TAB_WIDTH = 4u;
-    OutputStream output;
+    OutputStream *output;
     uint tablevel = 0;
     bool usetabs = true;
     bool statem = false;
 
 
-    this(OutputStream s)
+    this(ref OutputStream s)
     {
-        this.output = s;
+        this.output = &s;
     }
 
-    auto printf(Args...)(string fmt, Args args)
+    auto printf(Args...)(in string fmt, Args args)
     {
         const auto tabs = this.usetabs ? 
                              " ".repeat
@@ -74,7 +74,7 @@ public struct OutputBuilder {
         return this;
     }
 
-    auto printfln(Args...)(string fmt, Args args)
+    auto printfln(Args...)(in string fmt, Args args)
     {
         return this.printf(fmt ~ (this.statem ? ";" : "") ~ '\n', args);
     }

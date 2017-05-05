@@ -8,7 +8,7 @@ import syntax.builders.variable;
 
 public class CVarDeclNode : CDeclarationNode {
     mixin variableClass!(CType, CExpressionNode);
-    this(CStorageClass sc, CType type, string id, CExpressionNode init=null)
+    this(CStorageClass sc, CType type, in string id, CExpressionNode init=null)
     {
         super(sc);
         this.initv(id, type, init);

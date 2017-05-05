@@ -5,7 +5,7 @@ private import std.string;
 import syntax.transform.CType;
 import util;
 
-public string typeString(CType t, string id)
+public string typeString(CType t, in string id)
 {
     return t.use!(t => t.match((CPrimitive t) => t.typeString(id),
                                (CPointerType t) => t.typeString(id),
@@ -14,12 +14,12 @@ public string typeString(CType t, string id)
                                (CType t) => null)).err(new Exception("Unknown type %s".format(t)));
 }
 
-private string typeString(CPrimitive t, string inner)
+private string typeString(CPrimitive t, in string inner)
 {
     return "%s%s".format(t.name, (inner.length == 0 ? "" : " " ~ inner));
 }
 
-private string typeString(CFunctionType t, string inner)
+private string typeString(CFunctionType t, in string inner)
 {
     string inside = "(*" ~ inner ~ ")";
     inside ~= "(";
@@ -30,12 +30,12 @@ private string typeString(CFunctionType t, string inner)
     return t.returnType.typeString(inside);
 }
 
-private string typeString(CPointerType t, string inner)
+private string typeString(CPointerType t, in string inner)
 {
     return t.type.typeString("*" ~ inner);
 }
 
-private string typeString(CQualifiedType t, string inner)
+private string typeString(CQualifiedType t, in string inner)
 {
     final switch(t.qualifier){
     case CTypeQualifier.Const: return t.type.typeString("const " ~ inner);

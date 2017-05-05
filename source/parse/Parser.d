@@ -388,6 +388,6 @@ private:
     }
 
 private:
-    const(Token)*[] la_buff;
+    Token*[] la_buff;
     Lexer lexer;
 };

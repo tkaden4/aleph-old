@@ -5,7 +5,7 @@ import syntax.ctree.CTopLevelNode;
 import syntax.transform.CType;
 
 public class CExternFuncNode : CTopLevelNode {
-    this(string name, CType ret, CType[] types, bool vararg=false)
+    this(in string name, CType ret, CType[] types, bool vararg=false)
     {
         this.name = name;
         this.returnType = ret;

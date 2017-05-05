@@ -26,7 +26,7 @@ public class IntLiteral : CLiteralNode {
 };
 
 public class StringLiteral : CLiteralNode {
-    this(string value)
+    this(in string value)
     {
         this.value = value;
     }

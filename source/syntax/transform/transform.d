@@ -100,7 +100,7 @@ private CExpressionNode visit(ExpressionNode n, AlephTable table)
         (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
         (CallNode n)       => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
         // XXX
-        (Object n) => null.err(new Exception("Couldn't convert %s to C expresion".format(n)))
+        (Object n) => null.err(new Exception("%s is not a valid C expresion".format(n)))
     );
 }
 

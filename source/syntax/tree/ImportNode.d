@@ -10,10 +10,10 @@ import std.conv;
 
 public class ImportNode : ASTNode {
 public:
-    this(string _path)
+    this(in string _path)
     {
         this.path = _path.replace(".", "/");
     }
 private:
-    string path; 
+    const(string) path; 
 };

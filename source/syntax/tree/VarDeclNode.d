@@ -8,7 +8,7 @@ public class VarDeclNode : StatementNode {
 public:
     mixin variableClass!(Type, ExpressionNode);
 
-    this(string name, Type type, ExpressionNode node)
+    this(in string name, Type type, ExpressionNode node)
     {
         this.initv(name, type, node);
     }

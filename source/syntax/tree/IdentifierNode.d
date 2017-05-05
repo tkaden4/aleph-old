@@ -5,7 +5,7 @@ public import syntax.tree.ExpressionNode;
 /* TODO add ID type + deferred types */
 public class IdentifierNode : ExpressionNode {
 public:
-    this(string id, Type typ)
+    this(in string id, Type typ)
     {
         this.id = id;
         this.type = typ;
@@ -21,7 +21,7 @@ public:
         this.type = t;
     }
 
-    @property string name() const
+    @property ref const(string) name() const
     {
         return this.id;
     }

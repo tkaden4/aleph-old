@@ -190,7 +190,7 @@ private:
         }
     }
 
-    Token *handleKeyword(Token *tok) pure
+    Token *handleKeyword(Token *tok)
     {
         if(tok.type == Token.Type.ID){
             switch(tok.lexeme){

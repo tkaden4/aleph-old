@@ -3,7 +3,7 @@ module syntax.ctree.CIdentifierNode;
 import syntax.ctree.CExpressionNode;
 
 public class CIdentifierNode : CExpressionNode {
-    this(string value, CType _type)
+    this(in string value, CType _type)
     {
         this.name = value;
         this._type = _type;

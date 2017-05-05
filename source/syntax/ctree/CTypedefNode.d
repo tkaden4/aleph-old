@@ -5,7 +5,7 @@ import syntax.transform.CType;
 
 class CTypedefNode : CStatementNode {
 public:
-    this(CType ct, string tt)
+    this(CType ct, in string tt)
     {
         this.ctype = ct;
         this.totype = tt;

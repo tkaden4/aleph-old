@@ -64,7 +64,7 @@ struct Point {
 }
 
 proc main = {
-    let point = Point { x = 0, y = 0 }
+    let point = Point { x = 0; y = 0 }
     printf("x: %d, y: %d", point.x, point.y)
     0
 }
