@@ -4,7 +4,7 @@ import parse.lex.Token;
 
 public interface LexerInputBuffer {
     /* gets the current location */
-    SourceLocation getLocation() pure;
+    SourceLocation getLocation() const;
     /* read next character */
     char next();
     bool hasNext() pure;

@@ -26,7 +26,7 @@ public class CQualifiedType : CType {
 };
 
 public class CAliasType : CType {
-    this(string name, CType t)
+    this(in string name, CType t)
     {
         this.n = name;
         this.under = t;
@@ -54,7 +54,7 @@ public class CFunctionType : CType {
 
 public class CPrimitive : CType {
 public:
-    this(string name, bool signed, size_t size)
+    this(in string name, bool signed, size_t size)
     {
         this.name = name;
         this.signed = signed;

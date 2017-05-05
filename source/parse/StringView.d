@@ -29,6 +29,5 @@ private:
     const(SourceLocation) loc;
     const(char)* chars;
     size_t len;
-
     string lazy_str;
 };

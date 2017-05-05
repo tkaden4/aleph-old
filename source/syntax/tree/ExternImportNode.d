@@ -5,7 +5,7 @@ import syntax.tree.StatementNode;
 import std.string;
 
 public class ExternImportNode : StatementNode {
-    this(string file)
+    this(in string file)
     {
         this.file = file;
     }

@@ -21,7 +21,7 @@ private:
     }
 public:
 
-    static Parser fromFile(string name)
+    static Parser fromFile(in string name)
     {
         import parse.lex.FileInputBuffer;
         return new Parser(new Lexer(new FileInputBuffer(name)));

@@ -8,7 +8,7 @@ import parse.lex.Token;
 
 public class FileInputBuffer : StringInputBuffer {
 public:
-    this(string filename)
+    this(in string filename)
     {
         super(readText(filename));
     }

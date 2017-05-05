@@ -9,7 +9,7 @@ import std.stdio;
 import core.stdc.stdlib;
 
 
-public auto loadLibrary(string path, AlephTable into)
+public auto loadLibrary(in string path, AlephTable into)
 {
     auto x = getenv("ALEPH_STD").to!string;
     x.writeln;

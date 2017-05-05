@@ -211,7 +211,7 @@ private:
         return tok;
     }
 
-    Token *makeAndAdvance(string lexeme, Token.Type type, size_t n=1)
+    Token *makeAndAdvance(in string lexeme, Token.Type type, size_t n=1)
     {
         auto ret = this.makeToken(lexeme, type);
         while(n--){
@@ -220,7 +220,7 @@ private:
         return ret;
     }
 
-    Token *makeToken(string lexeme, Token.Type type)
+    Token *makeToken(in string lexeme, Token.Type type)
     {
         return new Token(lexeme, type, this.buff.getLocation);
     }
@@ -264,7 +264,7 @@ private:
         return t(this.la);
     }
 
-    bool test(string s)
+    bool test(in string s)
     {
         foreach(x; s){
             if(!this.test(x)){
