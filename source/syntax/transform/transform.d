@@ -4,7 +4,7 @@ import syntax.tree.visitors.ASTVisitor;
 import syntax.ctree;
 import syntax.tree;
 
-import semantics.SymbolTable;
+import semantics;
 import semantics.symbol.Symbol;
 
 import std.range;
@@ -14,8 +14,6 @@ import std.stdio;
 import std.typecons;
 
 import util;
-
-//TODO finish implementing
 
 alias CSymbolTable = SymbolTable!CSymbol;
 

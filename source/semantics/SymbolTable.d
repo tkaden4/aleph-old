@@ -5,9 +5,7 @@ import util;
 private import semantics.symbol.Symbol;
 private import std.stdio;
 
-public alias AlephTable = SymbolTable!Symbol;
-
-public final class SymbolTable(SymbolType) {
+public class SymbolTable(SymbolType) {
 public:
     this(SymbolTable!SymbolType p=null)
     {

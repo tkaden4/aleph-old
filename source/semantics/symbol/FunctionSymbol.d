@@ -1,14 +1,14 @@
 module semantics.symbol.FunctionSymbol;
 
 import semantics.symbol.NamedSymbol;
-import semantics.SymbolTable;
+import semantics.AlephTable;
 import semantics.symbol.Symbol;
 import semantics.type.FunctionType;
 
 import util.match;
 
 public class FunctionSymbol : NamedSymbol {
-    this(string _name, FunctionType ftype, SymbolTable!Symbol _bodyScope, bool external)
+    this(string _name, FunctionType ftype, AlephTable _bodyScope, bool external)
     {
         super(_name, ftype);
         this.bodyScope = _bodyScope;
@@ -39,6 +39,6 @@ public class FunctionSymbol : NamedSymbol {
         return "FuncSym(%s)".format(this.type);
     }
 
-    SymbolTable!Symbol bodyScope;
+    AlephTable bodyScope;
     bool external;
 };

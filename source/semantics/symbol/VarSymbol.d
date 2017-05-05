@@ -2,12 +2,12 @@ module semantics.symbol.VarSymbol;
 
 import semantics.symbol.NamedSymbol;
 import semantics.symbol.Symbol;
-import semantics.SymbolTable;
+import semantics.AlephTable;
 
 import semantics.type.Type;
 
 public class VarSymbol : NamedSymbol {
-    this(string _name, Type _type, SymbolTable!Symbol _upper)
+    this(string _name, Type _type, AlephTable _upper)
     {
         super(_name, _type);
         this.enclosing_scope = _upper;
@@ -19,5 +19,5 @@ public class VarSymbol : NamedSymbol {
         return "VarSym(%s, %s)".format(this.name, this.type);
     }
 private:
-    SymbolTable!Symbol enclosing_scope;
+    AlephTable enclosing_scope;
 };

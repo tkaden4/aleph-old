@@ -1,6 +1,6 @@
 module semantics.TypeChecker;
 
-import semantics.SymbolTable;
+import semantics;
 import syntax.tree;
 
 import std.typecons;

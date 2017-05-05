@@ -6,8 +6,8 @@ module semantics.SymbolBuilder;
 
 import syntax.tree.visitors.ASTVisitor;
 
+import semantics;
 import semantics.symbol;
-import semantics.SymbolTable;
 
 import util;
 

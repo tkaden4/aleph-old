@@ -1,10 +1,11 @@
 module semantics.Desugar;
 
 import std.stdio;
+import std.range;
+import std.algorithm : each;
 
 import syntax.tree.visitors.ASTVisitor;
 import semantics.symbol.Symbol;
-import std.range;
 
 import util;
 
@@ -42,7 +43,6 @@ public:
 override:
     void visit(ProgramNode node)
     {
-        import std.algorithm : each;
         node.children.each!(x => this.dispatch(x));
     }
 

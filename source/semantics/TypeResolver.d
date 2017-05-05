@@ -4,15 +4,18 @@ module semantics.TypeResolver;
  * Performs all type inferencing
  */
 
-import syntax.tree;
-import semantics.SymbolTable;
-import semantics.symbol;
 import std.typecons;
 import std.range;
 import std.algorithm;
-import util;
 import std.stdio;
 import std.string;
+
+import syntax.tree;
+
+import semantics;
+import semantics.symbol;
+
+import util;
 
 public auto resolveTypes(Tuple)(Tuple t)
 {
