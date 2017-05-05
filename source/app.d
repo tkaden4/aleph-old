@@ -11,20 +11,10 @@ import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
 
-import syntax.transform;
-import syntax.tree.ASTException;
-
-import semantics.SymbolBuilder;
-import semantics.TypeResolver;
-import semantics.Desugar;
-import semantics.TypeChecker;
-import semantics.SymbolTable;
-
-import gen.CGenerator;
-
+import gen : cgenerate, FileStream;
+import semantics;
 import util;
-import syntax.builders.routine;
-import syntax.ctree;
+import syntax.transform;
 
 private auto usage()
 {

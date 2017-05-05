@@ -12,7 +12,7 @@ public class ImportNode : ASTNode {
 public:
     this(in string _path)
     {
-        this.path = _path.replace(".", "/");
+        this.path = _path.replace(".", "/") ~ ".al";
     }
 private:
     const(string) path; 
