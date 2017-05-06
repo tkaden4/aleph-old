@@ -32,6 +32,15 @@ public:
         import std.string;
         return "Primitive(%s)".format(this._type);
     }
+
+    override bool canCast(Type t)
+    {
+        import util;
+        return t.match(
+            (PrimitiveType t) => t.type == this.type,
+            (Type t) => false
+        );
+    }
 private:
     Primitive _type;
 };

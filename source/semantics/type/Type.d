@@ -2,7 +2,9 @@ module semantics.type.Type;
 
 import semantics.type.PrimitiveType;
 
-public interface Type {};
+public interface Type {
+    abstract bool canCast(Type other);
+};
 
 public PrimitiveType toPrimitive(string s)
 {

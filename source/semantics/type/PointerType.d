@@ -14,5 +14,14 @@ public class PointerType : Type {
         return "PointerType(%s)".format(this.type);
     }
 
+    override bool canCast(Type other)
+    {
+        import util;
+        return other.match(
+            (PointerType x) => x.type.canCast(this.type),
+            (Type t) => false
+        );
+    }
+
     Type type;
 };

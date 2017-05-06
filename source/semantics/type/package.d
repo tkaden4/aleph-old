@@ -6,4 +6,5 @@ public {
     import semantics.type.PointerType;
     import semantics.type.Type;
     import semantics.type.QualifiedType;
+    import semantics.type.StringType;
 };

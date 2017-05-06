@@ -19,34 +19,57 @@ public auto checkTypes(ProgramNode node, AlephTable table)
     return tuple(table, node.check(table));
 }
 
-public auto check(ProgramNode node, AlephTable table)
+private auto check(ProgramNode node, AlephTable table)
 {
     node.children = node.children.map!(x => x.check(table)).array;
     return node;
 }
 
-public auto check(StatementNode node, AlephTable table)
+private StatementNode check(StatementNode node, AlephTable table)
 {
     return node.match(
-        (ProcDeclNode node) => node.check(table),
+        (ProcDeclNode node) => cast(StatementNode)node.check(table),
+        (VarDeclNode node) => cast(StatementNode)node.check(table),
         (StatementNode x) => x
     );
 }
 
-public auto check(ProcDeclNode node, AlephTable table)
+private VarDeclNode check(VarDeclNode node, AlephTable table)
 {
-    node.bodyNode.resultType.checkCast(node.returnType)
-                            .err(new Exception("Cannot cast %s to return type %s of procedure %s"
-                                    .format(node.bodyNode.resultType, node.returnType, node.name)));
+    node.initVal
+        .resultType
+        .checkCast(node.type)
+        .err(new Exception("cannot cast %s to %s".format(node.initVal.resultType, node.type)));
     return node;
+}
+
+private auto check(ProcDeclNode node, AlephTable table)
+{
+    node.bodyNode
+        .resultType
+        .checkCast(node.returnType)
+        .err(new Exception("Cannot cast %s to return type %s of procedure %s"
+                            .format(node.bodyNode.resultType, node.returnType, node.name)));
+    node.bodyNode = node.bodyNode.check(table);
+    return node;
+}
+
+private BlockNode check(BlockNode node, AlephTable table)
+{
+    node.children = node.children.map!(x => x.check(table)).array;
+    return node;
+}
+
+private ExpressionNode check(ExpressionNode node, AlephTable table)
+{
+    return node.match(
+        (BlockNode n) => cast(ExpressionNode)n.check(table),
+        (StatementNode n) => cast(ExpressionNode)n.check(table),
+        (ExpressionNode n) => n
+    );
 }
 
 private bool checkCast(Type a, Type b)
 {
-    return true;
-}
-
-private bool checkQualifiers(QualifiedType a, QualifiedType b)
-{
-    return a.qualifier == b.qualifier;
+    return a.canCast(b);
 }

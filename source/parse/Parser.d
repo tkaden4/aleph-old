@@ -64,11 +64,10 @@ public:
         case Token.Type.STRUCT:
             return this.structDecl;
         case Token.Type.IMPORT:
-            break;
         default:
-            throw new ParserException("did not expect %s at top level".format(this.la.lexeme));
+            break;
         }
-        return null;
+        throw new ParserException("did not expect %s at top level".format(this.la.lexeme));
     }
 
     ASTNode externRule()
@@ -96,7 +95,7 @@ public:
         case Token.Type.STRING:
             return new StringNode(this.advance.lexeme);
         default:
-            throw new ParserException("Literal not implemented");
+            throw new ParserException("invalid literal \"%s\"", this.la.lexeme);
         }
     }
 
@@ -220,11 +219,14 @@ public:
         /* TODO add multiple parameter types */
         case Token.Type.LPAREN:
             this.match(Token.Type.LPAREN);
-            auto param = this.parseType;
+            Type[] params;
+            while(!this.test(Token.Type.RPAREN)){
+                params ~= this.parseType;
+            }
             this.match(Token.Type.RPAREN);
             this.match(Token.Type.RARROW);
             auto ret = this.parseType;
-            return new FunctionType(ret, [param]);
+            return new FunctionType(ret, params);
         default:
             throw new ParserException("%s is not the start of a valid type".format(*this.la));
         }

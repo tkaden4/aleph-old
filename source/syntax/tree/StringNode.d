@@ -11,7 +11,7 @@ public:
 
     override Type resultType()
     {
-        return new PointerType(new QualifiedType(TypeQualifier.Const, Primitives.Char));
+        return new StringType;
     }
 
     override string toString() const

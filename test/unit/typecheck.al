@@ -1,9 +1,4 @@
-proc ref(x: &int) {
-    x = 8
-    x
-}
-
 proc main = {
-    let k = "hello, world"
+    let k: int = "hello, world"
     0
 }

@@ -20,6 +20,15 @@ public:
         return "QualifiedType(%s, %s)".format(this.qualifier, this.type);
     }
 
+    override bool canCast(Type t)
+    {
+        import util;
+        return t.match(
+            (QualifiedType x) => x.qualifier == this.qualifier && x.type.canCast(this.type),
+            (Type t) => false
+        );
+    }
+
     TypeQualifier qualifier;
     Type type;
 };

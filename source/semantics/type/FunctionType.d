@@ -46,6 +46,28 @@ public:
         }
         return "((%s) -> %s)".format(params, this.return_type);
     }
+
+    override bool canCast(Type other)
+    {
+        import util;
+        return other.match(
+            (FunctionType type){
+                if(type.parameterTypes.length != this.parameterTypes.length){
+                    return false;
+                }
+                bool params = false;
+                foreach(x; type.parameterTypes.zip(this.parameterTypes)){
+                    params = x[0].canCast(x[1]);
+                    if(!params){
+                        return false;
+                    }
+                }
+                return this.returnType.canCast(type.returnType);
+            },
+            (Type t) => false
+        );
+    }
+
 private:
     Type return_type;
     Type[] param_types;
