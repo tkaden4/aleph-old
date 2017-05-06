@@ -15,6 +15,7 @@ import gen : cgenerate, FileStream;
 import semantics;
 import util;
 import syntax.transform;
+import library;
 
 private auto usage()
 {

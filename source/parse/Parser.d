@@ -13,12 +13,6 @@ import std.typecons;
 import util;
 
 public final class Parser {
-private:
-    alias ParseResult(T) = Nullable!T;
-    auto presult(T)(T t)
-    {
-        return ParseResult!T(t);
-    }
 public:
 
     static Parser fromFile(in string name)
@@ -50,42 +44,69 @@ public:
         try{
             StatementNode[] res;
             while(this.lexer.hasNext){
-                res ~= this.declaration.getOrThrow(
-                           new ParserException("Unable to parse declaration") 
-                       );
+                res ~= this.declaration;
             }
             return new ProgramNode(res);
-        }catch(Exception e){
-            throw new Exception("parser error: %s".format(e.msg));
+        }catch(ParserException e){
+            throw new Exception("parser error [%s, %s] : %s"
+                                .format(this.la.location.line_no, this.la.location.col_no, e.msg));
         }
     }
 
-    auto literalExpression()
+    /* any node at the top level of the file */
+    ASTNode topLevel()
+    {
+        switch(this.la.type){
+        case Token.Type.EXTERN:
+            return this.externRule;
+        case Token.Type.PROC:
+            return this.procDecl;
+        case Token.Type.STRUCT:
+            return this.structDecl;
+        case Token.Type.IMPORT:
+            break;
+        default:
+            throw new ParserException("did not expect %s at top level".format(this.la.lexeme));
+        }
+        return null;
+    }
+
+    ASTNode externRule()
+    {
+        this.advance;
+        switch(this.la.type){
+        case Token.Type.PROC:
+            return this.externProc;
+        default:
+            throw new ParserException("did not expect %s after \"extern\"".format(this.la.lexeme));
+        }
+    }
+
+    ExpressionNode literalExpression()
     {
         import std.conv;
         switch(this.la.type){
         case Token.Type.INTEGER:
             auto num = this.match(Token.Type.INTEGER).lexeme.to!int;
-            return presult!ExpressionNode(new IntegerNode(num));
+            return new IntegerNode(num);
         case Token.Type.CHAR:
             auto tok = this.match(Token.Type.CHAR);
             auto ch = tok.lexeme[1..$-1].to!char;
-            return presult!ExpressionNode(new CharNode(ch));
+            return new CharNode(ch);
         case Token.Type.STRING:
-            return presult!ExpressionNode(new StringNode(this.advance.lexeme));
+            return new StringNode(this.advance.lexeme);
         default:
-            "Literal not implemented".writeln;
-            return ParseResult!ExpressionNode.init;
+            throw new ParserException("Literal not implemented");
         }
     }
 
-    ParseResult!ExpressionNode primaryExpression()
+    ExpressionNode primaryExpression()
     {
         switch(this.la.type){
         /* ID */
         case Token.Type.ID: 
             auto id = this.match(Token.Type.ID);
-            return presult!ExpressionNode(new IdentifierNode(id.lexeme, null));
+            return new IdentifierNode(id.lexeme, null);
         /* { expression* } */
         case Token.Type.LBRACE: return this.blockExpression;
         /* ( expression ) */
@@ -101,7 +122,7 @@ public:
         case Token.Type.CHAR:
             return this.literalExpression;
         /* TODO add function calls, Etc. */
-        default: return ParseResult!ExpressionNode.init;
+        default: throw new ParserException("expected primary expression");
         }
     }
 
@@ -109,8 +130,7 @@ public:
     {
         ExpressionNode[] ret;
         while(!this.test(Token.Type.RPAREN)){
-            ret ~= this.expression.getOrThrow(
-                        new ParserException("No expression in parameters"));
+            ret ~= this.expression;
             if(this.test(Token.Type.COMMA)){
                 this.advance;
             }
@@ -120,24 +140,27 @@ public:
 
     auto postfixExpression()
     {
-        auto postOp(ExpressionNode node)
+        auto postOp(ExpressionNode node, bool optional)
         {
             switch(this.la.type){
             case Token.Type.LPAREN:
                 this.match(Token.Type.LPAREN);
                 auto args = this.paramExpressions;
                 this.match(Token.Type.RPAREN);
-                return presult!ExpressionNode(new CallNode(node, args));
+                return new CallNode(node, args);
             default:
-                return ParseResult!ExpressionNode.init;
+                if(!optional){
+                    throw new ParserException("expected postfix operator");
+                }
+                return null;
             }
         }
         
         auto exp = this.primaryExpression;
-        auto ret = postOp(exp.getOrThrow(new ParserException("postfix requires an expression")));
-        while(!ret.isNull){
+        auto ret = postOp(exp, true);
+        while(ret){
             exp = ret;
-            ret = postOp(exp.getOrThrow(new ParserException("no expression in postfix")));
+            ret = postOp(exp, true);
         }
         return exp;
     }
@@ -154,7 +177,7 @@ public:
         case Token.Type.STATIC:
         case Token.Type.LET:
         case Token.Type.PROC:
-            return cast(ParseResult!ExpressionNode)this.declaration;
+            return this.declaration;
         default: return this.expression;
         }
     }
@@ -165,10 +188,10 @@ public:
         this.match(Token.Type.LBRACE);
         while(!this.test(Token.Type.RBRACE)){
             auto exp = this.statement;
-            res ~= exp.getOrThrow(new ParserException("Invalid block body"));
+            res ~= exp;
         }
         this.match(Token.type.RBRACE);
-        return presult!ExpressionNode(new BlockNode(res));
+        return new BlockNode(res);
     }
 
     /* TODO add more complex types */
@@ -183,6 +206,7 @@ public:
             return new PointerType(this.parseType);
         /* Primitive type or single-parameter function */
         case Token.Type.ID:
+            /* TODO fix const functions */
             if(this.test(Token.Type.RARROW, 1)){
                 return this.advance.lexeme.toPrimitive.use!((x){
                     this.match(Token.Type.RARROW);
@@ -202,7 +226,7 @@ public:
             auto ret = this.parseType;
             return new FunctionType(ret, [param]);
         default:
-            throw new ParserException("Couldn't parse type from %s".format(*this.la));
+            throw new ParserException("%s is not the start of a valid type".format(*this.la));
         }
     }
 
@@ -218,7 +242,7 @@ public:
                 this.advance;
             }
         }
-        return nullable(params);
+        return params;
     }
 
     auto procDecl()
@@ -229,7 +253,7 @@ public:
             this.match(Token.Type.LPAREN);
             auto params = this.parameters;
             this.match(Token.Type.RPAREN);
-            return params.get;
+            return params;
         }).or(null);
 
         auto ret_type = this.test(Token.Type.RARROW).use!((x){
@@ -239,9 +263,9 @@ public:
 
         ExpressionNode exp = null;
         this.match(Token.Type.EQ);
-        exp = this.expression.getOrThrow(new ParserException("Unable to parse expression"));
+        exp = this.expression;
 
-        return presult(new ProcDeclNode(toks[1].lexeme, ret_type, params, exp));
+        return new ProcDeclNode(toks[1].lexeme, ret_type, params, exp);
     }
 
     auto varDecl()
@@ -256,12 +280,11 @@ public:
         this.test(Token.Type.EQ)
             .use_err!(x => this.advance)(new ParserException("Variables must be initialized"));
 
-        auto exp = this.expression.getOrThrow(
-                                    new ParserException("Variables must be initialized"));
-        return presult(new VarDeclNode(toks[1].lexeme, type, exp));
+        auto exp = this.expression;
+        return new VarDeclNode(toks[1].lexeme, type, exp);
     }
 
-    auto declaration()
+    StatementNode declaration()
     {
         bool external = false;
         switch(this.la.type){
@@ -269,7 +292,7 @@ public:
             this.advance;
             if(this.test(Token.Type.IMPORT)){
                 auto toks = this.match(Token.Type.IMPORT, Token.Type.STRING);
-                return cast(ParseResult!StatementNode)new ExternImportNode(toks[1].lexeme[1..$-1]);
+                return new ExternImportNode(toks[1].lexeme[1..$-1]);
             }else{
                 external = true;
                 goto case;
@@ -281,22 +304,26 @@ public:
             }else{
                 ret = this.procDecl;
             }
-            return cast(ParseResult!StatementNode)ret;
+            return ret;
         case Token.Type.STRUCT:
-            throw new ParserException("Structs not supported");
-        case Token.Type.LET: return cast(ParseResult!StatementNode)this.varDecl;
+            return this.structDecl;
+        case Token.Type.LET: return this.varDecl;
         default: throw new ParserException("Couldn't parse declaration");
         }
     }
 
-    auto structDecl()
+    StatementNode structDecl()
     {
+        throw new ParserException("structs are currently not supported");
+            /*
         auto name = this.match(Token.Type.STRUCT, Token.Type.ID)[1];
         this.match(Token.Type.LBRACE);
         while(!this.test(Token.Type.RBRACE)){
             // Get a struct declarator "x: int"
         }
         // return new StructDeclNode(name, variables);
+        */
+        //return ParseResult!ASTNode.init;
     }
 
     auto externProc()
@@ -322,7 +349,7 @@ public:
 
         this.match(Token.Type.RARROW);
         auto ret = this.parseType;
-        return presult(new ExternProcNode(name, ret, params, vararg));
+        return new ExternProcNode(name, ret, params, vararg);
     }
 private:
     /* UTILITY FUNCTIONS */

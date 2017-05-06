@@ -1,5 +1,6 @@
+import std.c.stdio
+
 proc main = {
-    import std.c.stdio
     puts("Hello, world")
     0
 }

@@ -9,6 +9,8 @@ import std.stdio;
 import std.ascii;
 import std.string;
 
+/* TODO fix the location of lexemes being shifted */
+
 private bool isIdBody(dchar c) pure
 {
     return isAlpha(c) || isDigit(c) || c == '_';

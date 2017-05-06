@@ -33,6 +33,12 @@ public:
     {
         return this._parent;
     }
+
+    override string toString()
+    {
+        import std.string;
+        return "AlephTable(%s)".format(this.symbols.length);
+    }
 private:
     SymbolType[string] symbols;
     SymbolTable!SymbolType _parent;
