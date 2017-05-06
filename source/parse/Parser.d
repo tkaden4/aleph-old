@@ -44,17 +44,17 @@ public:
         try{
             StatementNode[] res;
             while(this.lexer.hasNext){
-                res ~= this.declaration;
+                res ~= this.topLevel;
             }
             return new ProgramNode(res);
         }catch(ParserException e){
-            throw new Exception("parser error [%s, %s] : %s"
-                                .format(this.la.location.line_no, this.la.location.col_no, e.msg));
+            throw new Exception("parser error [%s, %s, %s] : %s"
+                                .format(this.la.location.filename, this.la.location.line_no, this.la.location.col_no, e.msg));
         }
     }
 
     /* any node at the top level of the file */
-    ASTNode topLevel()
+    StatementNode topLevel()
     {
         switch(this.la.type){
         case Token.Type.EXTERN:
@@ -64,18 +64,34 @@ public:
         case Token.Type.STRUCT:
             return this.structDecl;
         case Token.Type.IMPORT:
+            //throw new ParserException("Imports?");
+            return this.importDecl;
         default:
             break;
         }
-        throw new ParserException("did not expect %s at top level".format(this.la.lexeme));
+        throw new ParserException("did not expect %s at top level".format(*this.la));
     }
 
-    ASTNode externRule()
+    ImportNode importDecl()
+    {
+        this.match(Token.Type.IMPORT);
+        string path = "";
+        path ~= this.match(Token.Type.ID).lexeme;
+        while(this.test(Token.Type.DOT)){
+            this.match(Token.Type.DOT);
+            path ~= ("." ~ this.match(Token.Type.ID).lexeme);
+        }
+        return new ImportNode(path);
+    }
+
+    StatementNode externRule()
     {
         this.advance;
         switch(this.la.type){
         case Token.Type.PROC:
             return this.externProc;
+        case Token.Type.IMPORT:
+            return this.externImport;
         default:
             throw new ParserException("did not expect %s after \"extern\"".format(this.la.lexeme));
         }
@@ -114,6 +130,18 @@ public:
             auto ret = this.expression;
             this.match(Token.Type.RPAREN);
             return ret;
+        /* if expression then expression else expression */
+        case Token.Type.IF:
+            this.match(Token.Type.IF);
+            auto ifexp = this.expression;
+            this.match(Token.Type.THEN);
+            auto thenexp = this.expression;
+            ExpressionNode elseexp = null;
+            if(this.test(Token.Type.ELSE)){
+                this.match(Token.Type.ELSE);
+                elseexp = this.expression;
+            }
+            return new IfExpressionNode(ifexp, thenexp, elseexp, null);
         /* Literals */
         case Token.Type.INTEGER:
         case Token.Type.STRING:
@@ -121,7 +149,7 @@ public:
         case Token.Type.CHAR:
             return this.literalExpression;
         /* TODO add function calls, Etc. */
-        default: throw new ParserException("expected primary expression");
+        default: throw new ParserException("\"%s\" does not start a primary expression".format(this.la.lexeme));
         }
     }
 
@@ -164,9 +192,22 @@ public:
         return exp;
     }
 
+    ExpressionNode additiveExpression()
+    {
+        auto exp = this.postfixExpression;
+        switch(this.la.type){
+        case Token.Type.PLUS:
+            this.match(Token.Type.PLUS);
+            return new BinOpNode(exp, this.additiveExpression, "+", null);
+        default:
+            break;
+        }
+        return exp;
+    }
+
     auto expression()
     {
-        return this.postfixExpression;
+        return this.additiveExpression;
     }
 
     auto statement()
@@ -293,9 +334,8 @@ public:
         case Token.Type.EXTERN:
             this.advance;
             if(this.test(Token.Type.IMPORT)){
-                auto toks = this.match(Token.Type.IMPORT, Token.Type.STRING);
-                return new ExternImportNode(toks[1].lexeme[1..$-1]);
-            }else{
+                return this.externImport;
+           }else{
                 external = true;
                 goto case;
             }
@@ -326,6 +366,12 @@ public:
         // return new StructDeclNode(name, variables);
         */
         //return ParseResult!ASTNode.init;
+    }
+
+    auto externImport()
+    {
+        auto toks = this.match(Token.Type.IMPORT, Token.Type.STRING);
+        return new ExternImportNode(toks[1].lexeme[1..$-1]);
     }
 
     auto externProc()

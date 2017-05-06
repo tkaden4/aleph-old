@@ -48,6 +48,9 @@ private auto visit(ProgramNode node, AlephTable tab)
         (ExternProcNode node){
             top ~= node.visit(table, tab);
         },
+        (ImportNode n){
+
+        },
         (ASTNode node){
             throw new CTreeException("Invalid Top-Level Declaration");
         }

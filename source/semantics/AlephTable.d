@@ -21,7 +21,7 @@ public class AlephTable : SymbolTable!Symbol {
         if(libsyms.length > 1){
             throw new Exception("Conflicting symbols");
         }
-        return libsyms[0];
+        return x ? x : libsyms[0];
     }
 
     void addLibrary(string path, AlephTable symbols)

@@ -1,4 +1,7 @@
-proc main = {
-    let k: int = "hello, world"
+import std.c.stdio
+
+proc main() -> int = {
+    let k: *const char = "hello, world"
+    puts(k)
     0
 }

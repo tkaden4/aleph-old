@@ -73,9 +73,9 @@ public:
         }
 
         if(this.test("...")){
-            this.advance;
-            this.advance;
-            this.advance;
+            this.match('.');
+            this.match('.');
+            this.match('.');
             return this.makeToken("...", Token.Type.VARARG);
         }
 
@@ -90,6 +90,7 @@ public:
         case ',': return this.makeAndAdvance(",", Token.Type.COMMA);
         /* Operators */
         case '%': return this.makeAndAdvance("%", Token.Type.REM);
+        case '.': return this.makeAndAdvance(".", Token.Type.DOT);
         case '*': return this.makeAndAdvance("*", Token.Type.STAR);
         case '/': return this.makeAndAdvance("/", Token.Type.DIV);
         case '!': return this.makeAndAdvance("!", Token.Type.BANG);
@@ -268,8 +269,8 @@ private:
 
     bool test(in string s)
     {
-        foreach(x; s){
-            if(!this.test(x)){
+        foreach(x, i; s){
+            if(!this.test(i, x)){
                 return false;
             }
         }

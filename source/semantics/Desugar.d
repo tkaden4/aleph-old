@@ -63,6 +63,7 @@ override:
     }
 
     // Unused functions
+    void visit(ImportNode n){}
     void visit(ExternImportNode node){}
     void visit(ExternProcNode node){}
     void visit(IntegerNode node){}

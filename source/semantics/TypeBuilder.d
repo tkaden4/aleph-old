@@ -1,4 +1,4 @@
-module semantics.SymbolBuilder;
+module semantics.TypeBuilder;
 
 /* 
  * Creates the symbol table
@@ -15,7 +15,7 @@ import std.string;
 import std.algorithm;
 import std.stdio;
 
-public auto buildSymbols(ProgramNode node)
+public auto buildTypes(ProgramNode node)
 {
     try{
         return node.build(new AlephTable);
@@ -38,12 +38,17 @@ private auto build(ReturnNode node, AlephTable table)
     node.value.apply!(x => x.build(table));
     return node;
 }
-private auto build(StatementNode node, AlephTable table)
+private StatementNode build(StatementNode node, AlephTable table)
 {
     return node.match(
         (ReturnNode n)   => cast(StatementNode)n.build(table),
         (VarDeclNode n)  => cast(StatementNode)n.build(table),
         (ProcDeclNode n) => cast(StatementNode)n.build(table),
+        (ImportNode n){
+            import library;
+            loadLibrary(n.path, table);
+            return n;
+        },
         (ExternProcNode n) => n.build(table),
         (ExternImportNode n) => n,
     );

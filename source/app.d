@@ -16,6 +16,7 @@ import semantics;
 import util;
 import syntax.transform;
 import library;
+import semantics.visit;
 
 private auto usage()
 {
@@ -40,7 +41,7 @@ int main(string[] args)
                       // parse the file
                       .program
                       // build symbol table
-                      .buildSymbols
+                      .buildTypes
                       // inference all types
                       .resolveTypes
                       // Perform all type checking

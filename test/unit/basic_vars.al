@@ -1,4 +1,4 @@
 proc main -> int = {
-    let data: int = '8'
+    let data: char = '8'
     0
 }

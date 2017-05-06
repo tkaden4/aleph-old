@@ -5,9 +5,10 @@ import parse.lex.Token;
 
 public class StringInputBuffer : LexerInputBuffer {
 public:
-    this(in string str)
+    this(in string str, in string filename="string buffer")
     {
         this.buffer = str;
+        this.name = filename;
         this.index = 0;
         this.col_no = 0;
         this.line_no = 0;
@@ -15,7 +16,7 @@ public:
 
     SourceLocation getLocation() const
     {
-        return SourceLocation("string buffer", this.line_no, this.col_no);
+        return SourceLocation(this.name, this.line_no, this.col_no);
     }
 
     char next()
@@ -37,6 +38,7 @@ public:
         return this.index < this.buffer.length;
     }
 private:
+    string name;
     string buffer;
     size_t index;
 

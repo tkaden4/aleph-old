@@ -53,6 +53,7 @@ public:
         REM,
         DEC,
         INC,
+        DOT,
         /* Etc. */
         ID,
         IMPORT,

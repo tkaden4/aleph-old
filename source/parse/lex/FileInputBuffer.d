@@ -10,7 +10,7 @@ public class FileInputBuffer : StringInputBuffer {
 public:
     this(in string filename)
     {
-        super(readText(filename));
+        super(readText(filename), filename);
     }
     this(ref File file)
     {

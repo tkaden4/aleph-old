@@ -1,19 +1,24 @@
 module syntax.tree;
 
-public import syntax.tree.ASTException;
-public import syntax.tree.ASTNode;
-public import syntax.tree.ProcDeclNode;
-public import syntax.tree.IntegerNode;
-public import syntax.tree.BlockNode;
-public import syntax.tree.CharNode;
-public import syntax.tree.IdentifierNode;
-public import syntax.tree.VarDeclNode;
-public import syntax.tree.ProgramNode;
-public import syntax.tree.CallNode;
-public import syntax.tree.ReturnNode;
-public import syntax.tree.StatementNode;
-public import syntax.tree.StringNode;
-public import syntax.tree.ExternImportNode;
-public import syntax.tree.ExternProcNode;
+public {
+    import syntax.tree.ASTException;
+    import syntax.tree.ASTNode;
+    import syntax.tree.ProcDeclNode;
+    import syntax.tree.IntegerNode;
+    import syntax.tree.BlockNode;
+    import syntax.tree.CharNode;
+    import syntax.tree.IdentifierNode;
+    import syntax.tree.VarDeclNode;
+    import syntax.tree.ProgramNode;
+    import syntax.tree.CallNode;
+    import syntax.tree.ReturnNode;
+    import syntax.tree.StatementNode;
+    import syntax.tree.StringNode;
+    import syntax.tree.ExternImportNode;
+    import syntax.tree.ExternProcNode;
+    import syntax.tree.ImportNode;
+    import syntax.tree.BinOpNode;
+    import syntax.tree.IfExpressionNode;
+};
 
 public import syntax.tree.ASTException;

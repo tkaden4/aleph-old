@@ -45,6 +45,7 @@ private StatementNode resolve(StatementNode node, AlephTable table)
         (ExternProcNode n) => cast(StatementNode)n.resolve(table),
         (VarDeclNode n)  => cast(StatementNode)n.resolve(table),
         (ExternImportNode n) => n,
+        (ImportNode n) => n
     );
 }
 

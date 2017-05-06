@@ -21,6 +21,7 @@ public class ASTVisitor {
                 (ExternImportNode node) => visit(node),
                 (ExternProcNode node) => visit(node),
                 (VarDeclNode node) => visit(node),
+                (ExpressionNode node){},
                 (ASTNode node) {
                     throw new ASTException("Couldn't visit %s"
                                                 .format(typeid(node).toString));
@@ -30,6 +31,12 @@ public class ASTVisitor {
     }
 
     void visit(ExternImportNode node)
+    {
+        throw new ASTException("Couldn't visit %s"
+                                    .format(typeid(node).toString));
+    }
+
+    void visit(ImportNode node)
     {
         throw new ASTException("Couldn't visit %s"
                                     .format(typeid(node).toString));
