@@ -7,7 +7,7 @@ proc map_sum(a: int, b: int, fn: int -> int) = {
     else fn(a) + map_sum(a+1, b, fn)
 }
 
-import std.c.stdio;
+import std.c.stdio
 
 proc main = {
     printf("%d\n", map_sum(0, 3, add_two))

@@ -16,7 +16,6 @@ import semantics;
 import util;
 import syntax.transform;
 import library;
-import semantics.visit;
 
 private auto usage()
 {

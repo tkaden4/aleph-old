@@ -36,7 +36,7 @@ public class FunctionSymbol : NamedSymbol {
     override string toString()
     {
         import std.string;
-        return "FuncSym(%s)".format(this.type);
+        return "FuncSym(%s, %s)".format(this.name, this.type);
     }
 
     AlephTable bodyScope;

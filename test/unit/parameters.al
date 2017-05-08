@@ -1,8 +1,8 @@
-proc first(a: int, b: int) -> int = a
+proc first(k: int, b: int) -> int = k
 
-proc identity(a: int) = a
+proc identity(j: int) = j
 
-proc idne(a: int -> int) = a(8)
+proc idne(f: int -> int) = f(8)
 
 proc main() -> int = {
     first(idne(identity), 2)

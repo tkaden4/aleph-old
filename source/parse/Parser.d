@@ -199,15 +199,26 @@ public:
         case Token.Type.PLUS:
             this.match(Token.Type.PLUS);
             return new BinOpNode(exp, this.additiveExpression, "+", null);
-        default:
-            break;
+        default: break;
+        }
+        return exp;
+    }
+
+    ExpressionNode equalityExpression()
+    {
+        auto exp = this.additiveExpression;
+        switch(this.la.type){
+        case Token.Type.EQEQ:
+            this.match(Token.Type.EQEQ);
+            return new BinOpNode(exp, this.equalityExpression, "==", null);
+        default: break;
         }
         return exp;
     }
 
     auto expression()
     {
-        return this.additiveExpression;
+        return this.equalityExpression;
     }
 
     auto statement()
