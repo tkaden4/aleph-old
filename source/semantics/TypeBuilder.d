@@ -14,7 +14,7 @@ import util;
 import std.string;
 import std.algorithm;
 import std.stdio;
-import semantics.visit.Visitor;
+import syntax.visit.Visitor;
 
 public auto buildTypes(ProgramNode node)
 {

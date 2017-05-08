@@ -5,9 +5,9 @@ import syntax.tree.ExpressionNode;
 public class IfExpressionNode : ExpressionNode {
     this(ExpressionNode ifn, ExpressionNode then, ExpressionNode elsen, Type res)
     {
-        this.ifn = ifn;
-        this.then = then;
-        this.elsen = elsen;
+        this.ifexp = ifn;
+        this.thenexp = then;
+        this.elseexp = elsen;
         this._resultType = res;
     }
 
@@ -19,12 +19,12 @@ public class IfExpressionNode : ExpressionNode {
     override string toString() const
     {
         import std.string;
-        return "IfNode(%s, %s%s)".format(this.ifn, this.then, this.elsen ? ", %s".format(this.elsen) : "");
+        return "IfNode(%s, %s%s)".format(this.ifexp, this.thenexp, this.elseexp ? ", %s".format(this.elseexp) : "");
     }
 
-    ExpressionNode ifn;
-    ExpressionNode then;
-    ExpressionNode elsen;
+    ExpressionNode ifexp;
+    ExpressionNode thenexp;
+    ExpressionNode elseexp;
 private:
     Type _resultType;
 };

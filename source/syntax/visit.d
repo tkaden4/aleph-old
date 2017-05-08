@@ -1,4 +1,4 @@
-module semantics.visit.Visitor;
+module syntax.visit.Visitor;
 
 import syntax.tree;
 import util;
@@ -6,9 +6,9 @@ import std.range;
 import std.algorithm;
 import std.stdio;
 
-abstract class Visitor(R, Args...) {
+public abstract class Visitor(R, Args...) {
 public:
-    R visit(ref ProgramNode node, Args args)
+    public R visit(ref ProgramNode node, Args args)
     {
         node.children.each!(x => this.visit(x, args));
         static if(typeid(R) != typeid(void)){
@@ -34,9 +34,9 @@ public:
 
     R visit(ref IfExpressionNode node, Args args)
     {
-        this.visit(node.ifn, args);
-        this.visit(node.then, args);
-        node.elsen.then!(x => this.visit(x, args));
+        this.visit(node.ifexp, args);
+        this.visit(node.thenexp, args);
+        node.elseexp.then!(x => this.visit(x, args));
         static if(typeid(R) != typeid(void)){
             return R.init;
         }
@@ -47,6 +47,7 @@ public:
         import std.string;
         node.match(
             (StatementNode node)  => this.visit(node, args),
+            (IfExpressionNode node)         => this.visit(node, args),
             (IntegerNode node)    => this.visit(node, args),
             (CallNode node)       => this.visit(node, args),
             (BlockNode node)      => this.visit(node, args),
