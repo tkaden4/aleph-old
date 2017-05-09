@@ -322,7 +322,13 @@ public:
         }).or(null);
 
         ExpressionNode exp = null;
-        this.match(Token.Type.EQ);
+
+        if(this.test(Token.Type.EQ)){
+            this.advance;
+        }else if(!this.test(Token.Type.LBRACE)){
+            throw new ParserException("requires =");
+        }
+
         exp = this.expression;
 
         return new ProcDeclNode(toks[1].lexeme, ret_type, params, exp);
@@ -435,6 +441,14 @@ private:
             this.la_buff ~= this.lexer.next;
             return ret;
         });
+    }
+
+    auto optional(Token.Type type)
+    {
+        if(this.test(type)){
+            return this.match(type);
+        }
+        return this.la;
     }
 
     auto match(U...)(Token.Type t, Token.Type t2, U args)

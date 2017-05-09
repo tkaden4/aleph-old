@@ -8,6 +8,10 @@ import std.algorithm;
 public {
     import util.match;
 
+    auto not(bool t){
+        return !t;
+    }
+
     auto headLast(alias first, alias last, T)(T range)
     {
         foreach(i, x; range){

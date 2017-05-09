@@ -20,7 +20,7 @@ public class ExternProcNode : StatementNode {
 
     auto functionType()
     {
-        return this.returnType.use!(k => new FunctionType(k, this.parameterTypes));
+        return this.returnType.use!(k => new FunctionType(k, this.parameterTypes, this.isvararg));
     }
 
     override string toString() const

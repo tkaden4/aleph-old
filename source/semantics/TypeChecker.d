@@ -37,7 +37,7 @@ private StatementNode check(StatementNode node, AlephTable table)
 private CallNode check(CallNode node, AlephTable table)
 {
     auto type = cast(FunctionType)node.toCall.resultType;
-    if(node.arguments.length != type.parameterTypes.length){
+    if(node.arguments.length != type.parameterTypes.length && !type.isVararg){
         throw new Exception("wrong number of arguments for function %s of type %s".format(node.toCall, type.toPrintable));
     }
     return node;

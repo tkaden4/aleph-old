@@ -5,10 +5,11 @@ import std.range;
 
 public class FunctionType : Type {
 public:
-    this(Type ret, Type[] param)
+    this(Type ret, Type[] param, bool vararg=false)
     {
         this.return_type = ret;
         this.param_types = param;
+        this.vararg = vararg;
     }
 
     invariant
@@ -22,6 +23,11 @@ public:
     @property auto returnType()
     {
         return this.return_type;
+    }
+
+    bool isVararg() pure
+    {
+        return this.vararg;
     }
 
     @property auto parameterTypes()
@@ -70,6 +76,7 @@ public:
     }
 
 private:
+    bool vararg;
     Type return_type;
     Type[] param_types;
 };
