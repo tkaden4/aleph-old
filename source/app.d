@@ -35,8 +35,7 @@ int main(string[] args)
     try{
         "Compilation took %d %s\n".writefln(
             time!timefmt({
-                Parser
-                      .fromFile(args[1])
+                Parser.fromFile(args[1])
                       // parse the file
                       .program
                       // build symbol table

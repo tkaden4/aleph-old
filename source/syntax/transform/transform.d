@@ -30,7 +30,7 @@ public auto transform(AlephTable tab, ProgramNode node)
     try{
         return node.visit(tab);
     }catch(Exception e){
-        throw new Exception("Couldn't transform tree: %s".format(e.msg));
+        throw new Exception("couldn't transform tree to C tree: %s".format(e.msg));
     }
 }
 
@@ -123,9 +123,12 @@ private CType visit(Type type, AlephTable table)
         },
         (PrimitiveType t){
             switch(t.type){
-            case Primitive.INT: return CPrimitive.Int;
-            case Primitive.CHAR: return CPrimitive.Char;
-            case Primitive.VOID: return CPrimitive.Void;
+            case PrimitiveType.INT: return CPrimitive.Int;
+            case PrimitiveType.CHAR: return CPrimitive.Char;
+            case PrimitiveType.VOID: return CPrimitive.Void;
+            case PrimitiveType.LONG: return CPrimitive.Long;
+            case PrimitiveType.ULONG: return CPrimitive.ULong;
+            case PrimitiveType.UINT: return CPrimitive.UInt;
             default:
                 throw new Exception("Unknown primitive %s".format(t));
             }

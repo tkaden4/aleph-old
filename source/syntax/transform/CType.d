@@ -74,6 +74,9 @@ public:
         Int = new CPrimitive("int", true, 4),
         Void = new CPrimitive("void", false, 0),
         Char = new CPrimitive("char", true, 1),
+        Long = new CPrimitive("long long", true, long.sizeof),
+        UInt = new CPrimitive("unsigned", false, uint.sizeof),
+        ULong = new CPrimitive("unsigned long long", false, ulong.sizeof),
     };
 };
 
