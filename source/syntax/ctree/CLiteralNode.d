@@ -14,7 +14,7 @@ public class IntLiteral : CLiteralNode {
 
     @property CType type()
     {
-        return CPrimitives.Int;
+        return CPrimitive.Int;
     }
 
     override string toString()
@@ -33,7 +33,7 @@ public class StringLiteral : CLiteralNode {
 
     @property CType type()
     {
-        return new CPointerType(new CQualifiedType(CTypeQualifier.Const, CPrimitives.Char));
+        return new CPointerType(new CQualifiedType(CTypeQualifier.Const, CPrimitive.Char));
     }
 
     override string toString() const
@@ -52,7 +52,7 @@ public class CharLiteral : CLiteralNode {
 
     @property CType type()
     {
-        return CPrimitives.Char;
+        return CPrimitive.Char;
     }
 
     override string toString()

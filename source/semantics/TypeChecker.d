@@ -28,8 +28,8 @@ private auto check(ProgramNode node, AlephTable table)
 private StatementNode check(StatementNode node, AlephTable table)
 {
     return node.match(
-        (ProcDeclNode node) => cast(StatementNode)node.check(table),
-        (VarDeclNode node) => cast(StatementNode)node.check(table),
+        (ProcDeclNode node) => node.check(table),
+        (VarDeclNode node) => node.check(table),
         (StatementNode x) => x
     );
 }
@@ -72,9 +72,9 @@ private BlockNode check(BlockNode node, AlephTable table)
 private ExpressionNode check(ExpressionNode node, AlephTable table)
 {
     return node.match(
-        (BlockNode n) => cast(ExpressionNode)n.check(table),
-        (StatementNode n) => cast(ExpressionNode)n.check(table),
-        (CallNode n)      => cast(ExpressionNode)n.check(table),
+        (BlockNode n)      => n.check(table),
+        (StatementNode n)  => n.check(table),
+        (CallNode n)       => n.check(table),
         (ExpressionNode n) => n
     );
 }

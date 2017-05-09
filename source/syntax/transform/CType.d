@@ -69,12 +69,12 @@ public:
     string name;
     bool signed;
     size_t size;
-};
 
-public enum CPrimitives {
-    Int = new CPrimitive("int", true, 4),
-    Void = new CPrimitive("void", false, 0),
-    Char = new CPrimitive("char", true, 1),
+    static enum {
+        Int = new CPrimitive("int", true, 4),
+        Void = new CPrimitive("void", false, 0),
+        Char = new CPrimitive("char", true, 1),
+    };
 };
 
 public class CPointerType : CType {

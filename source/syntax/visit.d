@@ -5,6 +5,7 @@ import util;
 import std.range;
 import std.algorithm;
 import std.stdio;
+import std.parallelism;
 
 public abstract class Visitor(R, Args...) {
 public:
@@ -46,15 +47,15 @@ public:
     {
         import std.string;
         node.match(
-            (StatementNode node)  => this.visit(node, args),
-            (IfExpressionNode node)         => this.visit(node, args),
-            (IntegerNode node)    => this.visit(node, args),
-            (CallNode node)       => this.visit(node, args),
-            (BlockNode node)      => this.visit(node, args),
-            (IdentifierNode node) => this.visit(node, args),
-            (StringNode node)     => this.visit(node, args),
-            (IntegerNode node)    => this.visit(node, args),
-            (CharNode node)       => this.visit(node, args),
+            (StatementNode node)    => this.visit(node, args),
+            (IfExpressionNode node) => this.visit(node, args),
+            (IntegerNode node)      => this.visit(node, args),
+            (CallNode node)         => this.visit(node, args),
+            (BlockNode node)        => this.visit(node, args),
+            (IdentifierNode node)   => this.visit(node, args),
+            (StringNode node)       => this.visit(node, args),
+            (IntegerNode node)      => this.visit(node, args),
+            (CharNode node)         => this.visit(node, args),
             (ExpressionNode node){ throw new Exception("couldn't visit %s".format(node)); },
         );
         static if(typeid(R) != typeid(void)){
