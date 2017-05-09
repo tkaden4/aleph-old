@@ -208,6 +208,7 @@ private:
             case "const": tok.type = Token.Type.CONST; break;
             case "struct": tok.type = Token.Type.STRUCT; break;
             case "then": tok.type = Token.Type.THEN; break;
+            case "typeof": tok.type = Token.Type.TYPEOF; break;
             default: break;
             }
         }

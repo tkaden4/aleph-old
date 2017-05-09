@@ -34,6 +34,15 @@ private StatementNode check(StatementNode node, AlephTable table)
     );
 }
 
+private CallNode check(CallNode node, AlephTable table)
+{
+    auto type = cast(FunctionType)node.toCall.resultType;
+    if(node.arguments.length != type.parameterTypes.length){
+        throw new Exception("wrong number of arguments for function %s of type %s".format(node.toCall, type.toPrintable));
+    }
+    return node;
+}
+
 private VarDeclNode check(VarDeclNode node, AlephTable table)
 {
     node.initVal
@@ -65,6 +74,7 @@ private ExpressionNode check(ExpressionNode node, AlephTable table)
     return node.match(
         (BlockNode n) => cast(ExpressionNode)n.check(table),
         (StatementNode n) => cast(ExpressionNode)n.check(table),
+        (CallNode n)      => cast(ExpressionNode)n.check(table),
         (ExpressionNode n) => n
     );
 }

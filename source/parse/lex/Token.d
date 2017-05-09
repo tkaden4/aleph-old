@@ -23,6 +23,7 @@ public:
         IF,
         THEN,
         ELSE,
+        TYPEOF,
         /* Storage Classes */
         EXTERN,
         STATIC,

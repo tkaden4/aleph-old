@@ -249,6 +249,12 @@ public:
     Type parseType()
     {
         switch(this.la.type){
+        case Token.Type.TYPEOF:
+            this.advance;
+            this.match(Token.Type.LPAREN);
+            auto e = this.expression;
+            this.match(Token.Type.RPAREN);
+            return e.resultType.err(new ParserException("type of %s not known at parse time".format(e)));
         case Token.Type.CONST:
             this.advance;
             return new QualifiedType(TypeQualifier.Const, this.parseType);

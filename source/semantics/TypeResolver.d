@@ -87,24 +87,16 @@ public:
         if(!sym.type){
             node.returnType = node.bodyNode.resultType;
             sym.type = node.functionType.err(new Exception("Recursive type checking problem of %s".format(node.name)));
-            //"Resolved %s".writefln(node);
         }
     }
 
     override void visit(ref IdentifierNode node, AlephTable table)
     {
-        auto sym = table.find(node.name);
-        if(!sym
-               .err(new Exception("Identifier %s not defined".format(node.name)))
-               .type
-          ){
+        auto sym = table.find(node.name).err(new Exception("Identifier %s not defined".format(node.name)));
+        if(!sym.type){
             sym.type = node.resultType.err(new Exception("Couldn't infer type for %s".format(node.name)));
-            //"Resolved identifier %s".writefln(node);
         }else{
-            if(!node.resultType){
-                node.resultType = sym.type;
-                //"Resolved node %s %s".writefln(node, node.resultType);
-            }
+            node.resultType = node.resultType.or(sym.type);
         }
     }
 };
