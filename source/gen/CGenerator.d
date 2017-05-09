@@ -9,7 +9,7 @@ import util;
 import syntax.ctree;
 import syntax.transform;
 
-import semantics.SymbolTable;
+import semantics.symbol.SymbolTable;
 import semantics.symbol.Symbol;
 
 public import gen.OutputBuilder;
@@ -185,4 +185,3 @@ public:
         this.printfln("typedef %s", node.ctype.typeString(node.totype));
     }
 };
-

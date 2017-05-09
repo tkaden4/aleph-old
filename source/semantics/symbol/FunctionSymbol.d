@@ -1,7 +1,7 @@
 module semantics.symbol.FunctionSymbol;
 
 import semantics.symbol.NamedSymbol;
-import semantics.AlephTable;
+import semantics.symbol.AlephTable;
 import semantics.symbol.Symbol;
 import semantics.type.FunctionType;
 

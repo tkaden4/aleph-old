@@ -56,7 +56,7 @@ public:
             super.visit(x, t);
         }
         if(!n.resultType){
-            n.resultType = n.children.back.use!(x => x.resultType).or(Primitives.Void);
+            n.resultType = n.children.back.use!(x => x.resultType).or(PrimitiveType.Void);
         }
     }
 

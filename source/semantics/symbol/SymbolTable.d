@@ -1,9 +1,8 @@
-module semantics.SymbolTable;
+module semantics.symbol.SymbolTable;
 
 import util;
-
-private import semantics.symbol.Symbol;
-private import std.stdio;
+import semantics.symbol.Symbol;
+import std.stdio;
 
 public class SymbolTable(SymbolType) {
 public:

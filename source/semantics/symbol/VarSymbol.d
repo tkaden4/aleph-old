@@ -1,9 +1,7 @@
 module semantics.symbol.VarSymbol;
 
 import semantics.symbol.NamedSymbol;
-import semantics.symbol.Symbol;
-import semantics.AlephTable;
-
+import semantics.symbol.AlephTable;
 import semantics.type.Type;
 
 public class VarSymbol : NamedSymbol {

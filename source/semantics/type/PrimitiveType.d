@@ -8,12 +8,6 @@ public enum Primitive {
     CHAR
 };
 
-public enum Primitives {
-    Int = new PrimitiveType(Primitive.INT),
-    Void = new PrimitiveType(Primitive.VOID),
-    Char = new PrimitiveType(Primitive.CHAR)
-};
-
 public class PrimitiveType : Type {
 public:
 
@@ -41,6 +35,12 @@ public:
             (Type t) => false
         );
     }
+
+    static enum {
+        Int = new PrimitiveType(Primitive.INT),
+        Void = new PrimitiveType(Primitive.VOID),
+        Char = new PrimitiveType(Primitive.CHAR)
+    };
 private:
     Primitive _type;
 };

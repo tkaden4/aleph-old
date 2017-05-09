@@ -1,6 +1,6 @@
 module library;
 
-import semantics.SymbolTable;
+import semantics.symbol.SymbolTable;
 import parse.Parser;
 import semantics;
 import util;

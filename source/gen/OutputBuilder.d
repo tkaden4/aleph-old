@@ -8,7 +8,7 @@ import std.stdio;
 import util;
 
 public interface OutputStream {
-    void write(in string s);
+    OutputStream write(in string s);
 };
 
 public class FileStream : OutputStream {
@@ -27,9 +27,10 @@ public class FileStream : OutputStream {
         this(new File(filename, "w"));
     }
 
-    override void write(in string s)
+    override OutputStream write(in string s)
     {
         this.file.write(s);
+        return this;
     }
 private:
     File *file;
@@ -41,9 +42,10 @@ public class StringStream : OutputStream {
         this.str = &s; 
     }
 
-    override void write(in string s)
+    override OutputStream write(in string s)
     {
         *this.str ~= s;
+        return this;
     }
 private:
     string *str;
@@ -85,6 +87,7 @@ public struct OutputBuilder {
         this.untabbed({
             this.printfln(";");
         });
+        return this;
     }
 
     auto tabbed(Func)(Func body_fun)
@@ -93,6 +96,7 @@ public struct OutputBuilder {
         this.usetabs = true;
         body_fun();
         this.usetabs = def;
+        return this;
     }
 
     auto untabbed(Func)(Func body_fun)
@@ -101,6 +105,7 @@ public struct OutputBuilder {
         this.usetabs = false;
         body_fun();
         this.usetabs = def;
+        return this;
     }
 
     auto statements(Func)(Func body_fun)
@@ -109,6 +114,7 @@ public struct OutputBuilder {
         this.statem = true;
         body_fun();
         this.statem = def;
+        return this;
     }
 
     auto block(Func)(Func body_fun)

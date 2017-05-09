@@ -1,7 +1,7 @@
 module util.Errors;
 
 import syntax.tree;
-import semantics.AlephTable;
+import semantics.symbol.AlephTable;
 import std.typecons;
 
 struct ErrorData {

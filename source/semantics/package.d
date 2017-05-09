@@ -5,6 +5,6 @@ public {
     import semantics.TypeBuilder;
     import semantics.TypeChecker;
     import semantics.TypeResolver;
-    import semantics.SymbolTable;
-    import semantics.AlephTable;
+    import semantics.symbol;
+    import semantics.type;
 };

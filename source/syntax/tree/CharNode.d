@@ -11,7 +11,7 @@ public:
 
     override Type resultType()
     {
-        return Primitives.Char;
+        return PrimitiveType.Char;
     }
 
     override string toString() const

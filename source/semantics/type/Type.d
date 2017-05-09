@@ -10,9 +10,9 @@ public PrimitiveType toPrimitive(string s)
 {
     import std.string;
     switch(s){
-    case "void": return Primitives.Void;
-    case "int": return Primitives.Int;
-    case "char": return Primitives.Char;
+    case "void": return PrimitiveType.Void;
+    case "int": return PrimitiveType.Int;
+    case "char": return PrimitiveType.Char;
     default: throw new Exception("Could not convert \"%s\" to primitive".format(s));
     }
 }

@@ -5,6 +5,6 @@ import syntax.tree.ExpressionNode;
 public class StatementNode : ExpressionNode {
     final override Type resultType()
     {
-        return Primitives.Void;
+        return PrimitiveType.Void;
     }
 };

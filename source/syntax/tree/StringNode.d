@@ -7,11 +7,12 @@ public:
     this(in string value)
     {
         this._value = value;
+        this._type = new StringType;
     }
 
     override Type resultType()
     {
-        return new StringType;
+        return this._type;
     }
 
     override string toString() const
@@ -26,4 +27,5 @@ public:
     }
 private:
     string _value;
+    StringType _type;
 };

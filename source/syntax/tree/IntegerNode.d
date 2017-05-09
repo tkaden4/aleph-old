@@ -16,7 +16,7 @@ public:
 
     override Type resultType()
     {
-        return Primitives.Int;
+        return PrimitiveType.Int;
     }
     
     override string toString() const

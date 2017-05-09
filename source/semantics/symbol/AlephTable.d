@@ -1,6 +1,6 @@
-module semantics.AlephTable;
+module semantics.symbol.AlephTable;
 
-import semantics.SymbolTable;
+import semantics.symbol.SymbolTable;
 import semantics.symbol;
 private import std.range;
 private import std.algorithm;
