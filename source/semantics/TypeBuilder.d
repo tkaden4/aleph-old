@@ -8,13 +8,13 @@ import syntax.tree.visitors.ASTVisitor;
 
 import semantics;
 import semantics.symbol;
-
+import syntax.visit.Visitor;
 import util;
 
 import std.string;
 import std.algorithm;
+import std.typecons;
 import std.stdio;
-import syntax.visit.Visitor;
 
 public auto buildTypes(ProgramNode node)
 {
@@ -68,6 +68,12 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
         node.resultType = sym 
                              .err(new Exception("Symbol %s not defined".format(node.name)))
                              .type;
+    }
+
+    override void visit(ref ImportNode node, AlephTable table)
+    {
+        import library;
+        table.loadLibrary(node.path);
     }
 
     override void visit(ref VarDeclNode node, AlephTable table)

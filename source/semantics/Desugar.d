@@ -2,6 +2,7 @@ module semantics.Desugar;
 
 import std.stdio;
 import std.range;
+import std.typecons;
 import std.algorithm : each;
 
 import syntax.tree.visitors.ASTVisitor;

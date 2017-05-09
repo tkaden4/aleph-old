@@ -1,11 +1,12 @@
 module util;
 
+import std.typecons;
+import std.traits;
+import std.range;
+import std.algorithm;
+
 public {
     import util.match;
-    import std.range;
-    import std.algorithm;
-    import std.typecons;
-    import std.traits;
 
     auto headLast(alias first, alias last, T)(T range)
     {
@@ -16,11 +17,6 @@ public {
             }
             first(x);
         }
-    }
-    
-    auto headLast(F, U, T)(F f, U u, T range)
-    {
-
     }
 
     auto err(T, Ex)(T t, Ex e)

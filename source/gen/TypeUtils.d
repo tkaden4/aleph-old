@@ -4,6 +4,7 @@ private import std.string;
 
 import syntax.transform.CType;
 import util;
+import std.algorithm;
 
 public string typeString(CType t, in string id)
 {

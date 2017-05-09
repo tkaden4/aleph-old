@@ -1,6 +1,7 @@
 module semantics.type.FunctionType;
 
 import semantics.type.Type;
+import std.range;
 
 public class FunctionType : Type {
 public:

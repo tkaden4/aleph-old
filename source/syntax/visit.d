@@ -90,14 +90,17 @@ public:
             (ReturnNode n)   => this.visit(n, args),
             (VarDeclNode n)  => this.visit(n, args),
             (ProcDeclNode n) => this.visit(n, args),
-            (ImportNode n){
-                //import library;
-                //loadLibrary(n.path, table);
-                //return n;
-            },
+            (ImportNode n)   => this.visit(n, args),
             (ExternProcNode n) => this.visit(n, args),
             (ExternImportNode n){},
         );
+        static if(typeid(R) != typeid(void)){
+            return R.init;
+        }
+    }
+
+    R visit(ref ImportNode node, Args args)
+    {
         static if(typeid(R) != typeid(void)){
             return R.init;
         }

@@ -13,6 +13,7 @@ public:
         this.len = len;
     }
 
+
     ref const(string) asString()
     {
         if(!this.lazy_str){

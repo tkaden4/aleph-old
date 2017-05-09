@@ -5,13 +5,14 @@ import std.string;
 import std.meta;
 import util.meta;
 
-// Visit a value based on it's runtime type
-// if it doesnt match any, throw an exception
-// TODO only match on concrete classes
-/* get the return types of multiple functions */
+/* Visit a value based on its runtime type
+ * TODO match patterns
+ */
+
 public auto match(T, Args...)(T value, Args args)
 {
     alias common = GreatestCommonType!(WithoutNull!(ReturnTypes!Args));
+
     foreach(x; args){
         if(auto v = cast(Parameters!x[0])value){
             static if(is(common == void)){

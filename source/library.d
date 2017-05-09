@@ -8,7 +8,7 @@ import std.conv;
 import std.stdio;
 
 
-public auto loadLibrary(in string path, AlephTable into)
+public auto loadLibrary(AlephTable into, in string path)
 {
     //import core.stdc.stdlib;
     //auto x = getenv("ALEPH_STD").to!string;
