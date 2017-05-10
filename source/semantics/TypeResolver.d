@@ -17,7 +17,7 @@ import AlephException;
 
 import util;
 
-public auto resolveTypes(Tuple)(Tuple t)
+public auto resolveTypes(Tuple!(ProgramNode, AlephTable) t)
 {
     return t.expand.resolveTypes;
 }
@@ -27,7 +27,7 @@ public auto resolveTypes(ProgramNode node, AlephTable table)
     try{
         Visitor!(void, AlephTable) x = new TypeResolver;
         x.visit(node, table);
-        return tuple(table, node);
+        return tuple(node, table);
     }catch(AlephException e){
         throw new AlephException("type resolution issue: %s".format(e.msg));
     }

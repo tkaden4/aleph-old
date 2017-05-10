@@ -5,19 +5,21 @@ import std.range;
 import std.typecons;
 import std.algorithm : each;
 
-import syntax.tree.visitors.ASTVisitor;
-import semantics.symbol.Symbol;
-
+import semantics.symbol;
 import util;
+import syntax.visit.Visitor;
+import syntax.tree;
 
-public auto desugar(Tuple)(Tuple node)
+public auto desugar(Tuple!(ProgramNode, AlephTable) node)
 {
-    return tuple(node[0], node[1].desugar);
+    return tuple(node[0].desugar, node[1]);
 }
 
 public ProgramNode desugar(ProgramNode node)
 {
-    return new Desugar(node).apply(node);
+    Visitor!void visitor = new DesugarVisitor;
+    visitor.visit(node);
+    return node;
 }
 
 /* A few things the Desugarer does: 
@@ -27,32 +29,9 @@ public ProgramNode desugar(ProgramNode node)
 
 
 /* TODO make pure functions */
-private class Desugar : ASTVisitor {
+private class DesugarVisitor : Visitor!void {
 public:
-    ProgramNode result;
-    this(ProgramNode node){ this.result = node; }
-    auto apply(ASTNode node)
-    {
-        try {
-            this.dispatch(node);
-            return this.result;
-        }catch(Exception e){
-            import std.string;
-            throw new Exception("desugarer error: %s".format(e.msg));
-        }
-    }
-override:
-    void visit(ProgramNode node)
-    {
-        node.children.each!(x => this.dispatch(x));
-    }
-
-    void visit(ReturnNode node)
-    {
-        this.dispatch(node.value);
-    }
-
-    void visit(ProcDeclNode node)
+    override void visit(ref ProcDeclNode node)
     {
         // Add a return node
         node.bodyNode = node.addReturn.use!(
@@ -60,16 +39,8 @@ override:
                      (BlockNode block) => block,
                      (ExpressionNode sub) => new BlockNode([sub])
                  )
-        ).then!(x => this.dispatch(x));
+        ).then!(x => super.visit(x));
     }
-
-    // Unused functions
-    void visit(ImportNode n){}
-    void visit(ExternImportNode node){}
-    void visit(ExternProcNode node){}
-    void visit(IntegerNode node){}
-    void visit(IdentifierNode node){}
-    void visit(BlockNode node){}
 }
 
 private auto addReturn(ProcDeclNode pnode)

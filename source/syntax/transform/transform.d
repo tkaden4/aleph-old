@@ -20,12 +20,12 @@ alias CSymbolTable = SymbolTable!CSymbol;
 /* Transform the Aleph AST into the C AST, for 
  * improved error checking and code generation */
 
-public auto transform(Tuple)(Tuple t)
+public auto transform(Tuple!(ProgramNode, AlephTable) t)
 {
     return t.expand.transform;
 }
 
-public auto transform(AlephTable tab, ProgramNode node)
+public auto transform(ProgramNode node, AlephTable tab)
 {
     try{
         return node.visit(tab);

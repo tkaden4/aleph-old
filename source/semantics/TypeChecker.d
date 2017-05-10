@@ -10,15 +10,15 @@ import std.range;
 import std.algorithm;
 import std.string;
 
-public auto checkTypes(Tuple)(Tuple t)
+public auto checkTypes(Tuple!(ProgramNode, AlephTable) t)
 {
-    return checkTypes(t[1], t[0]);
+    return t.expand.checkTypes;
 }
 
 public auto checkTypes(ProgramNode node, AlephTable table)
 {
     try{
-        return tuple(table, node.check(table));
+        return tuple(node.check(table), table);
     }catch(AlephException ex){
         throw new AlephException("type checker error: %s".format(ex.msg));
     }

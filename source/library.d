@@ -23,6 +23,6 @@ public auto loadLibrary(AlephTable into, in string path)
                  // Perform all type checking
                  .checkTypes
                  // Desugar the tree
-                 .desugar[0]
+                 .desugar[1]
             ));
 }
