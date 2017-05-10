@@ -20,5 +20,3 @@ public {
     import syntax.tree.BinOpNode;
     import syntax.tree.IfExpressionNode;
 };
-
-public import syntax.tree.ASTException;

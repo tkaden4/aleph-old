@@ -16,7 +16,3 @@ public import syntax.ctree.CIdentifierNode;
 public import syntax.ctree.CCallNode;
 public import syntax.ctree.CPreprocessorNode;
 public import syntax.ctree.CExternFuncNode;
-
-public import syntax.ctree.CTreeException;
-public import syntax.ctree.visitors.CTreeVisitor;
-

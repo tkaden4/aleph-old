@@ -1,11 +1,10 @@
 module syntax.transform.transform;
 
-import syntax.tree.visitors.ASTVisitor;
 import syntax.ctree;
 import syntax.tree;
-
 import semantics;
 import semantics.symbol.Symbol;
+import AlephException;
 
 import std.range;
 import std.algorithm;
@@ -52,7 +51,7 @@ private auto visit(ProgramNode node, AlephTable tab)
 
         },
         (ASTNode node){
-            throw new CTreeException("Invalid Top-Level Declaration");
+            throw new AlephException("Invalid Top-Level Declaration");
         }
     );
     return tuple(new CProgramNode(top), table);

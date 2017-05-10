@@ -4,10 +4,9 @@ module semantics.TypeBuilder;
  * Creates the symbol table
  */
 
-import syntax.tree.visitors.ASTVisitor;
-
 import semantics;
 import semantics.symbol;
+import syntax.tree;
 import syntax.visit.Visitor;
 import AlephException;
 import util;
