@@ -3,8 +3,8 @@ module syntax.ctree.CVarDeclNode;
 import syntax.ctree.CStatementNode;
 import syntax.ctree.CDeclarationNode;
 import syntax.ctree.CExpressionNode;
-import syntax.transform.CType;
 import syntax.builders.variable;
+import semantics.ctype.CType;
 
 public class CVarDeclNode : CDeclarationNode {
     mixin variableClass!(CType, CExpressionNode);

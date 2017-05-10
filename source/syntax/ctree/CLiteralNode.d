@@ -1,8 +1,9 @@
 module syntax.ctree.CLiteralNode;
 
 import syntax.ctree.CExpressionNode;
+import semantics.ctype;
 
-private import std.string;
+import std.string;
 
 public interface CLiteralNode : CExpressionNode {};
 
@@ -14,7 +15,7 @@ public class IntLiteral : CLiteralNode {
 
     @property CType type()
     {
-        return CPrimitive.Int;
+        return CPrimitiveType.Int;
     }
 
     override string toString()
@@ -33,7 +34,7 @@ public class StringLiteral : CLiteralNode {
 
     @property CType type()
     {
-        return new CPointerType(new CQualifiedType(CTypeQualifier.Const, CPrimitive.Char));
+        return new CPointerType(new CQualifiedType(CTypeQualifier.Const, CPrimitiveType.Char));
     }
 
     override string toString() const
@@ -52,7 +53,7 @@ public class CharLiteral : CLiteralNode {
 
     @property CType type()
     {
-        return CPrimitive.Char;
+        return CPrimitiveType.Char;
     }
 
     override string toString()

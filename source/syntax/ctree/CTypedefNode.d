@@ -1,7 +1,7 @@
 module syntax.ctree.CTypedefNode;
 
 import syntax.ctree.CStatementNode;
-import syntax.transform.CType;
+import semantics.ctype.CType;
 
 class CTypedefNode : CStatementNode {
 public:

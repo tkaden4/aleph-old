@@ -123,12 +123,12 @@ private CType visit(Type type, AlephTable table)
         },
         (PrimitiveType t){
             switch(t.type){
-            case PrimitiveType.INT: return CPrimitive.Int;
-            case PrimitiveType.CHAR: return CPrimitive.Char;
-            case PrimitiveType.VOID: return CPrimitive.Void;
-            case PrimitiveType.LONG: return CPrimitive.Long;
-            case PrimitiveType.ULONG: return CPrimitive.ULong;
-            case PrimitiveType.UINT: return CPrimitive.UInt;
+            case PrimitiveType.INT:   return CPrimitiveType.Int;
+            case PrimitiveType.CHAR:  return CPrimitiveType.Char;
+            case PrimitiveType.VOID:  return CPrimitiveType.Void;
+            case PrimitiveType.LONG:  return CPrimitiveType.Long;
+            case PrimitiveType.ULONG: return CPrimitiveType.ULong;
+            case PrimitiveType.UINT:  return CPrimitiveType.UInt;
             default:
                 throw new Exception("Unknown primitive %s".format(t));
             }

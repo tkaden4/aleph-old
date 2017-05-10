@@ -2,7 +2,7 @@ module syntax.ctree.CExternFuncNode;
 
 import syntax.ctree.CTopLevelNode;
 
-import syntax.transform.CType;
+import semantics.ctype.CType;
 
 public class CExternFuncNode : CTopLevelNode {
     this(in string name, CType ret, CType[] types, bool vararg=false)

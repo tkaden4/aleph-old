@@ -2,7 +2,7 @@ module syntax.ctree.CFuncDeclNode;
 
 import syntax.ctree.CDeclarationNode;
 import syntax.ctree.CBlockStatementNode;
-import syntax.transform.CType;
+import semantics.ctype.CType;
 
 import syntax.builders.routine;
 

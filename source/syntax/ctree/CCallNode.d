@@ -1,6 +1,7 @@
 module syntax.ctree.CCallNode;
 
 import syntax.ctree.CExpressionNode;
+import semantics.ctype;
 
 import util;
 

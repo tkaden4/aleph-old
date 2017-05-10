@@ -1,7 +1,7 @@
 module semantics.symbol.Symbol;
 
 import semantics.type.Type;
-import syntax.transform.CType;
+import semantics.ctype.CType;
 
 public alias Symbol = SymbolT!Type;
 public alias CSymbol = SymbolT!CType;
