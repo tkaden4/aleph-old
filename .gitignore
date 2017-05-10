@@ -13,3 +13,4 @@ alephc
 *.swp
 *.6732
 .tst
+alephc-test-*
