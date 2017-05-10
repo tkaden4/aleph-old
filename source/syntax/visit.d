@@ -5,14 +5,18 @@ import util;
 import std.range;
 import std.algorithm;
 import std.stdio;
-import std.parallelism;
 
-public abstract class Visitor(R, Args...) {
+public auto dispatch(N, R, Args...)(Visitor!(R, Args) vis, N node, Args args)
+{
+    vis.visit(node, args);
+}
+
+public class Visitor(R, Args...) {
 public:
-    public R visit(ref ProgramNode node, Args args)
+    R visit(ref ProgramNode node, Args args)
     {
         node.children.each!(x => this.visit(x, args));
-        static if(typeid(R) != typeid(void)){
+        static if(!is(R == void)){
             return R.init;
         }
     }

@@ -45,7 +45,7 @@ template FieldsWithNames(T)
 mixin template Lazy(string vname,
                     alias getter,
                     string backingField="_" ~ vname,
-                    string typeString=fullyQualifiedName!(Unqual!(ReturnType!getter))){
+                    string typeString=fullyQualifiedName!(ReturnType!getter)){
     mixin("private " ~ typeString ~ " " ~ backingField ~ ";");
 
     public @property {

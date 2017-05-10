@@ -25,6 +25,7 @@ int main(string[] args)
         return 0;
     }
 
+
     static enum timefmt = "usecs";
     "Compiling \"%s\"".writefln(args[1]);
     try{

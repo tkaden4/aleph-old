@@ -295,22 +295,3 @@ private:
     char[] la_buff;     // move to std.container.array!char
     LexerInputBuffer buff;
 };
-
-unittest
-{
-    import parse.StringInputBuffer;
-    import parse.Token;
-
-    enum tests = [
-        ("this_is_an_id _this_too", [Token.Type.ID, Token.Type.ID]),
-        ("this_is_an_id _this_too", [Token.Type.ID, Token.Type.ID])
-    ];
-    
-    foreach(x; tests){
-        auto lexer = new Lexer(new StringInputBuffer(x));
-        Token[] tokens;
-        while(lexer.hasNext){
-            tokens ~= lexer.next;
-        }
-    }
-}

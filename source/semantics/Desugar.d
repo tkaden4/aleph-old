@@ -17,8 +17,7 @@ public auto desugar(Tuple!(ProgramNode, AlephTable) node)
 
 public ProgramNode desugar(ProgramNode node)
 {
-    Visitor!void visitor = new DesugarVisitor;
-    visitor.visit(node);
+    new DesugarVisitor().dispatch(node);
     return node;
 }
 
@@ -30,7 +29,7 @@ public ProgramNode desugar(ProgramNode node)
 
 /* TODO make pure functions */
 private class DesugarVisitor : Visitor!void {
-public:
+protected:
     override void visit(ref ProcDeclNode node)
     {
         // Add a return node

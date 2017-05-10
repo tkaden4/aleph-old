@@ -25,8 +25,7 @@ public auto resolveTypes(Tuple!(ProgramNode, AlephTable) t)
 public auto resolveTypes(ProgramNode node, AlephTable table)
 {
     try{
-        Visitor!(void, AlephTable) x = new TypeResolver;
-        x.visit(node, table);
+        new TypeResolver().dispatch(node, table);
         return tuple(node, table);
     }catch(AlephException e){
         throw new AlephException("type resolution issue: %s".format(e.msg));
@@ -34,7 +33,7 @@ public auto resolveTypes(ProgramNode node, AlephTable table)
 }
 
 private class TypeResolver : Visitor!(void, AlephTable) {
-public:
+protected:
     override void visit(ref VarDeclNode n, AlephTable t)
     {
         auto sym = t.find(n.name).err(new Exception("Symbol %s not defined".format(n.name)));

@@ -24,8 +24,7 @@ public auto buildTypes(Tuple!(ProgramNode, AlephTable) t)
 public auto buildTypes(ProgramNode node, AlephTable table)
 {
     try{
-        auto x = new TypeBuilderVisitor();
-        x.visit(node, table);
+        new TypeBuilderVisitor().dispatch(node, table);
         return tuple(node, table);
         //return node.build(new AlephTable);
     }catch(AlephException ex){
@@ -34,27 +33,7 @@ public auto buildTypes(ProgramNode node, AlephTable table)
 }
 
 private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
-    override void visit(ref ProgramNode node, AlephTable tab)
-    {
-        foreach(k; node.children){
-            super.visit(k, tab);
-        }
-    }
-
-//    override void visit(ref BlockNode node, AlephTable table)
-//    {
-//        /*  TODO  fix blocknodes containing symbol tables
-//        foreach(){
-//        
-//        }
-//        */
-//    }
-
-    override void visit(ref ReturnNode node, AlephTable tab)
-    {
-        node.value.apply!(x => super.visit(node, tab));
-    }
-
+protected:
     override void visit(ref ProcDeclNode node, AlephTable tab)
     {
         if(tab.find(node.name)){
@@ -63,7 +42,7 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
         auto bodyTable = new AlephTable("function %s".format(node.name), tab);
         tab.insert(node.name, new FunctionSymbol(node.name, node.functionType, bodyTable, false));
         node.parameters.each!(l => bodyTable.insert(l.name, new VarSymbol(l.name, l.type, bodyTable)));
-        this.visit(node.bodyNode, bodyTable);
+        super.visit(node.bodyNode, bodyTable);
     }
 
     override void visit(ref ExternProcNode node, AlephTable tab)
@@ -102,19 +81,14 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
         }
     }
 
-    override void visit(ref ExpressionNode node, AlephTable table)
-    {
-        super.visit(node, table);
-    }
-
     override void visit(ref CallNode node, AlephTable table)
     {
         auto c = node.toCall;
-        this.visit(c, table);
+        super.visit(c, table);
         node.toCall = c;
 
         auto args = node.arguments;
-        args.each!(x => this.visit(x, table));
+        args.each!(x => super.visit(x, table));
         node.arguments = args;
 
         node.resultType = node.toCall.resultType.use!(x => x.match(
