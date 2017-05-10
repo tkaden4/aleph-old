@@ -1,21 +1,16 @@
 import std.stdio;
 import std.string;
-import std.file;
-import std.range;
-import std.algorithm;
-import std.datetime;
-import std.typecons;
-import std.traits;
 
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
 
+import AlephException;
+
 import gen : cgenerate, FileStream;
 import semantics;
-import util;
 import syntax.transform;
-import library;
+import util : time;
 
 private auto usage()
 {
@@ -54,8 +49,11 @@ int main(string[] args)
             timefmt
         );
         return 0;
-    }catch(Exception ex){
+    }catch(AlephException ex){
         "alephc error:\n    %s\n".writefln(ex.msg);
+        return 1;
+    }catch(Exception ex){
+        "internal error:\n    %s\n".writefln(ex.msg);
         return 1;
     }
 }

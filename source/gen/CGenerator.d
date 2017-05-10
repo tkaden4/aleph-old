@@ -4,20 +4,18 @@ import std.file;
 import stdio = std.stdio;
 import std.range;
 import std.conv;
+import std.range;
+import std.algorithm;
+import std.string;
 
 import util;
 import syntax.ctree;
 import syntax.transform;
-
 import semantics.symbol.SymbolTable;
 import semantics.symbol.Symbol;
-
-public import gen.OutputBuilder;
 import gen.TypeUtils;
-
-import std.range;
-import std.algorithm;
-import std.string;
+public import gen.OutputBuilder;
+import AlephException;
 
 public auto cgenerate(Tuple)(Tuple t, OutputStream outp)
 {
@@ -28,8 +26,8 @@ public auto cgenerate(CProgramNode node, SymbolTable!CSymbol table, OutputStream
 {
     try{
         return new CGenerator(table, new OutputBuilder(outp)).apply(node);
-    }catch(Exception e){
-        throw new Exception("generation error: %s".format(e.msg));
+    }catch(AlephException e){
+        throw new AlephException("generation error: %s".format(e.msg));
     }
 }
 

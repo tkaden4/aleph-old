@@ -9,6 +9,7 @@ import syntax.tree.visitors.ASTVisitor;
 import semantics;
 import semantics.symbol;
 import syntax.visit.Visitor;
+import AlephException;
 import util;
 
 import std.string;
@@ -16,16 +17,20 @@ import std.algorithm;
 import std.typecons;
 import std.stdio;
 
-public auto buildTypes(ProgramNode node)
+public auto buildTypes(Tuple!(ProgramNode, AlephTable) t)
+{
+    return t.expand.buildTypes;
+}
+
+public auto buildTypes(ProgramNode node, AlephTable table)
 {
     try{
-        auto t = new AlephTable;
         auto x = new TypeBuilderVisitor();
-        x.visit(node, t);
-        return tuple(t, node);
+        x.visit(node, table);
+        return tuple(node, table);
         //return node.build(new AlephTable);
-    }catch(Exception ex){
-        throw new Exception("type builder error: %s".format(ex.msg));
+    }catch(AlephException ex){
+        throw new AlephException("type builder error: %s".format(ex.msg));
     }
 }
 
@@ -37,6 +42,15 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
         }
     }
 
+//    override void visit(ref BlockNode node, AlephTable table)
+//    {
+//        /*  TODO  fix blocknodes containing symbol tables
+//        foreach(){
+//        
+//        }
+//        */
+//    }
+
     override void visit(ref ReturnNode node, AlephTable tab)
     {
         node.value.apply!(x => super.visit(node, tab));
@@ -45,9 +59,9 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
     override void visit(ref ProcDeclNode node, AlephTable tab)
     {
         if(tab.find(node.name)){
-            throw new Exception("function %s already defined".format(node.name));
+            throw new AlephException("function %s already defined".format(node.name));
         }
-        auto bodyTable = new AlephTable(tab);
+        auto bodyTable = new AlephTable("function %s".format(node.name), tab);
         tab.insert(node.name, new FunctionSymbol(node.name, node.functionType, bodyTable, false));
         node.parameters.each!(l => bodyTable.insert(l.name, new VarSymbol(l.name, l.type, bodyTable)));
         this.visit(node.bodyNode, bodyTable);
@@ -57,7 +71,7 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
     {
         auto sym = tab.find(node.name);
         if(sym){
-            throw new Exception("Symbol %s already defined".format(node.name));
+            throw new AlephException("Symbol %s already defined".format(node.name));
         }
         tab.insert(node.name, new FunctionSymbol(node.name, node.functionType, tab, true));
     }
@@ -66,7 +80,7 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
     {
         auto sym = tab.find(node.name);
         node.resultType = sym 
-                             .err(new Exception("Symbol %s not defined".format(node.name)))
+                             .err(new AlephException("Symbol %s not defined".format(node.name)))
                              .type;
     }
 
@@ -83,7 +97,7 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
         node.initVal = x;
 
         if(table.find(node.name)){
-            throw new Exception("Shadowing of variable %s".format(node.name));
+            throw new AlephException("Shadowing of variable %s".format(node.name));
         }else{
             table.insert(node.name, new VarSymbol(node.name, node.type, table));
         }
@@ -106,7 +120,7 @@ private class TypeBuilderVisitor : Visitor!(void, AlephTable) {
 
         node.resultType = node.toCall.resultType.use!(x => x.match(
             (FunctionType f) => f.returnType,
-            (Type t) => null.err(new Exception("Cannot call non-function %s of type %s".format(node.toCall, node.toCall.resultType)))
+            (Type t) => null.err(new AlephException("Cannot call non-function %s of type %s".format(node.toCall, node.toCall.resultType)))
         ));
     }
 };

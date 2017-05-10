@@ -2,11 +2,12 @@ module semantics.TypeChecker;
 
 import semantics;
 import syntax.tree;
+import AlephException;
+import util;
 
 import std.typecons;
 import std.range;
 import std.algorithm;
-import util;
 import std.string;
 
 public auto checkTypes(Tuple)(Tuple t)
@@ -16,7 +17,11 @@ public auto checkTypes(Tuple)(Tuple t)
 
 public auto checkTypes(ProgramNode node, AlephTable table)
 {
-    return tuple(table, node.check(table));
+    try{
+        return tuple(table, node.check(table));
+    }catch(AlephException ex){
+        throw new AlephException("type checker error: %s".format(ex.msg));
+    }
 }
 
 private auto check(ProgramNode node, AlephTable table)
@@ -38,7 +43,7 @@ private CallNode check(CallNode node, AlephTable table)
 {
     auto type = cast(FunctionType)node.toCall.resultType;
     if(node.arguments.length != type.parameterTypes.length && !type.isVararg){
-        throw new Exception("wrong number of arguments for function %s of type %s".format(node.toCall, type.toPrintable));
+        throw new AlephException("wrong number of arguments for function %s of type %s".format(node.toCall, type.toPrintable));
     }
     return node;
 }
@@ -48,18 +53,19 @@ private VarDeclNode check(VarDeclNode node, AlephTable table)
     node.initVal
         .resultType
         .checkCast(node.type)
-        .err(new Exception("cannot cast %s to %s".format(node.initVal.resultType, node.type)));
+        .err(new AlephException("cannot cast %s to %s".format(node.initVal.resultType, node.type)));
     return node;
 }
 
 private auto check(ProcDeclNode node, AlephTable table)
 {
+    auto funtable = (cast(FunctionSymbol)table.find(node.name)).bodyScope;
     node.bodyNode
         .resultType
         .checkCast(node.returnType)
-        .err(new Exception("Cannot cast %s to return type %s of procedure %s"
+        .err(new AlephException("Cannot cast %s to return type %s of procedure %s"
                             .format(node.bodyNode.resultType, node.returnType, node.name)));
-    node.bodyNode = node.bodyNode.check(table);
+    node.bodyNode = node.bodyNode.check(funtable);
     return node;
 }
 

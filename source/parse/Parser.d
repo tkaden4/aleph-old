@@ -4,17 +4,18 @@ public import parse.ParserException;
 
 import parse.lex.Lexer;
 import syntax.tree;
-import semantics.type.FunctionType;
+import semantics.type;
+import semantics.symbol;
 
 import std.stdio;
 import std.string;
 import std.typecons;
 
+import AlephException;
 import util;
 
 public final class Parser {
 public:
-
     static Parser fromFile(in string name)
     {
         import parse.lex.FileInputBuffer;
@@ -30,6 +31,7 @@ public:
     this(Lexer lexer)
     {
         this.lexer = lexer;
+        this.resultTable = new AlephTable("Global Table");
     }
 
     invariant
@@ -39,16 +41,16 @@ public:
 
     /* PARSER RULES */
 
-    auto program()
+    Tuple!(ProgramNode, AlephTable) program()
     {
         try{
             StatementNode[] res;
             while(this.lexer.hasNext){
                 res ~= this.topLevel;
             }
-            return new ProgramNode(res);
+            return tuple(new ProgramNode(res), this.resultTable);
         }catch(ParserException e){
-            throw new Exception("parser error [%s, %s, %s] : %s"
+            throw new AlephException("parser error [%s, %s, %s] : %s"
                                 .format(this.la.location.filename, this.la.location.line_no, this.la.location.col_no, e.msg));
         }
     }
@@ -280,6 +282,7 @@ public:
             Type[] params;
             while(!this.test(Token.Type.RPAREN)){
                 params ~= this.parseType;
+                this.optional(Token.Type.COMMA);
             }
             this.match(Token.Type.RPAREN);
             this.match(Token.Type.RARROW);
@@ -496,4 +499,5 @@ private:
 private:
     Token*[] la_buff;
     Lexer lexer;
+    AlephTable resultTable;
 };

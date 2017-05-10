@@ -1,8 +1,8 @@
 module parse.lex.Token;
 
 import std.string;
-public import parse.SourceLocation;
-public import parse.StringView;
+public import parse.util.SourceLocation;
+public import parse.util.StringView;
 
 public alias TokenType = Token.Type;
 
@@ -76,7 +76,7 @@ public:
 
     @property auto lexeme()
     {
-        return this._lexeme.asString;
+        return this._lexeme.value;
     }
 
     string toString()

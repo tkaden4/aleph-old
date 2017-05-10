@@ -6,9 +6,10 @@ private import std.range;
 private import std.algorithm;
 
 public class AlephTable : SymbolTable!Symbol {
-    this(AlephTable p = null)
+    this(in string name, AlephTable p = null)
     {
         super(p);
+        this._name = name;
     }
 
     override Symbol find(string id, bool upper=true)
@@ -28,6 +29,12 @@ public class AlephTable : SymbolTable!Symbol {
     {
         this.libraries[path] = symbols;
     }
+
+    @property name()
+    {
+        return this._name;
+    }
 private:
+    string _name;
     AlephTable[string] libraries;
 };

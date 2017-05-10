@@ -1,4 +1,4 @@
-module parse.SourceLocation;
+module parse.util.SourceLocation;
 
 import std.string : format;
 

@@ -11,10 +11,9 @@ import std.stdio;
 import std.string;
 
 import syntax.tree;
-
 import semantics;
-import semantics.symbol;
 import syntax.visit.Visitor;
+import AlephException;
 
 import util;
 
@@ -23,14 +22,14 @@ public auto resolveTypes(Tuple)(Tuple t)
     return t.expand.resolveTypes;
 }
 
-public auto resolveTypes(AlephTable table, ProgramNode node)
+public auto resolveTypes(ProgramNode node, AlephTable table)
 {
     try{
         Visitor!(void, AlephTable) x = new TypeResolver;
         x.visit(node, table);
         return tuple(table, node);
-    }catch(Exception e){
-        throw new Exception("type resolution issue: %s".format(e.msg));
+    }catch(AlephException e){
+        throw new AlephException("type resolution issue: %s".format(e.msg));
     }
 }
 
@@ -43,7 +42,7 @@ public:
         if(!n.type){
             n.type = n.initVal
                        .use!(x => x.resultType)
-                       .err(new Exception("Unable to infer type of variable %s".format(n.name)));
+                       .err(new AlephException("Unable to infer type of variable %s".format(n.name)));
         }
         if(!sym.type){
             sym.type = n.initVal.use!(x => x.resultType);
@@ -70,7 +69,7 @@ public:
             n.resultType = n.toCall.resultType.use!(x =>
                             x.match(
                                 (FunctionType t) => t.returnType,
-                                (Type t) => null.err(new Exception("Cannot call non-function"))
+                                (Type t) => null.err(new AlephException("Cannot call non-function"))
                             ));
         }
     
@@ -78,7 +77,7 @@ public:
 
     override void visit(ref ProcDeclNode node, AlephTable table)
     {
-        auto sym = table.find(node.name).err(new Exception("Function %s not defined".format(node.name)));
+        auto sym = table.find(node.name).err(new AlephException("Function %s not defined".format(node.name)));
         auto symtab = (cast(FunctionSymbol)sym);
         auto tab = symtab.bodyScope;
         auto x = node.bodyNode;
@@ -86,15 +85,15 @@ public:
         node.bodyNode = x;
         if(!sym.type){
             node.returnType = node.bodyNode.resultType;
-            sym.type = node.functionType.err(new Exception("Recursive type checking problem of %s".format(node.name)));
+            sym.type = node.functionType.err(new AlephException("Recursive type checking problem of %s".format(node.name)));
         }
     }
 
     override void visit(ref IdentifierNode node, AlephTable table)
     {
-        auto sym = table.find(node.name).err(new Exception("Identifier %s not defined".format(node.name)));
+        auto sym = table.find(node.name).err(new AlephException("Identifier %s not defined".format(node.name)));
         if(!sym.type){
-            sym.type = node.resultType.err(new Exception("Couldn't infer type for %s".format(node.name)));
+            sym.type = node.resultType.err(new AlephException("Couldn't infer type for %s".format(node.name)));
         }else{
             node.resultType = node.resultType.or(sym.type);
         }

@@ -1,9 +1,9 @@
-module parse.StringView;
+module parse.util.StringView;
 
-public import parse.SourceLocation;
+public import parse.util.SourceLocation;
 import std.string;
 import std.conv;
-import util.meta;
+import util.meta : Lazy;
 
 public class StringView {
 public:
@@ -25,13 +25,8 @@ public:
 
     mixin Lazy!("value", get);
 
-    ref const(string) asString()
-    {
-        return this.value;
-    }
 public:
     const(SourceLocation) loc;
     const(char)* chars;
     size_t len;
-    string lazy_str;
 };

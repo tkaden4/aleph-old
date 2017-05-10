@@ -4,10 +4,15 @@ import std.traits;
 import std.string;
 import std.meta;
 import util.meta;
+import std.exception;
 
 /* Visit a value based on its runtime type
  * TODO match patterns
  */
+
+public class MatchException : Exception {
+    mixin basicExceptionCtors;
+};
 
 public auto match(T, Args...)(T value, Args args)
 {
@@ -23,5 +28,5 @@ public auto match(T, Args...)(T value, Args args)
             }
         }
     }
-    throw new Exception("Could not visit %s".format(value));
+    throw new MatchException("Could not visit %s".format(value));
 }
