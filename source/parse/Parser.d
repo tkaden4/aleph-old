@@ -314,12 +314,12 @@ public:
             auto params = this.parameters;
             this.match(Token.Type.RPAREN);
             return params;
-        }).or(null);
+        });
 
         auto ret_type = this.test(Token.Type.RARROW).use!((x){
             this.match(Token.Type.RARROW);
             return this.parseType;
-        }).or(null);
+        });
 
         ExpressionNode exp = null;
 
@@ -341,7 +341,7 @@ public:
         auto type = this.test(Token.Type.COLON).use!((x){
             this.match(Token.Type.COLON);
             return this.parseType;
-        }).or(null);
+        });
 
         this.test(Token.Type.EQ)
             .use_err!(x => this.advance)(new ParserException("Variables must be initialized"));

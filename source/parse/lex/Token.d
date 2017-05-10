@@ -74,7 +74,7 @@ public:
     }
 
 
-    @property ref const(string) lexeme()
+    @property auto lexeme()
     {
         return this._lexeme.asString;
     }

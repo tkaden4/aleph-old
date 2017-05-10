@@ -3,6 +3,7 @@ module parse.StringView;
 public import parse.SourceLocation;
 import std.string;
 import std.conv;
+import util.meta;
 
 public class StringView {
 public:
@@ -13,20 +14,22 @@ public:
         this.len = len;
     }
 
+    private auto get(){
+        const(char)[] arr;
+        for(size_t i = 0; i < this.len; ++i){
+            arr ~= this.chars[i];
+        }
+        arr ~= '\0';
+        return arr.ptr.fromStringz.to!string;
+    }
+
+    mixin Lazy!("value", get);
 
     ref const(string) asString()
     {
-        if(!this.lazy_str){
-            const(char)[] arr;
-            for(size_t i = 0; i < this.len; ++i){
-                arr ~= this.chars[i];
-            }
-            arr ~= '\0';
-            this.lazy_str = arr.ptr.fromStringz.to!string;
-        }
-        return this.lazy_str;
+        return this.value;
     }
-private:
+public:
     const(SourceLocation) loc;
     const(char)* chars;
     size_t len;

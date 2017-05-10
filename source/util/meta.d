@@ -41,3 +41,19 @@ template FieldsWithNames(T)
 
     alias FieldsWithNames = Tuple!(staticMap!(makeTup, names));
 };
+
+mixin template Lazy(string vname,
+                    alias getter,
+                    string backingField="_" ~ vname,
+                    string typeString=fullyQualifiedName!(Unqual!(ReturnType!getter))){
+    mixin("private " ~ typeString ~ " " ~ backingField ~ ";");
+
+    public @property {
+        mixin("auto ref " ~ vname ~ "(){
+            if(!this." ~ backingField ~ "){
+                this." ~ backingField ~ " = getter();
+            }
+            return this." ~ backingField ~ ";
+        }");
+    };
+};
