@@ -23,18 +23,17 @@ public {
         }
     }
 
+    auto raise(T)(T e)
+    {
+        throw e;
+    }
+
     auto err(T, Ex)(T t, Ex e)
     {
         if(!t){
             throw e;
         }
         return t;
-    }
-
-    auto match_each(T, Funcs...)(T t, Funcs fs)
-    {
-        import util.match;
-        t.each!(x => x.match(fs));
     }
 
     T getOrThrow(T)(Nullable!T n, const Exception ex) pure

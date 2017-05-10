@@ -16,9 +16,16 @@ public class MatchException : Exception {
 
 public auto match(T, Args...)(T value, Args args)
 {
-    alias common = GreatestCommonType!(WithoutNull!(ReturnTypes!Args));
+    static if(arity!(args[$-1]) == 0){
+        alias handler = AliasSeq!(args[$-1]);
+        alias match_funs = args[0..$-1];
+    }else{
+        alias handler = AliasSeq!();
+        alias match_funs = args;
+    }
+    alias common = GreatestCommonType!(WithoutNull!(ReturnTypes!match_funs));
 
-    foreach(x; args){
+    foreach(x; match_funs){
         if(auto v = cast(Parameters!x[0])value){
             static if(is(common == void)){
                 x(v);
@@ -28,5 +35,9 @@ public auto match(T, Args...)(T value, Args args)
             }
         }
     }
-    throw new MatchException("Could not visit %s".format(value));
+    static if(handler.length){
+        throw handler[0]();
+    }else{
+        throw new MatchException("Could not visit %s".format(value));
+    }
 }

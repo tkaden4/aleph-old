@@ -37,23 +37,23 @@ private auto visit(ProgramNode node, AlephTable tab)
 {
     auto table = new CSymbolTable;
     CTopLevelNode[] top = [];
-    node.children.match_each(
-        (ProcDeclNode proc){
-            top ~= proc.visit(table, tab);
-        },
-        (ExternImportNode node){
-            top.insertInPlace(0, new CPreprocessorNode("include<%s>".format(node.file)));
-        },
-        (ExternProcNode node){
-            top ~= node.visit(table, tab);
-        },
-        (ImportNode n){
+    foreach(n; node.children){
+        n.match(
+            (ProcDeclNode proc){
+                top ~= proc.visit(table, tab);
+            },
+            (ExternImportNode node){
+                top.insertInPlace(0, new CPreprocessorNode("include<%s>".format(node.file)));
+            },
+            (ExternProcNode node){
+                top ~= node.visit(table, tab);
+            },
+            (ImportNode n){
 
-        },
-        (ASTNode node){
-            throw new AlephException("Invalid Top-Level Declaration");
-        }
-    );
+            },
+            () => new AlephException("Invalid Top-Level Declaration")
+        );
+    }
     return tuple(new CProgramNode(top), table);
 }
 
@@ -71,10 +71,10 @@ private auto visit(ProcDeclNode node, CSymbolTable ctable, AlephTable table)
     CStatementNode[] bod_s;
     auto ret_type = node.returnType.visit(table);
     auto params = node.parameters.map!(x => CParameter(x.type.visit(table), x.name)).array;
-    node.bodyNode.to!BlockNode.children.match_each(
+    node.bodyNode.to!BlockNode.children.each!(x => x.match(
         (StatementNode n) => bod_s ~= cast(CStatementNode)n.visit(table),
         (ExpressionNode n) => bod_s ~= cast(CStatementNode)n.visit(table)
-    );
+    ));
     auto bod = new CBlockStatementNode(bod_s);
     return new CFuncDeclNode(CStorageClass.EXTERN, 
                              ret_type, node.name, 
@@ -101,15 +101,14 @@ private CExpressionNode visit(ExpressionNode n, AlephTable table)
         (CharNode n)       => cast(CExpressionNode)new CharLiteral(n.value),
         (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
         (CallNode n)       => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
-        // XXX
-        (Object n) => null.err(new Exception("%s is not a valid C expresion".format(n)))
+        () => new AlephException("%s is not a valid C expresion".format(n))
     );
 }
 
 // visits anything
 private auto visit(ASTNode n)
 {
-    throw new Exception("Couldn't visit %s".format(n));
+    throw new AlephException("Couldn't visit %s".format(n));
 }
 
 private CType visit(Type type, AlephTable table)
@@ -129,7 +128,7 @@ private CType visit(Type type, AlephTable table)
             case PrimitiveType.ULONG: return CPrimitiveType.ULong;
             case PrimitiveType.UINT:  return CPrimitiveType.UInt;
             default:
-                throw new Exception("Unknown primitive %s".format(t));
+                throw new AlephException("Unknown primitive %s".format(t));
             }
         },
         (QualifiedType t){
