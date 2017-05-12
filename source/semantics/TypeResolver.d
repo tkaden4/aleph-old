@@ -54,6 +54,11 @@ protected:
                 sym.type = node.initVal.resultType;
                 node.type = sym.type;
             },
+            (TypeofType t){
+                super.visit(t.node, table);
+                sym.type = t.node.resultType;
+                node.type = sym.type;
+            },
             emptyFunc!Type
         );
     }
@@ -75,6 +80,11 @@ protected:
                         node.returnType = node.bodyNode.resultType;
                         sym.type = node.functionType;
                     },
+                    (TypeofType t){
+                        super.visit(t.node, table);
+                        sym.type = t.node.resultType;
+                        node.returnType = sym.type;
+                    },
                     emptyFunc!Type
                 );
             },
@@ -94,8 +104,12 @@ protected:
             (UnknownType _){
                 node.resultType = node.toCall.resultType.match(
                     (FunctionType ftype) => ftype.returnType,
-                    (){ throw new AlephException("unable to call non-function"); }
+                    (){ throw new AlephException("unable to call non-function of type %s".format(node.resultType)); }
                 );
+            },
+            (TypeofType t){
+                super.visit(t.node, table);
+                node.resultType = t.node.resultType;
             },
             emptyFunc!Type
         );
@@ -106,6 +120,11 @@ protected:
         auto sym = table.find(node.name).err(new AlephException("Identifier %s not defined".format(node.name)));
         node.resultType.match(
             (UnknownType t) => node.resultType = sym.type, 
+            (TypeofType t){
+                super.visit(t.node, table);
+                sym.type = t.node.resultType;
+                node.resultType = sym.type;
+            },
             emptyFunc!Type
         );
     }

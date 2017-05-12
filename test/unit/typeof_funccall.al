@@ -1,2 +1,2 @@
 proc fun -> int = 9
-proc main -> typeof(0) = 0
+proc main -> typeof(fun()) = 0

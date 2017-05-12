@@ -24,6 +24,7 @@ in {
             str ~= ") -> " ~ type.returnType.toPrintable;
             return str;
         },
+        (TypeofType u) => "typeof(%s)".format(u.node.resultType),
         (UnknownType _) => "unresolved type",
         (){ throw new AlephException("%s cannot be converted to printable string".format(t)); }
     );
