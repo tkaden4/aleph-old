@@ -48,7 +48,7 @@ private class TypeCheckerVisitor : Visitor!void {
     override void visit(ref VarDeclNode node)
     {
         super.visit(node);
-        node.type.checkCast(node.initVal.resultType, "in variable \n%s".format(node.toPretty));
+        node.type.checkCast(node.initVal.resultType, "in variable \n%s".format(node.toPretty(true)));
     }
 
     override void visit(ref CallNode node)

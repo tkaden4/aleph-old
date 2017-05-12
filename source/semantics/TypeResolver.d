@@ -70,6 +70,16 @@ protected:
         node.resultType = node.children.back.use!(x => x.resultType).or(PrimitiveType.Void);
     }
 
+    override void visit(ref IfExpressionNode node, AlephTable table)
+    {
+        super.visit(node.ifexp, table);
+        super.visit(node.thenexp, table);
+        if(node.elseexp){
+            super.visit(node.elseexp, table);
+        }
+        node.resultType = node.thenexp.resultType;
+    }
+
     override void visit(ref ProcDeclNode node, AlephTable table)
     {
         auto sym = table.find(node.name).err(new AlephException("Function %s not defined".format(node.name)));

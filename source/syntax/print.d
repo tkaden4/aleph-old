@@ -9,9 +9,9 @@ import std.string;
 import std.range;
 import std.algorithm;
 
-public auto ref toPretty(T, Nodes...)(T node)
+public auto ref toPretty(T)(T node, bool types=false)
 {
-    auto x = new PrettifyVisitor;
+    auto x = new PrettifyVisitor(types);
     string res = "";
     x.dispatch(node, new OutputBuilder(new StringStream(res)));
     return res;
