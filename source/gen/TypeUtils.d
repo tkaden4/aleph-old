@@ -24,7 +24,8 @@ private string typeString(CFunctionType t, in string inner)
 {
     string inside = "(*" ~ inner ~ ")";
     inside ~= "(";
-    t.parameterTypes.each!(
+    t.parameterTypes.headLast!(
+        x => inside ~= x.typeString("") ~ ", ",
         x => inside ~= x.typeString("")
     );
     inside ~= ")";

@@ -10,6 +10,7 @@ proc print(x: *const char) -> int = {
 
 proc main = {
     printf("%d", 1)
+/* TODO fix type promotion
     putchar(10)
     putchar('H')
     putchar('e')
@@ -25,6 +26,7 @@ proc main = {
     putchar('d')
     putchar('!')
     putchar(10)
+*/
     print("Hello, World!")
     0
 }

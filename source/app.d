@@ -10,6 +10,7 @@ import AlephException;
 import gen : cgenerate, FileStream;
 import semantics;
 import syntax.transform;
+import std.range;
 import util : time;
 
 private auto usage()

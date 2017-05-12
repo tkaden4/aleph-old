@@ -6,9 +6,10 @@ import std.range;
 import std.algorithm;
 import std.stdio;
 
-public auto dispatch(N, R, Args...)(Visitor!(R, Args) vis, N node, Args args)
+public auto ref dispatch(N, R, Args...)(Visitor!(R, Args) vis, N node, Args args)
 {
     vis.visit(node, args);
+    return vis;
 }
 
 public class Visitor(R, Args...) {

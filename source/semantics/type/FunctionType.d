@@ -54,6 +54,12 @@ public:
             }
             params ~= "%s, ".format(x);
         }
+        if(this.isVararg){
+            if(this.param_types.length > 0){
+                params ~= ", ";
+            }
+            params ~= "...";
+        }
         return "((%s) -> %s)".format(params, this.return_type);
     }
 

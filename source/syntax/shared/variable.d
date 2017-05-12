@@ -1,4 +1,4 @@
-module syntax.builders.variable;
+module syntax.common.variable;
 
 public template variableClass(Type, Expression){
     private void initv(in string name, Type t, Expression initl=null)

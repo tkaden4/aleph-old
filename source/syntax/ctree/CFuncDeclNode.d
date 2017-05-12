@@ -4,7 +4,7 @@ import syntax.ctree.CDeclarationNode;
 import syntax.ctree.CBlockStatementNode;
 import semantics.ctype.CType;
 
-import syntax.builders.routine;
+import syntax.common.routine;
 
 public alias CParameter = CFuncDeclNode.Parameter;
 public class CFuncDeclNode: CDeclarationNode, CTopLevelNode {

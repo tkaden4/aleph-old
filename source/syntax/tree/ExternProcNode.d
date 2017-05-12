@@ -1,9 +1,8 @@
 module syntax.tree.ExternProcNode;
 
-import syntax.builders.routine;
 import semantics.type;
-
 import syntax.tree.StatementNode;
+import syntax.common.routine;
 
 import util;
 import std.string;

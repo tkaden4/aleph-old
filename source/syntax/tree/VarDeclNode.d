@@ -2,7 +2,7 @@ module syntax.tree.VarDeclNode;
 
 import syntax.tree.StatementNode;
 import syntax.tree.ExpressionNode;
-import syntax.builders.variable;
+import syntax.common.variable;
 
 public class VarDeclNode : StatementNode {
 public:

@@ -1,4 +1,4 @@
-module syntax.builders.routine;
+module syntax.common.routine;
 
 mixin template routineNodeClass(Type, BodyExpression)
 {

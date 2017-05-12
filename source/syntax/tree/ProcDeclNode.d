@@ -6,7 +6,7 @@ import syntax.tree.StatementNode;
 import syntax.tree.ReturnNode;
 
 import semantics.type : Type, FunctionType;
-import syntax.builders.routine;
+import syntax.common.routine;
 
 import std.string;
 import std.range;

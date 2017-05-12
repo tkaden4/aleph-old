@@ -21,6 +21,14 @@ public auto resolveTypes(Tuple!(ProgramNode, AlephTable) t)
     return t.expand.resolveTypes;
 }
 
+public auto postConditions(const(Type) t)
+{
+    t.match(
+        (UnknownType _) => false,
+        () => true
+    ).err(new AlephException("Unable to resolve type"));
+}
+
 public auto resolveTypes(ProgramNode node, AlephTable table)
 in {
     assert(node);
@@ -37,14 +45,14 @@ in {
 
 private class TypeResolver : Visitor!(void, AlephTable) {
 protected:
-    override void visit(ref VarDeclNode n, AlephTable t)
+    override void visit(ref VarDeclNode node, AlephTable table)
     {
-        super.visit(n, t);
-        auto sym = t.find(n.name).err(new Exception("Symbol %s not defined".format(n.name)));
+        super.visit(node, table);
+        auto sym = table.find(node.name).err(new Exception("Symbol %s not defined".format(node.name)));
         sym.type.match(
             (UnknownType _){
-                sym.type = n.initVal.resultType;
-                n.type = sym.type;
+                sym.type = node.initVal.resultType;
+                node.type = sym.type;
             },
             emptyFunc!Type
         );
@@ -53,8 +61,7 @@ protected:
     override void visit(ref BlockNode node, AlephTable table)
     {
         super.visit(node, table);
-        auto last = node.children.back;
-        node.resultType = last.use!(x => x.resultType).or(PrimitiveType.Void);
+        node.resultType = node.children.back.use!(x => x.resultType).or(PrimitiveType.Void);
     }
 
     override void visit(ref ProcDeclNode node, AlephTable table)
