@@ -1,7 +1,10 @@
 module semantics.type.FunctionType;
 
 import semantics.type.Type;
+import AlephException;
+
 import std.range;
+import std.string;
 
 public class FunctionType : Type {
 public:
@@ -14,10 +17,10 @@ public:
 
     invariant
     {
+        assert(this.return_type);
         foreach(x; this.param_types){
-            assert(x, "Param is null");
+            assert(x);
         }
-        assert(this.return_type, "Return is null");
     }
 
     @property auto returnType()
@@ -71,7 +74,8 @@ public:
                 }
                 return this.returnType.canCast(type.returnType);
             },
-            (Type t) => false
+            (Type t) => false,
+            (){ throw new AlephException("Could not cast to %s".format(other)); }
         );
     }
 

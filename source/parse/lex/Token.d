@@ -30,7 +30,7 @@ public:
         /* Qualifiers */
         CONST,
         /* Punctuation */
-        SEMI,
+        ENDSTMT,
         COLON,
         LBRACE,
         RBRACE,

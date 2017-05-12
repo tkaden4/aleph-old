@@ -85,7 +85,6 @@ public:
         case '}': return this.makeAndAdvance("}", Token.Type.RBRACE);
         case '(': return this.makeAndAdvance("(", Token.Type.LPAREN);
         case ')': return this.makeAndAdvance(")", Token.Type.RPAREN);
-        case ';': return this.makeAndAdvance(";", Token.Type.SEMI);
         case ':': return this.makeAndAdvance(":", Token.Type.COLON);
         case ',': return this.makeAndAdvance(",", Token.Type.COMMA);
         /* Operators */
@@ -102,6 +101,7 @@ public:
         /* Etc. Rules */
         case '\"': return this.lexString;
         case '\'': return this.lexChar;
+        case ';': return this.makeToken(";", Token.Type.ENDSTMT);
         case '_': return this.lexIdOrKeyword;
         default:
             if(this.test(toDelegate(&isIdStart))){

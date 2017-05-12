@@ -16,8 +16,6 @@ public auto loadLibrary(AlephTable into, in string path)
             Parser.fromFile(path)
                  // parse program
                  .program
-                 // build symbol table
-                 .buildTypes
                  // inference all types
                  .resolveTypes
                  // Perform all type checking

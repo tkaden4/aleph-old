@@ -5,9 +5,14 @@ import semantics.type.Type;
 
 public class PrimitiveType : Type {
 public:
-    this(uint _type)
+    this(PrimitiveType.PType _type)
     {
         this._type = _type;
+    }
+
+    invariant
+    {
+        assert(this._type);
     }
 
     @property auto type() pure
@@ -26,20 +31,20 @@ public:
         import util;
         return t.match(
             (PrimitiveType t) => t.type == this.type,
-            (Type t) => false
+            () => false
         );
     }
 
     static enum {
-        Long = new PrimitiveType(LONG),
-        Int = new PrimitiveType(INT),
-        Char = new PrimitiveType(CHAR),
-        ULong = new PrimitiveType(ULONG),
-        UInt = new PrimitiveType(UINT),
-        Void = new PrimitiveType(VOID),
+        Long  = new PrimitiveType(PType.LONG),
+        Int   = new PrimitiveType(PType.INT),
+        Char  = new PrimitiveType(PType.CHAR),
+        ULong = new PrimitiveType(PType.ULONG),
+        UInt  = new PrimitiveType(PType.UINT),
+        Void  = new PrimitiveType(PType.VOID),
     };
 
-    public static enum {
+    public static enum PType {
         LONG,
         INT,
         CHAR,
@@ -48,19 +53,19 @@ public:
         VOID,
     };
 private:
-    uint _type;
+    PrimitiveType.PType _type;
 };
 
 public string primString(PrimitiveType type)
 {
     //return type.repString;
     final switch(type.type){
-    case PrimitiveType.ULONG: return "ulong";
-    case PrimitiveType.UINT:  return "uint";
-    case PrimitiveType.LONG:  return "long";
-    case PrimitiveType.INT:   return "int";
-    case PrimitiveType.CHAR:  return "char";
-    case PrimitiveType.VOID:  return "void";
+    case PrimitiveType.PType.ULONG: return "ulong";
+    case PrimitiveType.PType.UINT:  return "uint";
+    case PrimitiveType.PType.LONG:  return "long";
+    case PrimitiveType.PType.INT:   return "int";
+    case PrimitiveType.PType.CHAR:  return "char";
+    case PrimitiveType.PType.VOID:  return "void";
     }
 }
 

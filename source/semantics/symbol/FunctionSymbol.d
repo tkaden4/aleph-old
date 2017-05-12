@@ -8,7 +8,7 @@ import semantics.type.FunctionType;
 import util.match;
 
 public class FunctionSymbol : NamedSymbol {
-    this(string _name, FunctionType ftype, AlephTable _bodyScope, bool external)
+    this(string _name, Type ftype, AlephTable _bodyScope, bool external)
     {
         super(_name, ftype);
         this.bodyScope = _bodyScope;
@@ -22,10 +22,7 @@ public class FunctionSymbol : NamedSymbol {
 
     override @property void type(Type t)
     {
-        t.match(
-            (FunctionType t) => super.type = t,
-            (Type t){ throw new Exception("Cannot assign non-function type"); }
-        );
+        super.type = t;
     }
 
     override @property Type type()

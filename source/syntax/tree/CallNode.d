@@ -1,12 +1,14 @@
 module syntax.tree.CallNode;
 
 import syntax.tree.ExpressionNode;
+import semantics.type.UnknownType;
 
 public class CallNode : ExpressionNode {
     this(ExpressionNode toCall, ExpressionNode[] args)
     {
         this.call = toCall;
         this.args = args;
+        this.type = new UnknownType;
     }
 
     invariant

@@ -8,12 +8,17 @@ public class IfExpressionNode : ExpressionNode {
         this.ifexp = ifn;
         this.thenexp = then;
         this.elseexp = elsen;
-        this._resultType = res;
+        this.type = res;
     }
 
     override @property Type resultType()
     {
-        return this._resultType;
+        return this.type;
+    }
+
+    @property void resultType(Type t)
+    {
+        this.type = t;
     }
 
     override string toString() const
@@ -25,6 +30,5 @@ public class IfExpressionNode : ExpressionNode {
     ExpressionNode ifexp;
     ExpressionNode thenexp;
     ExpressionNode elseexp;
-private:
-    Type _resultType;
+    Type type;
 };

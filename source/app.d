@@ -25,7 +25,6 @@ int main(string[] args)
         return 0;
     }
 
-
     static enum timefmt = "usecs";
     "Compiling \"%s\"".writefln(args[1]);
     try{
@@ -34,8 +33,6 @@ int main(string[] args)
                 Parser.fromFile(args[1])
                       // parse the file
                       .program
-                      // build symbol table
-                      .buildTypes
                       // inference all types
                       .resolveTypes
                       // Perform all type checking

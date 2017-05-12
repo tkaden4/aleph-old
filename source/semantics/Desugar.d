@@ -16,7 +16,9 @@ public auto desugar(Tuple!(ProgramNode, AlephTable) node)
 }
 
 public ProgramNode desugar(ProgramNode node)
-{
+in {
+    assert(node);
+} body {
     new DesugarVisitor().dispatch(node);
     return node;
 }

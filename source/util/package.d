@@ -8,7 +8,7 @@ import std.algorithm;
 public {
     import util.match;
 
-    auto not(bool t){
+    auto not(T)(T t){
         return !t;
     }
 
@@ -23,7 +23,7 @@ public {
         }
     }
 
-    auto raise(T)(T e)
+    void raise(T)(T e)
     {
         throw e;
     }
@@ -50,12 +50,6 @@ public {
             return defaultVal;
         }
         return inRange.fold!func;
-    }
-
-    // map the value of a tuple
-    auto map(T, V, alias f)(Tuple!(T, V) t)
-    {
-        return f(t);
     }
 
     auto apply(alias f, T)(T t)

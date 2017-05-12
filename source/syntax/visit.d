@@ -29,6 +29,15 @@ public:
         }
     }
 
+    R visit(ref BinOpNode node, Args args)
+    {
+        this.visit(node.left, args);
+        this.visit(node.right, args);
+        static if(!is(R == void)){
+            return R.init;
+        }
+    }
+
     R visit(ref BlockNode node, Args args)
     {
         node.children.each!(x => this.visit(x, args));
@@ -60,6 +69,7 @@ public:
             (StringNode node)       => this.visit(node, args),
             (IntegerNode node)      => this.visit(node, args),
             (CharNode node)         => this.visit(node, args),
+            (BinOpNode node)        => this.visit(node, args),
             (ExpressionNode node){ throw new Exception("couldn't visit %s".format(node)); },
         );
         static if(typeid(R) != typeid(void)){
@@ -94,17 +104,9 @@ public:
             (ReturnNode n)   => this.visit(n, args),
             (VarDeclNode n)  => this.visit(n, args),
             (ProcDeclNode n) => this.visit(n, args),
-            (ImportNode n)   => this.visit(n, args),
             (ExternProcNode n) => this.visit(n, args),
             (ExternImportNode n){},
         );
-        static if(typeid(R) != typeid(void)){
-            return R.init;
-        }
-    }
-
-    R visit(ref ImportNode node, Args args)
-    {
         static if(typeid(R) != typeid(void)){
             return R.init;
         }

@@ -48,10 +48,7 @@ private auto visit(ProgramNode node, AlephTable tab)
             (ExternProcNode node){
                 top ~= node.visit(table, tab);
             },
-            (ImportNode n){
-
-            },
-            () => new AlephException("Invalid Top-Level Declaration")
+            () => new AlephException("Invalid Top-Level Declaration").raise
         );
     }
     return tuple(new CProgramNode(top), table);
@@ -101,7 +98,7 @@ private CExpressionNode visit(ExpressionNode n, AlephTable table)
         (CharNode n)       => cast(CExpressionNode)new CharLiteral(n.value),
         (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
         (CallNode n)       => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
-        () => new AlephException("%s is not a valid C expresion".format(n))
+        (){ throw new AlephException("%s is not a valid C expresion".format(n)); }
     );
 }
 
@@ -121,12 +118,12 @@ private CType visit(Type type, AlephTable table)
         },
         (PrimitiveType t){
             switch(t.type){
-            case PrimitiveType.INT:   return CPrimitiveType.Int;
-            case PrimitiveType.CHAR:  return CPrimitiveType.Char;
-            case PrimitiveType.VOID:  return CPrimitiveType.Void;
-            case PrimitiveType.LONG:  return CPrimitiveType.Long;
-            case PrimitiveType.ULONG: return CPrimitiveType.ULong;
-            case PrimitiveType.UINT:  return CPrimitiveType.UInt;
+            case PrimitiveType.PType.INT:   return CPrimitiveType.Int;
+            case PrimitiveType.PType.CHAR:  return CPrimitiveType.Char;
+            case PrimitiveType.PType.VOID:  return CPrimitiveType.Void;
+            case PrimitiveType.PType.LONG:  return CPrimitiveType.Long;
+            case PrimitiveType.PType.ULONG: return CPrimitiveType.ULong;
+            case PrimitiveType.PType.UINT:  return CPrimitiveType.UInt;
             default:
                 throw new AlephException("Unknown primitive %s".format(t));
             }

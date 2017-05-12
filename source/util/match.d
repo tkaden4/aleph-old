@@ -36,7 +36,13 @@ public auto match(T, Args...)(T value, Args args)
         }
     }
     static if(handler.length){
-        throw handler[0]();
+        alias handlerRet = ReturnType!handler;
+        static if(is(handlerRet == void)){
+            handler[0]();
+            throw new MatchException("reached end of visitor %s".format(value));
+        }else{
+            return handler[0]();
+        }
     }else{
         throw new MatchException("Could not visit %s".format(value));
     }

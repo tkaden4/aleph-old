@@ -8,6 +8,11 @@ public class PointerType : Type {
         this.type = to;
     }
 
+    invariant
+    {
+        assert(this.type);
+    }
+
     override string toString() const
     {
         import std.format;

@@ -16,7 +16,6 @@ public {
     import syntax.tree.StringNode;
     import syntax.tree.ExternImportNode;
     import syntax.tree.ExternProcNode;
-    import syntax.tree.ImportNode;
     import syntax.tree.BinOpNode;
     import syntax.tree.IfExpressionNode;
 };

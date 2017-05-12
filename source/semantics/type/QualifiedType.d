@@ -15,6 +15,11 @@ public:
         this.type = type;
     }
 
+    invariant
+    {
+        assert(this.type);
+    }
+
     override string toString() const
     {
         return "QualifiedType(%s, %s)".format(this.qualifier, this.type);

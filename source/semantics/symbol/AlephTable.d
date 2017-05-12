@@ -2,6 +2,7 @@ module semantics.symbol.AlephTable;
 
 import semantics.symbol.SymbolTable;
 import semantics.symbol;
+import util;
 private import std.range;
 private import std.algorithm;
 
@@ -25,6 +26,20 @@ public class AlephTable : SymbolTable!Symbol {
         return x ? x : libsyms[0];
     }
 
+    Type findAlias(string name)
+    {
+        auto par = cast(AlephTable)this.parent;
+        return this.aliases[name].or(par.use!(x => x.findAlias(name)));
+    }
+
+    void addAlias(string name, Type type)
+    {
+        if(name in this.aliases){
+            throw new Exception("alias already exists");
+        }
+        this.aliases[name] = type;
+    }
+
     void addLibrary(string path, AlephTable symbols)
     {
         this.libraries[path] = symbols;
@@ -36,5 +51,6 @@ public class AlephTable : SymbolTable!Symbol {
     }
 private:
     string _name;
+    Type[string] aliases;
     AlephTable[string] libraries;
 };

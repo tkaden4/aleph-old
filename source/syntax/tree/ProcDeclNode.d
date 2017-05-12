@@ -25,7 +25,7 @@ public class ProcDeclNode : StatementNode {
 
     auto functionType()
     {
-        return this.returnType.use!(k => new FunctionType(k, this.parameters.map!(x => x.type).array));
+        return new FunctionType(this.returnType, this.parameters.map!(x => x.type).array);
     }
 
     override string toString() const

@@ -14,6 +14,13 @@ import std.typecons;
 import AlephException;
 import util;
 
+
+struct BuildCtx {
+    ProcDeclNode func;
+    BlockNode block;
+};
+
+
 public final class Parser {
 public:
     static Parser fromFile(in string name)
@@ -67,14 +74,15 @@ public:
             return this.structDecl;
         case Token.Type.IMPORT:
             //throw new ParserException("Imports?");
-            return this.importDecl;
+            this.importDecl;
+            return this.topLevel();
         default:
             break;
         }
         throw new ParserException("did not expect %s at top level".format(*this.la));
     }
 
-    ImportNode importDecl()
+    void importDecl()
     {
         this.match(Token.Type.IMPORT);
         string path = "";
@@ -83,7 +91,9 @@ public:
             this.match(Token.Type.DOT);
             path ~= ("." ~ this.match(Token.Type.ID).lexeme);
         }
-        return new ImportNode(path);
+        path = path.replace(".", "/") ~ ".al";
+        import library;
+        this.resultTable.loadLibrary(path);
     }
 
     StatementNode externRule()
@@ -123,7 +133,8 @@ public:
         /* ID */
         case Token.Type.ID: 
             auto id = this.match(Token.Type.ID);
-            return new IdentifierNode(id.lexeme, null);
+            auto node = new IdentifierNode(id.lexeme, new UnknownType);
+            return node;
         /* { expression* } */
         case Token.Type.LBRACE: return this.blockExpression;
         /* ( expression ) */
@@ -143,7 +154,8 @@ public:
                 this.match(Token.Type.ELSE);
                 elseexp = this.expression;
             }
-            return new IfExpressionNode(ifexp, thenexp, elseexp, null);
+            auto x = new IfExpressionNode(ifexp, thenexp, elseexp, new UnknownType);
+            return x;
         /* Literals */
         case Token.Type.INTEGER:
         case Token.Type.STRING:
@@ -200,7 +212,7 @@ public:
         switch(this.la.type){
         case Token.Type.PLUS:
             this.match(Token.Type.PLUS);
-            return new BinOpNode(exp, this.additiveExpression, "+", null);
+            return new BinOpNode(exp, this.additiveExpression, "+", new UnknownType);
         default: break;
         }
         return exp;
@@ -212,7 +224,8 @@ public:
         switch(this.la.type){
         case Token.Type.EQEQ:
             this.match(Token.Type.EQEQ);
-            return new BinOpNode(exp, this.equalityExpression, "==", null);
+            auto x = new BinOpNode(exp, this.equalityExpression, "==", new UnknownType);
+            return x;
         default: break;
         }
         return exp;
@@ -322,10 +335,9 @@ public:
         auto ret_type = this.test(Token.Type.RARROW).use!((x){
             this.match(Token.Type.RARROW);
             return this.parseType;
-        });
+        }).or(new UnknownType);
 
         ExpressionNode exp = null;
-
         if(this.test(Token.Type.EQ)){
             this.advance;
         }else if(!this.test(Token.Type.LBRACE)){
@@ -334,7 +346,25 @@ public:
 
         exp = this.expression;
 
-        return new ProcDeclNode(toks[1].lexeme, ret_type, params, exp);
+        auto name = toks[1].lexeme;
+        auto table = this.resultTable;
+        auto node = new ProcDeclNode(name, ret_type, params, exp);
+
+        import std.range;
+        import std.algorithm;
+
+        table.find(name).not.err(new AlephException("symbol %s already defined".format(name)));
+        /* create the function's symbol table */
+        auto funTable = new AlephTable("%s's table".format(name), table);
+        /* get the symbol parameters and add them to function */
+        auto paramSyms = node.parameters.map!(x => new VarSymbol(x.name, x.type, funTable)).array;
+        paramSyms.each!(x => funTable.insert(x.name, x));
+        /* create the function symbol */
+        auto funSymbol = new FunctionSymbol(name, node.functionType, funTable, false);
+        /* add the funciton to the symbol table */
+        table.insert(name, funSymbol);
+
+        return node;
     }
 
     auto varDecl()
@@ -344,13 +374,20 @@ public:
         auto type = this.test(Token.Type.COLON).use!((x){
             this.match(Token.Type.COLON);
             return this.parseType;
-        });
+        }).or(new UnknownType);
 
         this.test(Token.Type.EQ)
             .use_err!(x => this.advance)(new ParserException("Variables must be initialized"));
 
         auto exp = this.expression;
-        return new VarDeclNode(toks[1].lexeme, type, exp);
+        auto node = new VarDeclNode(toks[1].lexeme, type, exp);
+        auto table = this.resultTable;
+
+        table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));
+        auto symbol = new VarSymbol(node.name, node.type, table);
+        table.insert(node.name, symbol);
+
+        return node;
     }
 
     StatementNode declaration()
@@ -423,7 +460,12 @@ public:
 
         this.match(Token.Type.RARROW);
         auto ret = this.parseType;
-        return new ExternProcNode(name, ret, params, vararg);
+        auto node = new ExternProcNode(name, ret, params, vararg);
+
+        this.resultTable.find(node.name).not.err(new AlephException("symbol %s defined".format(node.name)));
+        this.resultTable.insert(node.name, new FunctionSymbol(node.name, node.functionType, this.resultTable, true));
+
+        return node;
     }
 private:
     /* UTILITY FUNCTIONS */
