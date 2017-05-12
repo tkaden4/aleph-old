@@ -26,11 +26,9 @@ public auto transform(Tuple!(ProgramNode, AlephTable) t)
 
 public auto transform(ProgramNode node, AlephTable tab)
 {
-    try{
+    return alephErrorScope!("tree transformer", {
         return node.visit(tab);
-    }catch(Exception e){
-        throw new Exception("couldn't transform tree to C tree: %s".format(e.msg));
-    }
+    });
 }
 
 private auto visit(ProgramNode node, AlephTable tab)
@@ -111,11 +109,8 @@ private auto visit(ASTNode n)
 private CType visit(Type type, AlephTable table)
 {
     import std.conv;
-    return type.match(
-        (FunctionType t){
-            // TODO add typedef
-            return cast(CType)new CFunctionType(t.returnType.visit(table), t.parameterTypes.map!(x => x.visit(table)).array);
-        },
+    return cast(CType)type.match(
+        (FunctionType t) => new CFunctionType(t.returnType.visit(table), t.parameterTypes.map!(x => x.visit(table)).array),
         (PrimitiveType t){
             switch(t.type){
             case PrimitiveType.PType.INT:   return CPrimitiveType.Int;
@@ -133,6 +128,7 @@ private CType visit(Type type, AlephTable table)
             case TypeQualifier.Const: return new CQualifiedType(CTypeQualifier.Const, t.type.visit(table));
             }
         },
-        (PointerType t) => new CPointerType(t.type.visit(table))
+        (PointerType t) => new CPointerType(t.type.visit(table)),
+        (){ throw new AlephException("could not convert %s to valid C type".format(type.toPrintable)); }
     );
 }

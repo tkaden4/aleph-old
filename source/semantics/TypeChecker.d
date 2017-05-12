@@ -14,8 +14,10 @@ import std.stdio;
 
 public auto checkTypes(Tuple!(ProgramNode, AlephTable) t)
 {
-    new TypeCheckerVisitor().dispatch(t[0]);
-    return t;
+    return alephErrorScope!("type checker", {
+        new TypeCheckerVisitor().dispatch(t[0]);
+        return t;
+    });
 }
 
 private void checkCast(Type a, Type b, string extra="")
@@ -32,5 +34,17 @@ private class TypeCheckerVisitor : Visitor!void {
     override void visit(ref VarDeclNode node)
     {
         node.type.checkCast(node.initVal.resultType, "in variable %s".format(node.name));
+    }
+
+    override void visit(ref CallNode node)
+    {
+        auto parameters = node.toCall.resultType.match(
+            (FunctionType f) => f.parameterTypes,
+            (){ throw new AlephException("could not call non-function"); }
+        );
+        auto argumentTypes = node.arguments.map!(x => x.resultType);
+        /* get tuples of parameters */
+        auto zipped = parameters.zip(node.arguments.map!(x => x.resultType)).array;
+        zipped.writeln;
     }
 };

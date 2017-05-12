@@ -1,13 +1,14 @@
 module semantics.type.Type;
 
-import semantics.type.PrimitiveType;
-
 public interface Type {
     bool canCast(Type other);
 };
 
 import util;
+import AlephException;
 import semantics.type;
+
+import std.string;
 
 public string toPrintable(Type t)
 in {
@@ -23,6 +24,7 @@ in {
             str ~= ") -> " ~ type.returnType.toPrintable;
             return str;
         },
-        (Type t) => "unknown type"
+        (UnknownType t) => "unresolved type",
+        (){ throw new AlephException("%s cannot be converted to printable string".format(t)); }
     );
 }

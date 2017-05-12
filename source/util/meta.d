@@ -29,6 +29,11 @@ template GreatestCommonType(Args...){
     }
 };
 
+template emptyFunc(T)
+{
+    alias emptyFunc = (T _) => _;
+}
+
 template FieldsWithNames(T)
     if(isAggregateType!T)
 {

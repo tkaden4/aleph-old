@@ -40,7 +40,9 @@ public:
 
     R visit(ref BlockNode node, Args args)
     {
-        node.children.each!(x => this.visit(x, args));
+        foreach(x; node.children){
+            this.visit(x, args);
+        }
         static if(typeid(R) != typeid(void)){
             return R.init;
         }

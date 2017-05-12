@@ -2,13 +2,17 @@ module syntax.tree.CallNode;
 
 import syntax.tree.ExpressionNode;
 import semantics.type.UnknownType;
+import util.match;
 
 public class CallNode : ExpressionNode {
     this(ExpressionNode toCall, ExpressionNode[] args)
     {
         this.call = toCall;
         this.args = args;
-        this.type = new UnknownType;
+        this.type = toCall.resultType.match(
+            (FunctionType f) => f.returnType,
+            (Type t)         => new UnknownType
+        );
     }
 
     invariant

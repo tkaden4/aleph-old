@@ -44,6 +44,6 @@ public auto match(T, Args...)(T value, Args args)
             return handler[0]();
         }
     }else{
-        throw new MatchException("Could not visit %s".format(value));
+        throw new MatchException("could not match on %s".format(value));
     }
 }

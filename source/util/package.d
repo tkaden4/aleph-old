@@ -6,6 +6,8 @@ import std.range;
 import std.algorithm;
 
 public {
+    import util.err;
+    import util.meta;
     import util.match;
 
     auto not(T)(T t){

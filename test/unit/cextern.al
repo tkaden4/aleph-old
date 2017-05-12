@@ -4,7 +4,7 @@ extern proc putchar(int) -> int
 extern proc puts(*const char) -> int
 extern proc printf(*const char, ...) -> int
 
-proc print(x: *const char) = {
+proc print(x: *const char) -> int = {
     puts(x)
 }
 

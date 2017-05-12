@@ -459,8 +459,9 @@ public:
         }
 
         this.match(Token.Type.RARROW);
-        auto ret = this.parseType;
-        auto node = new ExternProcNode(name, ret, params, vararg);
+        auto returnType = this.parseType;
+
+        auto node = new ExternProcNode(name, returnType, params, vararg);
 
         this.resultTable.find(node.name).not.err(new AlephException("symbol %s defined".format(node.name)));
         this.resultTable.insert(node.name, new FunctionSymbol(node.name, node.functionType, this.resultTable, true));
