@@ -83,14 +83,27 @@ protected:
                     },
                     (TypeofType t){
                         super.visit(t.node, table);
-                        sym.type = t.node.resultType;
-                        node.returnType = sym.type;
+                        node.returnType = t.node.resultType;
+                        sym.type = node.functionType;
                     },
                     emptyFunc!Type
                 );
             },
             (){ throw new AlephException("no function named %s".format(node.name)); }
         );
+    }
+
+    override void visit(ref BinOpNode node, AlephTable table)
+    {
+        super.visit(node.left, table);
+        super.visit(node.right, table);
+        if(node.left.resultType.canCast(node.right.resultType)){
+            node.resultType = node.left.resultType;
+        }else if(node.right.resultType.canCast(node.left.resultType)){
+            node.resultType = node.right.resultType;
+        }else {
+            throw new AlephException("incompatible types for %s".format(node.toPretty));
+        }
     }
 
     override void visit(ref CallNode node, AlephTable table)

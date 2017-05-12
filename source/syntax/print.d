@@ -9,7 +9,7 @@ import std.string;
 import std.range;
 import std.algorithm;
 
-public auto ref toPretty(T)(T node)
+public auto ref toPretty(T, Nodes...)(T node)
 {
     auto x = new PrettifyVisitor;
     string res = "";
@@ -17,10 +17,25 @@ public auto ref toPretty(T)(T node)
     return res;
 }
 
+
 private class PrettifyVisitor : Visitor!(void, OutputBuilder*) {
 private:
-    bool newline;
+    bool statementexp;
+    bool withTypes;
 protected:
+    this(bool withTypes = false)
+    {
+        this.withTypes = withTypes;
+    }
+
+    auto statem(T)(T body_fun)
+    {
+        auto k = this.statementexp;
+        this.statementexp = true;
+        body_fun();
+        this.statementexp = k;
+    }
+
     override void visit(ref CallNode node, OutputBuilder *res)
     {
         auto x = node.toCall;
@@ -44,27 +59,39 @@ protected:
     override void visit(ref IfExpressionNode node, OutputBuilder *res)
     {
         with(res){
-            printf("(if ");
+            printf("if ");
             untabbed({
                 this.visit(node.ifexp, res);
                 printf(" then ");
-                this.visit(node.thenexp, res);
-                if(node.elseexp){
-                        printf(" else ");
-                        this.visit(node.elseexp, res);
-                }
             });
-            printf(")::[%s]", node.resultType.toPrintable);
+            block({
+                this.statem({
+                    this.visit(node.thenexp, res);
+                });
+            });
+            if(node.elseexp){
+                untabbed({
+                    printf(" else ");
+                    block({
+                        this.statem({
+                            this.visit(node.elseexp, res);
+                        });
+                    });
+                    if(this.withTypes){
+                        printf("::[%s]", node.resultType.toPrintable);
+                    }
+                });
+            }
         }
     }
 
     override void visit(ref BlockNode node, OutputBuilder *res)
     {
-        this.newline = true;
         res.block({
-            node.children.each!(x => visit(x, res));
+            this.statem({
+                node.children.each!(x => visit(x, res));
+            });
         });
-        this.newline = false;
     }
 
     override void visit(ref ReturnNode node, OutputBuilder *res)
@@ -79,8 +106,8 @@ protected:
     override void visit(ref ProcDeclNode node, OutputBuilder *res)
     {
         with(res){
-            untabbed({
                 printf("proc %s(", node.name);
+            untabbed({
                 node.parameters.headLast!(
                     x => printf("%s: %s, ", x.name, x.type.toPrintable),
                     x => printf("%s: %s", x.name, x.type.toPrintable)
@@ -100,11 +127,30 @@ protected:
     override void visit(ref ExpressionNode node, OutputBuilder *res)
     {
         super.visit(node, res);
-        if(this.newline && res.usetabs){
+        if(this.statementexp && res.usetabs){
             res.untabbed({
                 res.printfln(";");
             });
         }
+    }
+
+    override void visit(ref CharNode node, OutputBuilder *res)
+    {
+        res.printf("'%c'", node.value);
+    }
+
+    override void visit(ref BinOpNode node, OutputBuilder *res)
+    {
+        res.printf("(");
+        res.untabbed({
+            this.visit(node.left, res);
+            res.printf(" %s ", node.op);
+            this.visit(node.right, res);
+            res.printf(")");
+            if(this.withTypes){
+                res.printf("::[%s]", node.resultType.toPrintable);
+            }
+        });
     }
 
     override void visit(ref IntegerNode node, OutputBuilder *res)
@@ -119,7 +165,12 @@ protected:
 
     override void visit(ref IdentifierNode node, OutputBuilder *res)
     {
-        res.printf("%s::[%s]", node.name, node.resultType.toPrintable);
+        res.printf("%s", node.name);
+        if(this.withTypes){
+            res.untabbed({
+                res.printf("::[%s]", node.resultType.toPrintable);
+            });
+        }
     }
 
     override void visit(ref VarDeclNode node, OutputBuilder *res)

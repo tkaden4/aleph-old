@@ -119,12 +119,16 @@ public struct OutputBuilder {
 
     auto block(Func)(Func body_fun)
     {
-        this.tabbed({
+        this.untabbed({
             this.printfln("{");
+        });
+        this.tabbed({
             ++this.tablevel;
             body_fun();
             --this.tablevel;
-            this.printfln("}");
+        });
+        this.tabbed({
+            this.printf("}");
         });
         return this;
     }

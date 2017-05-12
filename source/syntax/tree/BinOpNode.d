@@ -8,12 +8,17 @@ public class BinOpNode : ExpressionNode {
         this.op = op;
         this.left = _left;
         this.right = _right;
-        this._resultType = resType;
+        this.resultType = resType;
     }
 
     override @property Type resultType()
     {
         return this._resultType;
+    }
+
+    @property void resultType(Type t)
+    {
+        this._resultType = t;
     }
 
     override string toString() const
@@ -25,6 +30,6 @@ public class BinOpNode : ExpressionNode {
     ExpressionNode left;
     ExpressionNode right;
     string op;
-private:
     Type _resultType;
+private:
 };
