@@ -1,17 +1,16 @@
 import std.stdio;
 import std.string;
+import std.range;
 
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
-
 import AlephException;
-
 import gen : cgenerate, FileStream;
 import semantics;
 import syntax.transform;
-import std.range;
-import util : time;
+import syntax.print;
+import util;
 
 private auto usage()
 {
@@ -40,6 +39,7 @@ int main(string[] args)
                       .checkTypes
                       // Desugar the tree
                       .desugar
+                      //.then!(x => x[0].toPretty.writeln)
                       // transform Aleph AST into C AST
                       .transform
                       // generate code

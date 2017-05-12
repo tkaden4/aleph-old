@@ -11,6 +11,7 @@ import std.stdio;
 import std.string;
 
 import syntax.tree;
+import syntax.print;
 import semantics;
 import syntax.visit.Visitor;
 import AlephException;
@@ -100,16 +101,17 @@ protected:
         foreach(arg; node.arguments){
             super.visit(arg, table);
         }
-        node.resultType.match(
-            (UnknownType _){
-                node.resultType = node.toCall.resultType.match(
+        node.resultType = node.resultType.match(
+            (UnknownType _) =>
+                node.toCall.resultType.match(
                     (FunctionType ftype) => ftype.returnType,
-                    (){ throw new AlephException("unable to call non-function of type %s".format(node.resultType)); }
-                );
-            },
+                    (){ throw new AlephException("unable to call non-function of type %s in \n%s"
+                                                    .format(node.resultType, node.toPretty)); }
+                )
+            ,
             (TypeofType t){
                 super.visit(t.node, table);
-                node.resultType = t.node.resultType;
+                return t.node.resultType;
             },
             emptyFunc!Type
         );
@@ -117,7 +119,7 @@ protected:
 
     override void visit(ref IdentifierNode node, AlephTable table)
     {
-        auto sym = table.find(node.name).err(new AlephException("Identifier %s not defined".format(node.name)));
+        auto sym = table.find(node.name).err(new AlephException("identifier %s not defined".format(node.name)));
         node.resultType.match(
             (UnknownType t) => node.resultType = sym.type, 
             (TypeofType t){

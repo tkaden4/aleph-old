@@ -53,15 +53,15 @@ private:
 
 public struct OutputBuilder {
     static enum TAB_WIDTH = 4u;
-    OutputStream *output;
+    OutputStream output;
     uint tablevel = 0;
     bool usetabs = true;
     bool statem = false;
 
 
-    this(ref OutputStream s)
+    this(OutputStream s)
     {
-        this.output = &s;
+        this.output = s;
     }
 
     auto printf(Args...)(in string fmt, Args args)

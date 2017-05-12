@@ -5,6 +5,7 @@ import syntax.tree;
 import syntax.visit.Visitor;
 import AlephException;
 import util;
+import syntax.print;
 
 import std.typecons;
 import std.range;
@@ -41,13 +42,13 @@ private class TypeCheckerVisitor : Visitor!void {
     override void visit(ref ProcDeclNode node)
     {
         super.visit(node);
-        node.returnType.checkCast(node.bodyNode.resultType, "in function %s".format(node.name));
+        node.returnType.checkCast(node.bodyNode.resultType, "in function \n%s".format(node.toPretty));
     }
 
     override void visit(ref VarDeclNode node)
     {
         super.visit(node);
-        node.type.checkCast(node.initVal.resultType, "in variable %s".format(node.name));
+        node.type.checkCast(node.initVal.resultType, "in variable \n%s".format(node.toPretty));
     }
 
     override void visit(ref CallNode node)
@@ -66,7 +67,8 @@ private class TypeCheckerVisitor : Visitor!void {
             }
         }
 
-        err(parameters.length == argumentTypes.length, new AlephException("Mismatched number of arguments"));
+        err(parameters.length == argumentTypes.length,
+            new AlephException("Mismatched number of arguments in \n\t%s".format(node.toPretty)));
 
         /* get tuples of parameters */
         auto zipped = parameters.zip(node.arguments.map!(x => x.resultType)).array;

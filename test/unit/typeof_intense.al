@@ -1,6 +1,9 @@
-proc bar = 0
+proc bet -> typeof(0) = 0
+proc foo -> typeof(bet) = bet
+proc bar = foo()
+
 proc main = {
-    let foo: typeof(bar) = bar
-    let k: typeof(0) = foo()
-    k
+    let y = bar
+    let k = y()
+    0
 }

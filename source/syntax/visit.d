@@ -1,6 +1,6 @@
 module syntax.visit.Visitor;
 
-import syntax.tree;
+public import syntax.tree;
 import util;
 import std.range;
 import std.algorithm;
