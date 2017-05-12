@@ -33,6 +33,8 @@ int main(string[] args)
                 Parser.fromFile(args[1])
                       // parse the file
                       .program
+                      // build symbols/contexts
+                      .buildSymbols
                       // inference all types
                       .resolveTypes
                       // Perform all type checking

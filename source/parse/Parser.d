@@ -350,23 +350,7 @@ public:
         exp = this.expression;
 
         auto name = toks[1].lexeme;
-        auto table = this.resultTable;
         auto node = new ProcDeclNode(name, ret_type, params, exp);
-
-        import std.range;
-        import std.algorithm;
-
-        table.find(name).not.err(new AlephException("symbol %s already defined".format(name)));
-        /* create the function's symbol table */
-        auto funTable = new AlephTable("%s's table".format(name), table);
-        /* get the symbol parameters and add them to function */
-        auto paramSyms = node.parameters.map!(x => new VarSymbol(x.name, x.type, funTable)).array;
-        paramSyms.each!(x => funTable.insert(x.name, x));
-        /* create the function symbol */
-        auto funSymbol = new FunctionSymbol(name, node.functionType, funTable, false);
-        /* add the funciton to the symbol table */
-        table.insert(name, funSymbol);
-
         return node;
     }
 
@@ -384,12 +368,6 @@ public:
 
         auto exp = this.expression;
         auto node = new VarDeclNode(toks[1].lexeme, type, exp);
-        auto table = this.resultTable;
-
-        table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));
-        auto symbol = new VarSymbol(node.name, node.type, table);
-        table.insert(node.name, symbol);
-
         return node;
     }
 
@@ -465,10 +443,6 @@ public:
         auto returnType = this.parseType;
 
         auto node = new ExternProcNode(name, returnType, params, vararg);
-
-        this.resultTable.find(node.name).not.err(new AlephException("symbol %s defined".format(node.name)));
-        this.resultTable.insert(node.name, new FunctionSymbol(node.name, node.functionType, this.resultTable, true));
-
         return node;
     }
 private:

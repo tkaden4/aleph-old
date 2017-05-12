@@ -5,6 +5,7 @@ import syntax.tree;
 import semantics;
 import semantics.symbol.Symbol;
 import AlephException;
+import syntax.print;
 
 import std.range;
 import std.algorithm;
@@ -96,7 +97,7 @@ private CExpressionNode visit(ExpressionNode n, AlephTable table)
         (CharNode n)       => cast(CExpressionNode)new CharLiteral(n.value),
         (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
         (CallNode n)       => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
-        (){ throw new AlephException("%s is not a valid C expresion".format(n)); }
+        (){ throw new AlephException("could not be converted to C:\n%s".format(n.toPretty)); }
     );
 }
 

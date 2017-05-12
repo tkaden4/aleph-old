@@ -2,6 +2,7 @@ module semantics;
 
 public {
     import semantics.Desugar;
+    import semantics.SymbolBuilder;
     import semantics.TypeChecker;
     import semantics.TypeResolver;
     import semantics.symbol;

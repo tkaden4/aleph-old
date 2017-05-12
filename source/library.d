@@ -14,13 +14,10 @@ public auto loadLibrary(AlephTable into, in string path)
     //auto x = getenv("ALEPH_STD").to!string;
     return into.then!(x => x.addLibrary(path,
             Parser.fromFile(path)
-                 // parse program
                  .program
-                 // inference all types
+                 .buildSymbols
                  .resolveTypes
-                 // Perform all type checking
                  .checkTypes
-                 // Desugar the tree
                  .desugar[1]
             ));
 }
