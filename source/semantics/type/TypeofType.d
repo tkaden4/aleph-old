@@ -1,7 +1,7 @@
 module semantics.type.TypeofType;
 
 import semantics.type.Type;
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 
 public class TypeofType : Type {
     this(ExpressionNode node)

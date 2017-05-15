@@ -1,9 +1,9 @@
-module syntax.tree.ProcDeclNode;
+module syntax.tree.declaration.ProcDeclNode;
 
 import syntax.tree.ASTNode;
-import syntax.tree.ExpressionNode;
-import syntax.tree.StatementNode;
 import syntax.tree.ReturnNode;
+import syntax.tree.expression.ExpressionNode;
+import syntax.tree.expression.StatementNode;
 
 import semantics.type : Type, FunctionType;
 import syntax.common.routine;

@@ -1,6 +1,6 @@
-module syntax.tree.IfExpressionNode;
+module syntax.tree.expression.IfExpressionNode;
 
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 
 public class IfExpressionNode : ExpressionNode {
     this(ExpressionNode ifn, ExpressionNode then, ExpressionNode elsen, Type res)

@@ -1,4 +1,4 @@
-module syntax.tree.ExpressionNode;
+module syntax.tree.expression.ExpressionNode;
 
 public import syntax.tree.ASTNode;
 public import semantics.type;

@@ -1,6 +1,6 @@
-module syntax.tree.ExternImportNode;
+module syntax.tree.declaration.ExternImportNode;
 
-import syntax.tree.StatementNode;
+import syntax.tree.expression.StatementNode;
 
 import std.string;
 

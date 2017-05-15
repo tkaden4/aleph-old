@@ -1,6 +1,6 @@
-module syntax.tree.BinOpNode;
+module syntax.tree.expression.BinOpNode;
 
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 
 public class BinOpNode : ExpressionNode {
     this(ExpressionNode _left, ExpressionNode _right, in string op, Type resType)

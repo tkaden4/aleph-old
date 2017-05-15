@@ -1,7 +1,7 @@
-module syntax.tree.ExternProcNode;
+module syntax.tree.declaration.ExternProcNode;
 
 import semantics.type;
-import syntax.tree.StatementNode;
+import syntax.tree.expression.StatementNode;
 import syntax.common.routine;
 
 import util;

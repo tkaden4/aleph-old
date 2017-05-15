@@ -1,7 +1,7 @@
 module syntax.tree.ReturnNode;
 
-import syntax.tree.StatementNode;
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.StatementNode;
+import syntax.tree.expression.ExpressionNode;
 
 public class ReturnNode : StatementNode {
 public:

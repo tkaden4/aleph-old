@@ -1,7 +1,7 @@
-module syntax.tree.VarDeclNode;
+module syntax.tree.declaration.VarDeclNode;
 
-import syntax.tree.StatementNode;
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.StatementNode;
+import syntax.tree.expression.ExpressionNode;
 import syntax.common.variable;
 
 public class VarDeclNode : StatementNode {

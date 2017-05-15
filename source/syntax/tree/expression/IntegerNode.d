@@ -1,6 +1,6 @@
-module syntax.tree.IntegerNode;
+module syntax.tree.expression.IntegerNode;
 
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 
 public class IntegerNode : ExpressionNode {
 public:

@@ -1,6 +1,6 @@
-module syntax.tree.StringNode;
+module syntax.tree.expression.StringNode;
 
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 
 public class StringNode : ExpressionNode {
 public:

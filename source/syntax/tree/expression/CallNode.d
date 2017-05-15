@@ -1,6 +1,6 @@
-module syntax.tree.CallNode;
+module syntax.tree.expression.CallNode;
 
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 import semantics.type.UnknownType;
 import util.match;
 

@@ -1,6 +1,6 @@
-module syntax.tree.CharNode;
+module syntax.tree.expression.CharNode;
 
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 
 public class CharNode : ExpressionNode {
 public:

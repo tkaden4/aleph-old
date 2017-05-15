@@ -8,6 +8,8 @@ proc print(x: *const char) -> int = {
     puts(x)
 }
 
+8
+
 proc main = {
     printf("%d", 1)
 /* TODO fix type promotion

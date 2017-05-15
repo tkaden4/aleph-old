@@ -1,7 +1,7 @@
 module syntax.tree.ProgramNode; 
 
 import syntax.tree.ASTNode;
-import syntax.tree.StatementNode;
+import syntax.tree.expression.StatementNode;
 
 public class ProgramNode : ASTNode {
 public:

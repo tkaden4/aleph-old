@@ -1,7 +1,7 @@
-module syntax.tree.BlockNode;
+module syntax.tree.expression.BlockNode;
 
 import syntax.tree.ASTNode;
-import syntax.tree.ExpressionNode;
+import syntax.tree.expression.ExpressionNode;
 
 import std.range;
 import util;

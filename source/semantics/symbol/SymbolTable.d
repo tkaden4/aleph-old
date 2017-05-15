@@ -16,14 +16,14 @@ public:
         return this.parent.use!(x => x.globalTable).or(this);
     }
 
-    SymbolType find(string id, bool upper=true)
+    SymbolType find(in string id, bool upper=true)
     {
         return (id in this.symbols)
                     .use!(x => *x)
                     .or(upper ? this.parent.use!(x => x.find(id)) : null);
     }
 
-    SymbolType insert(string id, SymbolType sym)
+    SymbolType insert(in string id, SymbolType sym)
     {
         return sym.then!(x => this.symbols[id] = sym);
     }

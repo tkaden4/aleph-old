@@ -1,6 +1,6 @@
-module syntax.tree.IdentifierNode;
+module syntax.tree.expression.IdentifierNode;
 
-public import syntax.tree.ExpressionNode;
+public import syntax.tree.expression.ExpressionNode;
 
 /* TODO add ID type + deferred types */
 public class IdentifierNode : ExpressionNode {
