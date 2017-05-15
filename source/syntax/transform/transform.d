@@ -50,6 +50,9 @@ private auto visit(ProgramNode node, AlephTable tab)
             () => new AlephException("Invalid Top-Level Declaration").raise
         );
     }
+    foreach(x; tab.libraryPaths){
+        top.insertInPlace(0, new CPreprocessorNode("include\"%s\"".format(x)));
+    }
     return tuple(new CProgramNode(top), table);
 }
 

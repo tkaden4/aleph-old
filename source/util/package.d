@@ -63,10 +63,14 @@ public {
 
     auto use(alias f, T)(T t)
     {
-        if(t){
+        static if(__traits(compiles, !t)){
+            if(t){
+                return f(t);
+            }
+            return null;
+        }else{
             return f(t);
         }
-        return null;
     }
 
     auto use_err(alias f, T, Ex)(T t, Ex e)

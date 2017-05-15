@@ -56,7 +56,9 @@ protected:
                 node.type = sym.type;
             },
             (TypeofType t){
-                super.visit(t.node, table);
+                if(!t.isResolved){
+                    super.visit(t.node, table);
+                }
                 sym.type = t.node.resultType;
                 node.type = sym.type;
             },
@@ -92,7 +94,9 @@ protected:
                         sym.type = node.functionType;
                     },
                     (TypeofType t){
-                        super.visit(t.node, table);
+                        if(!t.isResolved){
+                            super.visit(t.node, table);
+                        }
                         node.returnType = t.node.resultType;
                         sym.type = node.functionType;
                     },
@@ -133,7 +137,9 @@ protected:
                 )
             ,
             (TypeofType t){
-                super.visit(t.node, table);
+                if(!t.isResolved){
+                    super.visit(t.node, table);
+                }
                 return t.node.resultType;
             },
             emptyFunc!Type
@@ -146,7 +152,9 @@ protected:
         node.resultType.match(
             (UnknownType t) => node.resultType = sym.type, 
             (TypeofType t){
-                super.visit(t.node, table);
+                if(!t.isResolved){
+                    super.visit(t.node, table);
+                }
                 sym.type = t.node.resultType;
                 node.resultType = sym.type;
             },

@@ -40,8 +40,7 @@ private class SymbolBuilder : Visitor!(void, AlephTable) {
     override void visit(ref VarDeclNode node, AlephTable table)
     {
         table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));
-        auto symbol = new VarSymbol(node.name, node.type, table);
-        table.insert(node.name, symbol);
+        table.insert(node.name, new VarSymbol(node.name, node.type, table));
         super.visit(node, table);
     }
 

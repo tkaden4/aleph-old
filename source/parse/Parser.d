@@ -15,12 +15,6 @@ import AlephException;
 import util;
 
 
-struct BuildCtx {
-    ProcDeclNode func;
-    BlockNode block;
-};
-
-
 public final class Parser {
 public:
     static Parser fromFile(in string name)
@@ -48,7 +42,7 @@ public:
 
     /* PARSER RULES */
 
-    Tuple!(ProgramNode, AlephTable) program()
+    auto program()
     {
         try{
             StatementNode[] res;
@@ -73,9 +67,8 @@ public:
         case Token.Type.STRUCT:
             return this.structDecl;
         case Token.Type.IMPORT:
-            //throw new ParserException("Imports?");
             this.importDecl;
-            return this.topLevel();
+            return this.topLevel;
         default:
             break;
         }
@@ -114,18 +107,19 @@ public:
         import std.conv;
         switch(this.la.type){
         case Token.Type.INTEGER:
-            auto num = this.match(Token.Type.INTEGER).lexeme.to!int;
-            return new IntegerNode(num);
+            return this.match(Token.Type.INTEGER)
+                       .use!(x => new IntegerNode(x.lexeme.to!int));
         case Token.Type.CHAR:
-            auto tok = this.match(Token.Type.CHAR);
-            auto ch = tok.lexeme[1..$-1].to!char;
-            return new CharNode(ch);
+            return this.match(Token.Type.CHAR)
+                       .use!(x => new CharNode(x.lexeme[1..$-1].to!char));
         case Token.Type.STRING:
-            return new StringNode(this.advance.lexeme);
+            return new StringNode(this.advance.lexeme[1..$-1]);
         default:
             throw new ParserException("invalid literal \"%s\"", this.la.lexeme);
         }
     }
+
+    /* EXPRESSIONS */
 
     ExpressionNode primaryExpression()
     {
@@ -149,13 +143,10 @@ public:
             auto ifexp = this.expression;
             this.match(Token.Type.THEN);
             auto thenexp = this.expression;
-            ExpressionNode elseexp = null;
-            if(this.test(Token.Type.ELSE)){
-                this.match(Token.Type.ELSE);
-                elseexp = this.expression;
-            }
-            auto x = new IfExpressionNode(ifexp, thenexp, elseexp, new UnknownType);
-            return x;
+            auto elseexp = this.test(Token.Type.ELSE)
+                               .use!((x){ this.advance; return this.expression; })
+                               .or(null);
+            return new IfExpressionNode(ifexp, thenexp, elseexp, new UnknownType);
         /* Literals */
         case Token.Type.INTEGER:
         case Token.Type.STRING:
@@ -167,16 +158,11 @@ public:
         }
     }
 
-    ExpressionNode[] paramExpressions()
+    auto paramExpressions()
     {
-        ExpressionNode[] ret;
-        while(!this.test(Token.Type.RPAREN)){
-            ret ~= this.expression;
-            if(this.test(Token.Type.COMMA)){
-                this.advance;
-            }
-        }
-        return ret;
+        return this.parseSepListOf(Token.Type.COMMA,
+                                   &this.expression,
+                                   () => this.test(Token.Type.RPAREN));
     }
 
     auto postfixExpression()
@@ -213,6 +199,9 @@ public:
         case Token.Type.PLUS:
             this.match(Token.Type.PLUS);
             return new BinOpNode(exp, this.additiveExpression, "+", new UnknownType);
+        case Token.Type.MINUS:
+            this.match(Token.Type.MINUS);
+            return new BinOpNode(exp, this.additiveExpression, "-", new UnknownType);
         default: break;
         }
         return exp;
@@ -250,35 +239,26 @@ public:
 
     auto blockExpression()
     {
-        ExpressionNode[] res;
-        this.match(Token.Type.LBRACE);
-        while(!this.test(Token.Type.RBRACE)){
-            auto exp = this.statement;
-            res ~= exp;
-        }
-        this.match(Token.type.RBRACE);
-        return new BlockNode(res);
+        return new BlockNode(this.parseListOf(Token.Type.LBRACE,
+                                             &this.statement,
+                                             Token.Type.RBRACE));
     }
 
-    /* TODO add more complex types */
-    Type parseType()
+    /* Parse a type */
+    auto parseType()
     {
         switch(this.la.type){
         case Token.Type.TYPEOF:
-            this.advance;
-            this.match(Token.Type.LPAREN);
-            auto e = this.expression;
-            this.match(Token.Type.RPAREN);
-            return e.resultType.match(
-                (UnknownType type) => new TypeofType(e),
-                (Type t) => t
-            );
+            this.match(Token.Type.TYPEOF, Token.Type.LPAREN);
+            return this.expression
+                       .then!({ this.match(Token.Type.RPAREN); })
+                       .use!(x => x.resultType.match(
+                                      (UnknownType type) => new TypeofType(x),
+                                      emptyFunc!Type));
         case Token.Type.CONST:
-            this.advance;
-            return new QualifiedType(TypeQualifier.Const, this.parseType);
+            return this.advance.use!(_ => new QualifiedType(TypeQualifier.Const, this.parseType));
         case Token.Type.STAR:
-            this.advance;
-            return new PointerType(this.parseType);
+            return this.advance.use!(_ => new PointerType(this.parseType));
         /* Primitive type or single-parameter function */
         case Token.Type.ID:
             /* TODO fix const functions */
@@ -288,49 +268,43 @@ public:
                     return this.parseType.use!(k => new FunctionType(k, [x]));
                 });
             }else{
-                auto x = this.match(Token.Type.ID);
-                return x.lexeme.toPrimitive;
+                return this.advance.lexeme.toPrimitive;
             }
         /* Function types */
-        /* TODO add multiple parameter types */
         case Token.Type.LPAREN:
             this.match(Token.Type.LPAREN);
-            Type[] params;
-            while(!this.test(Token.Type.RPAREN)){
-                params ~= this.parseType;
-                this.optional(Token.Type.COMMA);
-            }
-            this.match(Token.Type.RPAREN);
-            this.match(Token.Type.RARROW);
-            auto ret = this.parseType;
-            return new FunctionType(ret, params);
+            auto params = this.parseSepListOf(Token.Type.COMMA,
+                                              &this.parseType,
+                                              { return this.test(Token.Type.RPAREN); });
+            this.match(Token.Type.RPAREN, Token.Type.RARROW);
+            return new FunctionType(this.parseType, params);
         default:
             throw new ParserException("%s is not the start of a valid type".format(*this.la));
         }
     }
 
-    auto parameters()
-    {
-        Parameter[] params;
-        while(this.test(Token.Type.ID)){
-            auto name = this.match(Token.Type.ID);
-            this.match(Token.Type.COLON);
-            auto type = this.parseType;
-            params ~= Parameter(type, name.lexeme);
-            if(this.test(Token.Type.COMMA)){
-                this.advance;
-            }
-        }
-        return params;
-    }
+    /* DECLARATIONS */
 
     auto procDecl()
     {
-        auto toks = this.match(Token.Type.PROC, Token.Type.ID);
+        auto typedParameterList()
+        {
+            auto params = this.parseSepListOf(
+                Token.Type.COMMA,
+                {
+                    auto name = this.match(Token.Type.ID);
+                    this.match(Token.Type.COLON);
+                    auto type = this.parseType;
+                    return Parameter(type, name.lexeme);
+                },
+                { return this.test(Token.Type.RPAREN); });
+            return params;
+        }
 
+        auto toks = this.match(Token.Type.PROC, Token.Type.ID);
         auto params = this.test(Token.Type.LPAREN).use!((x){
             this.match(Token.Type.LPAREN);
-            auto params = this.parameters;
+            auto params = typedParameterList();
             this.match(Token.Type.RPAREN);
             return params;
         });
@@ -338,20 +312,18 @@ public:
         auto ret_type = this.test(Token.Type.RARROW).use!((x){
             this.match(Token.Type.RARROW);
             return this.parseType;
-        }).or(new UnknownType);
+        }).or(null);
 
-        ExpressionNode exp = null;
         if(this.test(Token.Type.EQ)){
             this.advance;
         }else if(!this.test(Token.Type.LBRACE)){
-            throw new ParserException("requires =");
+            throw new ParserException("non-block functions must have \'=\'");
         }
 
-        exp = this.expression;
-
-        auto name = toks[1].lexeme;
-        auto node = new ProcDeclNode(name, ret_type, params, exp);
-        return node;
+        return this.expression.use!((x){
+                   ret_type = ret_type.or(new TypeofType(x));
+                   auto name = toks[1].lexeme;
+                   return new ProcDeclNode(name, ret_type, params, x); });
     }
 
     auto varDecl()
@@ -361,14 +333,14 @@ public:
         auto type = this.test(Token.Type.COLON).use!((x){
             this.match(Token.Type.COLON);
             return this.parseType;
-        }).or(new UnknownType);
+        }).or(null);
 
         this.test(Token.Type.EQ)
             .use_err!(x => this.advance)(new ParserException("Variables must be initialized"));
 
         auto exp = this.expression;
-        auto node = new VarDeclNode(toks[1].lexeme, type, exp);
-        return node;
+        type = type.or(new TypeofType(exp));
+        return new VarDeclNode(toks[1].lexeme, type, exp);
     }
 
     StatementNode declaration()
@@ -391,6 +363,7 @@ public:
                 ret = this.procDecl;
             }
             return ret;
+        case Token.Type.IMPORT:
         case Token.Type.STRUCT:
             return this.structDecl;
         case Token.Type.LET: return this.varDecl;
@@ -401,16 +374,9 @@ public:
     StatementNode structDecl()
     {
         throw new ParserException("structs are currently not supported");
-            /*
-        auto name = this.match(Token.Type.STRUCT, Token.Type.ID)[1];
-        this.match(Token.Type.LBRACE);
-        while(!this.test(Token.Type.RBRACE)){
-            // Get a struct declarator "x: int"
-        }
-        // return new StructDeclNode(name, variables);
-        */
-        //return ParseResult!ASTNode.init;
     }
+
+    /* EXTERNAL RULES */
 
     auto externImport()
     {
@@ -421,32 +387,44 @@ public:
     auto externProc()
     {
         auto name = this.match(Token.Type.PROC, Token.Type.ID)[1].lexeme;
-        Type[] params = [];
+
+        this.match(Token.Type.LPAREN);
         bool vararg = false;
-        if(this.test(Token.Type.LPAREN)){
-            this.advance;
-            while(!this.test(Token.Type.RPAREN)){
-                if(this.test(Token.Type.VARARG)){
-                    this.advance;
-                    vararg = true;
-                    break;
-                }
-                params ~= this.parseType;
-                if(this.test(Token.Type.COMMA)){
-                    this.advance;
-                }
-            }
-            this.advance;
-        }
-
-        this.match(Token.Type.RARROW);
-        auto returnType = this.parseType;
-
-        auto node = new ExternProcNode(name, returnType, params, vararg);
-        return node;
+        auto params = this.parseSepListOf(Token.Type.COMMA,
+                                            &this.parseType,
+                                            () => this.test(Token.Type.VARARG)
+                                                       .if_then!({ this.advance; vararg = true; })
+                                                       .or(vararg || this.test(Token.Type.RPAREN)));
+        this.match(Token.type.RPAREN, Token.Type.RARROW);
+        return new ExternProcNode(name, this.parseType, params, vararg);
     }
 private:
     /* UTILITY FUNCTIONS */
+
+    /* parse a list */
+    auto parseListOf(F)(Token.Type start, F fun, Token.Type end)
+    {
+        import std.traits;
+        ReturnType!(fun)[] ret;
+        this.match(start);
+        while(!this.test(end)){
+            ret ~= fun();
+        }
+        this.match(end);
+        return ret;
+    }
+
+    /* parse a separated list */
+    auto parseSepListOf(T, F)(Token.Type delim, T next, F test)
+    {
+        import std.traits;
+        ReturnType!(next)[] ret;
+        while(!test()){
+            ret ~= next();
+            this.optional(delim);
+        }
+        return ret;
+    }
 
     auto la(size_t n=0)
     {

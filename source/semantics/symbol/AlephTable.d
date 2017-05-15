@@ -3,8 +3,10 @@ module semantics.symbol.AlephTable;
 import semantics.symbol.SymbolTable;
 import semantics.symbol;
 import util;
-private import std.range;
-private import std.algorithm;
+
+import std.range;
+import std.algorithm;
+import std.typecons;
 
 public class AlephTable : SymbolTable!Symbol {
     this(in string name, AlephTable p = null)
@@ -15,7 +17,7 @@ public class AlephTable : SymbolTable!Symbol {
 
     override Symbol find(string id, bool upper=true)
     {
-        auto libsyms = this.libraries.byValue.map!(x => x.find(id, false)).array;
+        auto libsyms = this.libraries.byValue.map!(x => x[0].find(id, false)).array;
         auto x = super.find(id, upper);
         if(!libsyms.length){
             return x;
@@ -40,9 +42,14 @@ public class AlephTable : SymbolTable!Symbol {
         this.aliases[name] = type;
     }
 
-    void addLibrary(string path, AlephTable symbols)
+    void addLibrary(string path, AlephTable symbols, string filename)
     {
-        this.libraries[path] = symbols;
+        this.libraries[path] = tuple(symbols, filename);
+    }
+
+    auto ref libraryPaths()
+    {
+        return this.libraries.byValue.map!(x => x[1]);
     }
 
     @property name()
@@ -52,5 +59,5 @@ public class AlephTable : SymbolTable!Symbol {
 private:
     string _name;
     Type[string] aliases;
-    AlephTable[string] libraries;
+    Tuple!(AlephTable, string)[string] libraries;
 };

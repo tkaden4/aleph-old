@@ -16,6 +16,7 @@ public class MatchException : Exception {
 
 public auto match(T, Args...)(T value, Args args)
 {
+    static assert(args.length > 0, "no match branches");
     static if(arity!(args[$-1]) == 0){
         alias handler = AliasSeq!(args[$-1]);
         alias match_funs = args[0..$-1];

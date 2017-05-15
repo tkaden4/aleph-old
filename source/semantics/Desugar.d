@@ -44,7 +44,12 @@ protected:
     }
 }
 
+
 private auto addReturn(ProcDeclNode pnode)
+{
+    return pnode.bodyNode;
+}
+    /*
 {
     pnode.bodyNode = pnode.bodyNode.use!(
         x => x.match(
@@ -69,3 +74,4 @@ private auto addReturn(ProcDeclNode pnode)
     );
     return pnode;
 }
+*/

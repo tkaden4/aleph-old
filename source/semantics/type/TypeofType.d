@@ -24,5 +24,20 @@ public class TypeofType : Type {
         return "TypeofType(%s)".format(this.node.resultType);
     }
 
+    bool isResolved()
+    {
+        import util.match;
+        return this.getType.match(
+            (UnknownType _) => false,
+            (TypeofType _) => false,
+            (Type _) => true
+        );
+    }
+
+    @property Type getType()
+    {
+        return node.resultType;
+    }
+
     ExpressionNode node;
 };

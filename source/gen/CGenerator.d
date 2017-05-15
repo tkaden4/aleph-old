@@ -156,7 +156,7 @@ public:
         node.match(
             (CLiteralNode x){
                 this.printf("%s", x.match(
-                                   (StringLiteral x) => x.value,
+                                   (StringLiteral x) => "\"%s\"".format(x.value),
                                    (CharLiteral x)   => "\'" ~ x.value ~ "\'",
                                    (IntLiteral x)    => x.value.to!string)
                 );
