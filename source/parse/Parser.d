@@ -10,22 +10,22 @@ import semantics.symbol;
 import std.stdio;
 import std.string;
 import std.typecons;
+import std.range;
 
 import AlephException;
 import util;
 
 
 public final class Parser {
+    import parse.lex.FileInputBuffer;
 public:
     static Parser fromFile(in string name)
     {
-        import parse.lex.FileInputBuffer;
         return new Parser(new Lexer(new FileInputBuffer(name)));
     }
 
     static Parser fromFile(ref File file)
     {
-        import parse.lex.FileInputBuffer;
         return new Parser(new Lexer(new FileInputBuffer(file)));
     }
 
@@ -60,19 +60,13 @@ public:
     StatementNode topLevel()
     {
         switch(this.la.type){
-        case Token.Type.EXTERN:
-            return this.externRule;
-        case Token.Type.PROC:
-            return this.procDecl;
-        case Token.Type.STRUCT:
-            return this.structDecl;
-        case Token.Type.IMPORT:
-            this.importDecl;
-            return this.topLevel;
+        case Token.Type.EXTERN: return this.externRule;
+        case Token.Type.PROC:   return this.procDecl;
+        case Token.Type.STRUCT: return this.structDecl;
+        case Token.Type.IMPORT: this.importDecl; return this.topLevel;
         default:
-            break;
+            throw new ParserException("did not expect %s at top level".format(*this.la));
         }
-        throw new ParserException("did not expect %s at top level".format(*this.la));
     }
 
     void importDecl()
@@ -93,10 +87,8 @@ public:
     {
         this.advance;
         switch(this.la.type){
-        case Token.Type.PROC:
-            return this.externProc;
-        case Token.Type.IMPORT:
-            return this.externImport;
+        case Token.Type.PROC:   return this.externProc;
+        case Token.Type.IMPORT: return this.externImport;
         default:
             throw new ParserException("did not expect %s after \"extern\"".format(this.la.lexeme));
         }
@@ -386,8 +378,7 @@ public:
 
     auto externProc()
     {
-        auto name = this.match(Token.Type.PROC, Token.Type.ID)[1].lexeme;
-
+        auto name = this.match(Token.Type.PROC, Token.Type.ID).back.lexeme;
         this.match(Token.Type.LPAREN);
         bool vararg = false;
         auto params = this.parseSepListOf(Token.Type.COMMA,
@@ -475,7 +466,10 @@ private:
         return this.la(n).type == c;
     }
 
-    bool test(bool delegate(Token.Type) t)
+    bool test(F)(F t)
+        if(is(isCallable!t) &&
+           is(ReturnType!t == bool) &&
+           is(Parameters!t[0] == Token.Type))
     {
         return t(this.la.type);
     }
@@ -487,7 +481,10 @@ private:
         }
     }
 
-    void ignore(bool delegate(Token.Type) t)
+    void ignore(F)(F t)
+        if(is(isCallable!t) &&
+           is(ReturnType!t == bool) &&
+           is(Parameters!t[0] == Token.Type))
     {
         while(this.lexer.hasNext && t(this.la.type)){
             this.advance;
