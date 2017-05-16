@@ -27,7 +27,7 @@ public auto transform(Tuple!(ProgramNode, AlephTable) t)
 
 public auto transform(ProgramNode node, AlephTable tab)
 {
-    return alephErrorScope!("tree transformer", {
+    return alephErrorScope("tree transformer", {
         return node.visit(tab);
     });
 }
@@ -69,7 +69,7 @@ private auto visit(ProcDeclNode node, CSymbolTable ctable, AlephTable table)
     import std.conv;
     CStatementNode[] bod_s;
     auto ret_type = node.returnType.visit(table);
-    auto params = node.parameters.map!(x => CParameter(x.type.visit(table), x.name)).array;
+    auto params = node.parameters.map!(x => CParameter(x.name, x.type.visit(table))).array;
     node.bodyNode.to!BlockNode.children.each!(x => x.match(
         (StatementNode n) => bod_s ~= cast(CStatementNode)n.visit(table),
         (ExpressionNode n) => bod_s ~= cast(CStatementNode)n.visit(table)

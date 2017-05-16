@@ -22,14 +22,6 @@ public auto resolveTypes(Tuple!(ProgramNode, AlephTable) t)
     return t.expand.resolveTypes;
 }
 
-public auto postConditions(const(Type) t)
-{
-    t.match(
-        (UnknownType _) => false,
-        () => true
-    ).err(new AlephException("Unable to resolve type"));
-}
-
 public auto resolveTypes(ProgramNode node, AlephTable table)
 in {
     assert(node);
@@ -38,7 +30,7 @@ in {
     assert(t[0]);
     assert(t[1]);
 } body {
-    return alephErrorScope!("type resolver", {
+    return alephErrorScope("type resolver", {
         new TypeResolver().dispatch(node, table);
         return tuple(node, table);
     });

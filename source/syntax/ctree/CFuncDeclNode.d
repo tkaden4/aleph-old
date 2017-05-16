@@ -6,9 +6,13 @@ import semantics.ctype.CType;
 
 import syntax.common.routine;
 
-public alias CParameter = CFuncDeclNode.Parameter;
+public struct CParameter {
+    string name;
+    CType type;
+};
+
 public class CFuncDeclNode: CDeclarationNode, CTopLevelNode {
-    mixin routineNodeClass!(CType, CBlockStatementNode);
+    mixin routineNodeClass!(CType, CBlockStatementNode, CParameter);
     this(CStorageClass cl, CType ret, in string func_name, 
          CParameter[] params, CBlockStatementNode c)
     {

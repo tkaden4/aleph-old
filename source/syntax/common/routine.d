@@ -1,13 +1,8 @@
 module syntax.common.routine;
 
-mixin template routineNodeClass(Type, BodyExpression)
+mixin template routineNodeClass(Type, BodyExpression, Parameter)
 {
     public:
-    struct Parameter {
-        Type type;
-        const(string) name;
-    };
-
     protected void init(in string name, Type ret, Parameter[] params, BodyExpression b=null)
     { 
         this.name = name;

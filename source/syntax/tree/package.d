@@ -5,6 +5,7 @@ public {
     import syntax.tree.ASTNode;
     import syntax.tree.ProgramNode;
     import syntax.tree.ReturnNode;
+    import syntax.tree.Parameter;
     /* declarations */
     import syntax.tree.declaration;
     /* expressions */

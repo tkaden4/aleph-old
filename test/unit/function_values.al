@@ -10,7 +10,7 @@ proc identity(a: int) -> int = {
 }
 
 proc main -> int = {
-    let k: int -> int = identity
+    let k: (int) -> int = identity
     k(9999)
     0
 }

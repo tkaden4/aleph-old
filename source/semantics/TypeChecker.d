@@ -15,7 +15,7 @@ import std.stdio;
 
 public auto checkTypes(Tuple!(ProgramNode, AlephTable) t)
 {
-    return alephErrorScope!("type checker", {
+    return alephErrorScope("type checker", {
         new TypeCheckerVisitor().dispatch(t[0]);
         return t;
     });

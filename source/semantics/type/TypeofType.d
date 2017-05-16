@@ -5,10 +5,13 @@ import syntax.tree.expression.ExpressionNode;
 
 public class TypeofType : Type {
     this(ExpressionNode node)
-    in{
-        assert(node);
-    }body{
+    {
         this.node = node;
+    }
+
+    invariant
+    {
+        assert(this.node);
     }
 
     override bool canCast(Type type)

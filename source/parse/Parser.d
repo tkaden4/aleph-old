@@ -111,11 +111,29 @@ public:
         }
     }
 
+    auto typedParameterList(Token.Type end)
+    {
+        auto params = this.parseSepListOf(
+            Token.Type.COMMA,
+            { auto name = this.match(Token.Type.ID);
+              this.match(Token.Type.COLON);
+              auto type = this.parseType;
+              return Parameter(name.lexeme, type); },
+            { return this.test(end); });
+        return params;
+    }
+
     /* EXPRESSIONS */
 
     ExpressionNode primaryExpression()
     {
         switch(this.la.type){
+        /* lambda */
+        case Token.Type.BSLASH:
+            this.advance;
+            auto params = this.typedParameterList(Token.Type.RARROW);
+            this.match(Token.Type.RARROW);
+            return new LambdaNode(params, this.expression);
         /* ID */
         case Token.Type.ID: 
             auto id = this.match(Token.Type.ID);
@@ -159,18 +177,19 @@ public:
 
     auto postfixExpression()
     {
-        auto postOp(ExpressionNode node, bool optional)
+        ExpressionNode postOp(ExpressionNode node, bool optional=true)
         {
             switch(this.la.type){
+            case Token.Type.COLON:
+                this.advance;
+                return new CastNode(node, this.parseType);
             case Token.Type.LPAREN:
                 this.match(Token.Type.LPAREN);
                 auto args = this.paramExpressions;
                 this.match(Token.Type.RPAREN);
                 return new CallNode(node, args);
             default:
-                if(!optional){
-                    throw new ParserException("expected postfix operator");
-                }
+                optional.err(new ParserException("non-optional post-exp"));
                 return null;
             }
         }
@@ -253,15 +272,7 @@ public:
             return this.advance.use!(_ => new PointerType(this.parseType));
         /* Primitive type or single-parameter function */
         case Token.Type.ID:
-            /* TODO fix const functions */
-            if(this.test(Token.Type.RARROW, 1)){
-                return this.advance.lexeme.toPrimitive.use!((x){
-                    this.match(Token.Type.RARROW);
-                    return this.parseType.use!(k => new FunctionType(k, [x]));
-                });
-            }else{
-                return this.advance.lexeme.toPrimitive;
-            }
+            return this.advance.lexeme.toPrimitive;
         /* Function types */
         case Token.Type.LPAREN:
             this.match(Token.Type.LPAREN);
@@ -279,22 +290,11 @@ public:
 
     auto procDecl()
     {
-        auto typedParameterList()
-        {
-            auto params = this.parseSepListOf(
-                Token.Type.COMMA,
-                { auto name = this.match(Token.Type.ID);
-                  this.match(Token.Type.COLON);
-                  auto type = this.parseType;
-                  return Parameter(type, name.lexeme); },
-                { return this.test(Token.Type.RPAREN); });
-            return params;
-        }
 
         auto toks = this.match(Token.Type.PROC, Token.Type.ID);
         auto params = this.test(Token.Type.LPAREN).use!((x){
             this.match(Token.Type.LPAREN);
-            auto params = typedParameterList();
+            auto params = typedParameterList(Token.type.RPAREN);
             this.match(Token.Type.RPAREN);
             return params;
         });

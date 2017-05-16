@@ -39,6 +39,7 @@ public:
         RARROW,
         STAR,
         COMMA,
+        BSLASH,
         /* operators */
         MINUS,
         PLUS,

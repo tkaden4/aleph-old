@@ -99,6 +99,7 @@ public:
         case '<': return this.lexMultiple('<', Token.Type.LT, '=', Token.Type.LTEQ);
         case '>': return this.lexMultiple('>', Token.Type.GT, '=', Token.Type.GTEQ);
         /* Etc. Rules */
+        case '\\': return this.makeAndAdvance("\\", Token.Type.BSLASH);
         case '\"': return this.lexString;
         case '\'': return this.lexChar;
         case ';': return this.makeToken(";", Token.Type.ENDSTMT);

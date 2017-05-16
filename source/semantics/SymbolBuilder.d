@@ -14,7 +14,7 @@ import AlephException;
 
 public auto buildSymbols(Tuple!(ProgramNode, AlephTable) t)
 {
-    return alephErrorScope!("symbol builder", {
+    return alephErrorScope("symbol builder", {
         new SymbolBuilder().dispatch(t[0], t[1]);
         return t;
     });
@@ -23,18 +23,20 @@ public auto buildSymbols(Tuple!(ProgramNode, AlephTable) t)
 private class SymbolBuilder : Visitor!(void, AlephTable) {
     override void visit(ref ProcDeclNode node, AlephTable table)
     {
-        auto name = node.name;
-        table.find(name).not.err(new AlephException("symbol %s already defined".format(name)));
-        /* create the function's symbol table */
-        auto funTable = new AlephTable("%s's table".format(name), table);
-        /* get the symbol parameters and add them to function */
-        auto paramSyms = node.parameters.map!(x => new VarSymbol(x.name, x.type, funTable)).array;
-        paramSyms.each!(x => funTable.insert(x.name, x));
-        /* create the function symbol */
-        auto funSymbol = new FunctionSymbol(name, node.functionType, funTable, false);
-        /* add the funciton to the symbol table */
-        table.insert(name, funSymbol);
-        super.visit(node, table);
+        alephErrorScope("in function " ~ node.name, {
+            auto name = node.name;
+            table.find(name).not.err(new AlephException("symbol %s already defined".format(name)));
+            /* create the function's symbol table */
+            auto funTable = new AlephTable("%s's table".format(name), table);
+            /* get the symbol parameters and add them to function */
+            auto paramSyms = node.parameters.map!(x => new VarSymbol(x.name, x.type, funTable)).array;
+            paramSyms.each!(x => funTable.insert(x.name, x));
+            /* create the function symbol */
+            auto funSymbol = new FunctionSymbol(name, node.functionType, funTable, false);
+            /* add the funciton to the symbol table */
+            table.insert(name, funSymbol);
+            super.visit(node, table);
+        });
     }
 
     override void visit(ref VarDeclNode node, AlephTable table)

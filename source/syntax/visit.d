@@ -98,10 +98,29 @@ public:
             (IntegerNode node)      => this.visit(node, args),
             (CharNode node)         => this.visit(node, args),
             (BinOpNode node)        => this.visit(node, args),
+            (LambdaNode node)       => this.visit(node, args),
+            (CastNode node)       => this.visit(node, args),
             (ExpressionNode node){ throw new AlephException("couldn't visit %s".format(node)); },
         );
         static if(!is(R == void)){
             return R.init;
+        }
+    }
+
+    R visit(ref LambdaNode node, Args args)
+    {
+        this.visit(node.bodyNode, args);
+        static if(!is(R == void)){
+            return R.init;
+        }
+    }
+
+    R visit(ref CastNode node, Args args)
+    {
+        static if(!is(R == void)){
+            return this.visit(node.node, args);
+        }else{
+            this.visit(node.node, args);
         }
     }
 
