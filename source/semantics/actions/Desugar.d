@@ -1,4 +1,4 @@
-module semantics.Desugar;
+module semantics.actions.Desugar;
 
 import std.stdio;
 import std.range;

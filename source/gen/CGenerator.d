@@ -25,7 +25,7 @@ public auto cgenerate(Tuple)(Tuple t, OutputStream outp)
 public auto cgenerate(CProgramNode node, SymbolTable!CSymbol table, OutputStream outp)
 {
     return alephErrorScope("c generator", () =>
-        new CGenerator(table, new OutputBuilder(outp)).apply(node);
+        new CGenerator(table, new OutputBuilder(outp)).apply(node)
     );
 }
 

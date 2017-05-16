@@ -1,4 +1,4 @@
-module semantics.SymbolBuilder;
+module semantics.actions.SymbolBuilder;
 
 import std.typecons;
 import std.string;

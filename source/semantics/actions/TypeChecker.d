@@ -1,4 +1,4 @@
-module semantics.TypeChecker;
+module semantics.actions.TypeChecker;
 
 import semantics;
 import syntax.tree;

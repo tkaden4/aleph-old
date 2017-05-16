@@ -33,14 +33,15 @@ int main(string[] args)
                 Parser.fromFile(args[1])
                       // parse the file
                       .program
+                      // Desugar the tree
+                      .desugar
+                      .buildContexts
                       // build symbols/contexts
                       .buildSymbols
                       // inference all types
                       .resolveTypes
                       // Perform all type checking
                       .checkTypes
-                      // Desugar the tree
-                      .desugar
                       //.then!(x => x[0].toPretty(true).writeln)
                       // transform Aleph AST into C AST
                       .transform

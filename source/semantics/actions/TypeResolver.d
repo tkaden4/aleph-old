@@ -1,4 +1,4 @@
-module semantics.TypeResolver;
+module semantics.actions.TypeResolver;
 
 /* 
  * Performs all type inferencing
