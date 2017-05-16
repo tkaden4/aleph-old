@@ -19,59 +19,29 @@ public ProgramNode desugar(ProgramNode node)
 in {
     assert(node);
 } body {
-    new DesugarVisitor().dispatch(node);
+    new DesugarVisitor().dispatch(node, cast(VarDeclNode)null);
     return node;
 }
 
-/* A few things the Desugarer does: 
- * - Adds ReturnNode to functions without them (implied returns)
- * - transforms IfExpressions into IfStatements that 
- *   assign to a temporary */
-
-
 /* TODO make pure functions */
-private class DesugarVisitor : Visitor!void {
+private class DesugarVisitor : Visitor!(void, VarDeclNode) {
 protected:
-    override void visit(ref ProcDeclNode node)
+    override void visit(ref ProcDeclNode node, VarDeclNode res)
     {
-        // Add a return node
-        node.bodyNode = node.addReturn.use!(
-            x => node.bodyNode.match(
-                     (BlockNode block) => block,
-                     (ExpressionNode sub) => new BlockNode([sub])
-                 )
-        ).then!(x => super.visit(x));
+        node.bodyNode = node.bodyNode.match(
+            (BlockNode node) => node,
+            (ExpressionNode node) => new BlockNode([node])
+        );
+        auto x = (cast(BlockNode)node.bodyNode).children;
+        x.back.match(
+            (StatementNode _) => _,
+            (ExpressionNode exp) => x.back = new ReturnNode(exp)
+        );
+        super.visit(node, res);
+    }
+
+    override void visit(ref IfExpressionNode node, VarDeclNode res)
+    {
+    
     }
 }
-
-
-private auto addReturn(ProcDeclNode pnode)
-{
-    return pnode.bodyNode;
-}
-    /*
-{
-    pnode.bodyNode = pnode.bodyNode.use!(
-        x => x.match(
-            (ReturnNode n) => n,
-            (BlockNode n) =>
-                n.children.use!(x =>
-                    x.back.match(
-                        // No need to return a return node
-                        (ReturnNode sub) => sub,
-                        // Return the last expression
-                        (ExpressionNode sub) => new ReturnNode(sub)
-                    )
-                    // If there is no back
-                    .or(new ReturnNode(null))
-                    .use!(
-                        // append the new node to then end of the body
-                        end => n.children[0..$-1] ~ end
-                    )
-                ).use!(x => cast(ExpressionNode)new BlockNode(x)),
-            (ExpressionNode node) => cast(ExpressionNode)new ReturnNode(node)
-        )
-    );
-    return pnode;
-}
-*/

@@ -41,7 +41,7 @@ int main(string[] args)
                       .checkTypes
                       // Desugar the tree
                       .desugar
-                      //.then!(x => x[0].toPretty.writeln)
+                      //.then!(x => x[0].toPretty(true).writeln)
                       // transform Aleph AST into C AST
                       .transform
                       // generate code
@@ -51,10 +51,10 @@ int main(string[] args)
         );
         return 0;
     }catch(AlephException ex){
-        "alephc error:\n    %s\n".writefln(ex.msg);
+        "alephc error:\n\t%s\n".writefln(ex.msg);
         return 1;
     }catch(Exception ex){
-        "internal error:\n    %s\n".writefln(ex.msg);
+        "internal error:\n\t%s\n".writefln(ex.msg);
         return 1;
     }
 }

@@ -16,6 +16,10 @@ public auto loadLibrary(AlephTable into, in string path)
 {
     import core.stdc.stdlib;
     auto x = getenv("ALEPH_LIB").to!string;
+    if(x == ""){
+        import AlephException;
+        throw new AlephException("ALEPH_LIB not defined");
+    }
     auto newPath = x ~ "/" ~ path ~ ".c";
     return into.then!(x => x.addLibrary(path,
             Parser.fromFile(path)

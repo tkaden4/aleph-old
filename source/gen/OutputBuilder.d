@@ -66,7 +66,7 @@ public struct OutputBuilder {
 
     auto printf(Args...)(in string fmt, Args args)
     {
-        const auto tabs = this.usetabs ? 
+        auto tabs = this.usetabs ? 
                              " ".repeat
                              .take(OutputBuilder.TAB_WIDTH * this.tablevel)
                              .foldOr!"a ~= b"("") :

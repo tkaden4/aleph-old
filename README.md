@@ -17,7 +17,7 @@ It emphasizes ease of use, C compatibility, and efficiency.
 // Import the C IO library
 import std.c.stdio;
 // Main procedure definition
-proc main() -> int = {
+proc main() -> int {
     // call the C puts(const char *) function
     puts("Hello, World!");
     // return 0
@@ -31,7 +31,7 @@ import std.c.stdio
 
 proc hello = "Hello";   // Semicolon is optional, type inferred as \*const char
 
-proc main = {       // Parameters and return type optional
+proc main {       // Parameters and return type optional
     puts(hello())
     0
 }
@@ -41,14 +41,14 @@ proc main = {       // Parameters and return type optional
 <pre>
 proc add_two(a: int) = a + 2
 
-proc map_sum(a: int, b: int, fn: int -> int) = {
+proc map_sum(a: int, b: int, fn: int -> int) {
     if a == b then fn(b)
     else fn(a) + map_sum(a+1, b, fn)
 }
 
 import std.c.stdio;
 
-proc main = {
+proc main {
     printf("%d\n", map_sum(0, 3, add_two))
     0
 }
@@ -63,7 +63,7 @@ struct Point {
     y: long
 }
 
-proc main = {
+proc main {
     let point = Point { x = 0; y = 0 }
     printf("x: %d, y: %d", point.x, point.y)
     0

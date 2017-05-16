@@ -12,7 +12,7 @@ public {
                 return fun();
             }
         }catch(ExceptionName err){
-            throw new ExceptionName("%s error: %s".format(sname, err.msg));
+            throw new ExceptionName("%s error:\n\t%s".format(sname, err.msg));
         }
     }
 

@@ -3,7 +3,7 @@ module syntax.tree.declaration.ProcDeclNode;
 import syntax.tree.ASTNode;
 import syntax.tree.ReturnNode;
 import syntax.tree.expression.ExpressionNode;
-import syntax.tree.expression.StatementNode;
+import syntax.tree.declaration.DeclarationNode;
 
 import semantics.type : Type, FunctionType;
 import syntax.common.routine;
@@ -14,7 +14,7 @@ import std.algorithm;
 import util;
 
 public alias Parameter = ProcDeclNode.Parameter;
-public class ProcDeclNode : StatementNode {
+public class ProcDeclNode : DeclarationNode {
 
     mixin routineNodeClass!(Type, ExpressionNode);
 

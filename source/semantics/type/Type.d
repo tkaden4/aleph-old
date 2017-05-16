@@ -11,10 +11,9 @@ import syntax.print;
 
 import std.string;
 
-public string toPrintable(Type t)
-in {
-    assert(t);
-} body {
+public string toPrintable(const(Type) t)
+{
+    import std.stdio;
     return t.match(
         (PrimitiveType type) => type.primString,
         (PointerType type) => "*" ~ type.type.toPrintable,

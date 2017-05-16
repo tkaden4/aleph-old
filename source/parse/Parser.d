@@ -283,12 +283,10 @@ public:
         {
             auto params = this.parseSepListOf(
                 Token.Type.COMMA,
-                {
-                    auto name = this.match(Token.Type.ID);
-                    this.match(Token.Type.COLON);
-                    auto type = this.parseType;
-                    return Parameter(type, name.lexeme);
-                },
+                { auto name = this.match(Token.Type.ID);
+                  this.match(Token.Type.COLON);
+                  auto type = this.parseType;
+                  return Parameter(type, name.lexeme); },
                 { return this.test(Token.Type.RPAREN); });
             return params;
         }
@@ -356,16 +354,24 @@ public:
             }
             return ret;
         case Token.Type.IMPORT:
-        case Token.Type.STRUCT:
-            return this.structDecl;
+        case Token.Type.STRUCT: return this.structDecl;
         case Token.Type.LET: return this.varDecl;
         default: throw new ParserException("Couldn't parse declaration");
         }
     }
 
-    StatementNode structDecl()
+    auto structDecl()
     {
-        throw new ParserException("structs are currently not supported");
+        this.match(Token.Type.STRUCT);
+        auto name = this.match(Token.Type.ID).lexeme;
+        auto fields = this.parseListOf(Token.Type.LBRACE,
+                                       { auto name = this.match(Token.Type.ID).lexeme;
+                                         this.match(Token.Type.COLON);
+                                         auto type = this.parseType;
+                                         this.optional(Token.Type.ENDSTMT);
+                                         return StructDeclNode.Field(name, type); },
+                                       Token.Type.RBRACE);
+        return new StructDeclNode(name, fields).then!(x => x.writeln);
     }
 
     /* EXTERNAL RULES */

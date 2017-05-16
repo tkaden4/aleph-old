@@ -1,10 +1,10 @@
 module syntax.tree.declaration.VarDeclNode;
 
-import syntax.tree.expression.StatementNode;
+import syntax.tree.declaration.DeclarationNode;
 import syntax.tree.expression.ExpressionNode;
 import syntax.common.variable;
 
-public class VarDeclNode : StatementNode {
+public class VarDeclNode : DeclarationNode {
 public:
     mixin variableClass!(Type, ExpressionNode);
 

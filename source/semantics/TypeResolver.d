@@ -111,12 +111,21 @@ protected:
     {
         super.visit(node.left, table);
         super.visit(node.right, table);
-        if(node.left.resultType.canCast(node.right.resultType)){
-            node.resultType = node.left.resultType;
-        }else if(node.right.resultType.canCast(node.left.resultType)){
-            node.resultType = node.right.resultType;
+
+        auto leftType = node.left.resultType;
+        auto rightType = node.right.resultType;
+
+        if(leftType.canCast(rightType)){
+            node.resultType = leftType;
+        }else if(rightType.canCast(leftType)){
+            node.resultType = rightType;
         }else {
-            throw new AlephException("incompatible types for %s".format(node.toPretty));
+            throw new AlephException("incompatible types %s & %s for \n%s\n%s\n%s"
+                                        .format(leftType.toPrintable,
+                                                rightType.toPrintable,
+                                                node.left.toPretty,
+                                                node.op,
+                                                node.right.toPretty));
         }
     }
 
