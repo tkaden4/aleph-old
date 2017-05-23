@@ -18,13 +18,6 @@ private auto usage()
     stderr.writeln(usage_msg);
 }
 
-class Thing {
-    this()
-    {
-    
-    }
-};
-
 int main(string[] args)
 {
     if(args.length != 2){

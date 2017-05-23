@@ -7,4 +7,9 @@ public {
     import syntax.tree.declaration.StructDeclNode;
     import syntax.tree.declaration.VarDeclNode;
     import syntax.tree.declaration.DeclarationNode;
+
+    auto type(T)(T node)
+    {
+        return node.functionType;
+    }
 }
