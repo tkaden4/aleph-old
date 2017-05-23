@@ -88,18 +88,18 @@ private CStatementNode visit(StatementNode n, AlephTable table)
                                                                  n.type.visit(table),
                                                                  n.name,
                                                                  n.initVal.visit(table)),
-        (ReturnNode n) => cast(CStatementNode)new CReturnNode(n.value.visit(table)),
+        (ReturnNode n) => new CReturnNode(n.value.visit(table))
     );
 }
 
 private CExpressionNode visit(ExpressionNode n, AlephTable table)
 {
     return n.match(
-        (IntegerNode n)    => cast(CExpressionNode)new IntLiteral(n.value),
-        (StringNode n)     => cast(CExpressionNode)new StringLiteral(n.value),
-        (CharNode n)       => cast(CExpressionNode)new CharLiteral(n.value),
-        (IdentifierNode n) => new CIdentifierNode(n.name, n.type.visit(table)),
-        (CallNode n)       => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
+        (IntegerNode n)      => cast(CExpressionNode)new IntLiteral(n.value),
+        (StringNode n)       => cast(CExpressionNode)new StringLiteral(n.value),
+        (CharNode n)         => cast(CExpressionNode)new CharLiteral(n.value),
+        (IdentifierNode n)   => new CIdentifierNode(n.name, n.type.visit(table)),
+        (CallNode n)         => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
         (){ throw new AlephException("could not be converted to C:\n%s".format(n.toPretty)); }
     );
 }

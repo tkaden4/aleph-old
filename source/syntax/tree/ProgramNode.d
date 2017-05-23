@@ -1,14 +1,14 @@
 module syntax.tree.ProgramNode; 
 
 import syntax.tree.ASTNode;
-import syntax.tree.expression.StatementNode;
+import syntax.tree.declaration.DeclarationNode;
 
 public class ProgramNode : ASTNode {
 public:
-    this(StatementNode[] _children)
+    this(DeclarationNode[] _children)
     {
         this.children = _children;
     }
 
-    StatementNode[] children;
+    DeclarationNode[] children;
 };

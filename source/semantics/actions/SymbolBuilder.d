@@ -39,6 +39,11 @@ private class SymbolBuilder : Visitor!(void, AlephTable) {
         });
     }
 
+    override void visit(ref LambdaNode node, AlephTable table)
+    {
+        super.visit(node, table);
+    }
+
     override void visit(ref VarDeclNode node, AlephTable table)
     {
         table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));

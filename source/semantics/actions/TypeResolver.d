@@ -36,26 +36,32 @@ in {
     });
 }
 
+
 private class TypeResolver : Visitor!(void, AlephTable) {
 protected:
-    override void visit(ref VarDeclNode node, AlephTable table)
+    auto evaluateType(N)(N def, Type t, AlephTable table)
     {
-        super.visit(node, table);
-        auto sym = table.find(node.name).err(new Exception("Symbol %s not defined".format(node.name)));
-        sym.type.match(
+        return t.match(
             (UnknownType _){
-                sym.type = node.initVal.resultType;
-                node.type = sym.type;
+                return def.resultType;
             },
             (TypeofType t){
                 if(!t.isResolved){
                     super.visit(t.node, table);
                 }
-                sym.type = t.node.resultType;
-                node.type = sym.type;
+                return t.node.resultType;
             },
             emptyFunc!Type
         );
+    }
+
+    override void visit(ref VarDeclNode node, AlephTable table)
+    {
+        super.visit(node, table);
+        auto sym = table.find(node.name).err(new Exception("Symbol %s not defined".format(node.name)));
+        auto type = this.evaluateType(node.initVal, node.type, table);
+        sym.type = type;
+        node.type = type;
     }
 
     override void visit(ref BlockNode node, AlephTable table)
@@ -80,20 +86,9 @@ protected:
         sym.match(
             (FunctionSymbol f){
                 super.visit(node.bodyNode, f.bodyScope);
-                node.returnType.match(
-                    (UnknownType t){
-                        node.returnType = node.bodyNode.resultType;
-                        sym.type = node.functionType;
-                    },
-                    (TypeofType t){
-                        if(!t.isResolved){
-                            super.visit(t.node, table);
-                        }
-                        node.returnType = t.node.resultType;
-                        sym.type = node.functionType;
-                    },
-                    emptyFunc!Type
-                );
+                auto type = this.evaluateType(node.bodyNode, node.returnType, table);
+                node.returnType = type;
+                sym.type = node.functionType;
             },
             (){ throw new AlephException("no function named %s".format(node.name)); }
         );

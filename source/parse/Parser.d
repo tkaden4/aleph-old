@@ -45,7 +45,7 @@ public:
     auto program()
     {
         try{
-            StatementNode[] res;
+            DeclarationNode[] res;
             while(this.lexer.hasNext){
                 res ~= this.topLevel;
             }
@@ -57,7 +57,7 @@ public:
     }
 
     /* any node at the top level of the file */
-    StatementNode topLevel()
+    DeclarationNode topLevel()
     {
         switch(this.la.type){
         case Token.Type.EXTERN: return this.externRule;
@@ -83,7 +83,7 @@ public:
         this.resultTable.loadLibrary(path);
     }
 
-    StatementNode externRule()
+    DeclarationNode externRule()
     {
         this.advance;
         switch(this.la.type){
@@ -155,7 +155,7 @@ public:
             auto thenexp = this.expression;
             auto elseexp = this.test(Token.Type.ELSE)
                                .use!((x){ this.advance; return this.expression; })
-                               .or(null);
+                               .or(new EmptyExpression);
             return new IfExpressionNode(ifexp, thenexp, elseexp, new UnknownType);
         /* Literals */
         case Token.Type.INTEGER:

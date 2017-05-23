@@ -13,4 +13,5 @@ public {
     import syntax.tree.expression.LambdaNode;
     import syntax.tree.expression.StatementNode;
     import syntax.tree.expression.StringNode;
+    import syntax.tree.expression.EmptyExpression;
 }

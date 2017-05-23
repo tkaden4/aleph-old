@@ -9,39 +9,37 @@ import semantics.symbol;
 import util;
 import syntax.visit.Visitor;
 import syntax.tree;
+import syntax.print;
 
 public auto desugar(Tuple!(ProgramNode, AlephTable) node)
 {
     return tuple(node[0].desugar, node[1]);
 }
 
+import util.meta;
+import std.meta;
+
 public ProgramNode desugar(ProgramNode node)
 in {
     assert(node);
 } body {
-    new DesugarVisitor().dispatch(node, cast(VarDeclNode)null);
+    new DesugarVisitor().dispatch(node);
     return node;
 }
 
-/* TODO make pure functions */
-private class DesugarVisitor : Visitor!(void, VarDeclNode) {
+private class DesugarVisitor : Visitor!void {
 protected:
-    override void visit(ref ProcDeclNode node, VarDeclNode res)
+    override void visit(ref ProcDeclNode node)
     {
         node.bodyNode = node.bodyNode.match(
             (BlockNode node) => node,
             (ExpressionNode node) => new BlockNode([node])
         );
         auto x = (cast(BlockNode)node.bodyNode).children;
-        x.back.match(
-            (StatementNode _) => _,
-            (ExpressionNode exp) => x.back = new ReturnNode(exp)
+        x.back = x.back.match(
+            emptyFunc!StatementNode,
+            (ExpressionNode exp) => new ReturnNode(exp)
         );
-        super.visit(node, res);
+        super.visit(node);
     }
-
-    override void visit(ref IfExpressionNode node, VarDeclNode res)
-    {
-    
-    }
-}
+};
