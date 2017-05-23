@@ -10,6 +10,11 @@ public {
     import util.meta;
     import util.match;
 
+    auto cons(Type, Params...)(Params params)
+    {
+        return new Type(params);
+    }
+
     auto not(T)(T t){
         return !t;
     }

@@ -5,4 +5,6 @@ public {
     import syntax.visitors.DeclarationVisitor;
     import syntax.visitors.VariadicVisitor;
     import syntax.visitors.ExpressionVisitor;
+    // utils
+    import syntax.visitors.util;
 }

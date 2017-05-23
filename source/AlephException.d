@@ -1,7 +1,5 @@
 module AlephException;
 
-import std.exception;
+import util.err;
 
-public class AlephException : Exception {
-    mixin basicExceptionCtors;
-};
+mixin easyException!"AlephException";

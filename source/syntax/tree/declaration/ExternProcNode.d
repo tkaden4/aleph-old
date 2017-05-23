@@ -25,7 +25,7 @@ public class ExternProcNode : DeclarationNode {
 
     override string toString() const
     {
-        return "ExternProc(%s, ret: %s, params: %s, vararg: )".format(this.name,
+        return "ExternProc(%s, ret: %s, params: %s, vararg: %s)".format(this.name,
                                                             this.returnType,
                                                             this.parameterTypes,
                                                             this.isvararg);

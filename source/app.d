@@ -18,6 +18,13 @@ private auto usage()
     stderr.writeln(usage_msg);
 }
 
+class Thing {
+    this()
+    {
+    
+    }
+};
+
 int main(string[] args)
 {
     if(args.length != 2){
@@ -41,6 +48,10 @@ int main(string[] args)
                       .checkTypes
                       // Desugar the tree
                       .desugar
+                      .then!((x){
+                          import syntax.visitors;
+                          programVisitor!declarationVisitor.visit(x[0]);
+                      })
                       // transform Aleph AST into C AST
                       .transform
                       // generate code

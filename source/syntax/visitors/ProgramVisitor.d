@@ -3,13 +3,13 @@ module syntax.visitors.ProgramVisitor;
 import syntax.tree.ProgramNode;
 import syntax.visitors.DeclarationVisitor;
 
-public class ProgramVisitor {
+public class ProgramVisitor(alias getDeclVis) {
 public:
     alias NodeType = ProgramNode;
 
     ProgramNode visit(ProgramNode node)
     {
-        auto visitor = new DeclarationVisitor;
+        auto visitor = getDeclVis();
         foreach(ref x; node.children){
             x = visitor.visit(x);
         }
@@ -17,7 +17,7 @@ public:
     }
 };
 
-public auto programVisitor()
+public auto programVisitor(alias getDecl=declarationVisitor)()
 {
-    return new ProgramVisitor;
+    return new ProgramVisitor!getDecl();
 }
