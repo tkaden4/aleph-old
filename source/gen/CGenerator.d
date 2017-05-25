@@ -15,7 +15,7 @@ import semantics.symbol.SymbolTable;
 import semantics.symbol.Symbol;
 import gen.TypeUtils;
 public import gen.OutputBuilder;
-import AlephException;
+import util.AlephException;
 
 public auto cgenerate(Tuple)(Tuple t, OutputStream outp)
 {

@@ -2,13 +2,15 @@ module syntax.visit.Visitor;
 
 public import syntax.tree;
 import util;
-import AlephException;
 import syntax.print;
 
 import std.range;
 import std.algorithm;
 import std.stdio;
 import std.string;
+
+
+/* TODO moving to new visitor */
 
 public auto ref dispatch(N, R, Args...)(Visitor!(R, Args) vis, N node, Args args)
 {
@@ -99,7 +101,7 @@ public:
             (CharNode node)         => this.visit(node, args),
             (BinOpNode node)        => this.visit(node, args),
             (LambdaNode node)       => this.visit(node, args),
-            (CastNode node)       => this.visit(node, args),
+            (CastNode node)         => this.visit(node, args),
             (ExpressionNode node){ throw new AlephException("couldn't visit %s".format(node)); },
         );
         static if(!is(R == void)){

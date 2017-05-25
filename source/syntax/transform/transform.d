@@ -4,7 +4,6 @@ import syntax.ctree;
 import syntax.tree;
 import semantics;
 import semantics.symbol.Symbol;
-import AlephException;
 import syntax.print;
 
 import std.range;

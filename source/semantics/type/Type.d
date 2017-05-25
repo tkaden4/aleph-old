@@ -5,7 +5,6 @@ public interface Type {
 };
 
 import util;
-import AlephException;
 import semantics.type;
 import syntax.print;
 

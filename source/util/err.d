@@ -1,6 +1,7 @@
 module util.err;
 
 import std.string;
+import util.AlephException;
 
 public {
     mixin template easyException(string name)
@@ -25,7 +26,6 @@ public {
     }
 
     auto alephErrorScope(T)(lazy string sname, T fun){
-        import AlephException;
         static if(is(ReturnType!fun == void)){
             errorScope!AlephException(sname, fun);
         }else{

@@ -3,7 +3,6 @@ module semantics.symbol.AlephTable;
 import semantics.symbol.SymbolTable;
 import semantics.symbol;
 import util;
-import AlephException;
 
 import std.range;
 import std.algorithm;

@@ -2,7 +2,9 @@ module util.meta;
 
 import std.typecons;
 import std.traits;
-import std.meta;
+public import std.meta;
+
+public import util.meta.map;
 
 template ReturnTypes(Args...){
     alias ReturnTypes = staticMap!(ReturnType, Args);
@@ -34,6 +36,8 @@ template emptyFunc(T)
     alias emptyFunc = (T _) => _;
 }
 
+alias identity = emptyFunc;
+
 template FieldsWithNames(T)
     if(isAggregateType!T)
 {
@@ -62,3 +66,32 @@ mixin template Lazy(string vname,
         }");
     };
 };
+
+template Partial(alias T, alias With) {
+    alias Partial = Partial!(T, 0, With);
+};
+
+template Partial(alias T, size_t where, With...) {
+    template Partial(Args...){
+        alias Partial = T!(Insert!(With, where, Args));
+    };
+};
+
+template Insert(alias T, size_t where, Args...){
+    static if(__traits(compiles, T.length)){
+        alias Insert = AliasSeq!(Args[0..where], T, Args[(where + T.length - 1)..$]);
+    }else{
+        alias Insert = AliasSeq!(Args[0..where], T, Args[where..$]);
+    }
+};
+
+/*
+template FoldLeft(alias Apply, Args...)
+{
+    static if(Args.length > 0){
+        alias FoldLeft = Apply!();
+    }else{
+        alias FoldLeft = Apply!(Args[0]);
+    }
+}
+*/

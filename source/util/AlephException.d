@@ -1,4 +1,4 @@
-module AlephException;
+module util.AlephException;
 
 import util.err;
 

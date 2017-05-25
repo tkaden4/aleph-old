@@ -2,7 +2,6 @@ module semantics.type.PrimitiveType;
 
 import semantics.type.Type;
 
-
 public class PrimitiveType : Type {
 public:
     this(PrimitiveType.PType _type)

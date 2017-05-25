@@ -14,7 +14,6 @@ import syntax.tree;
 import syntax.print;
 import semantics;
 import syntax.visit.Visitor;
-import AlephException;
 import util;
 
 public auto resolveTypes(Tuple!(ProgramNode, AlephTable) t)

@@ -9,8 +9,6 @@ import semantics.symbol;
 import semantics.type;
 import syntax.visit.Visitor;
 import util;
-import AlephException;
-
 
 public auto buildSymbols(Tuple!(ProgramNode, AlephTable) t)
 {

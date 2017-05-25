@@ -9,6 +9,7 @@ public {
     import util.err;
     import util.meta;
     import util.match;
+    import util.AlephException;
 
     auto cons(Type, Params...)(Params params)
     {

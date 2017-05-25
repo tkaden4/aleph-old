@@ -5,11 +5,9 @@ import std.range;
 import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
-import AlephException;
 import gen : cgenerate, FileStream;
 import semantics;
-import syntax.transform;
-import syntax.print;
+import syntax;
 import util;
 
 private auto usage()
@@ -41,10 +39,11 @@ int main(string[] args)
                       .checkTypes
                       // Desugar the tree
                       .desugar
-                      .then!((x){
-                          import syntax.visitors;
-                          programVisitor!declarationVisitor.visit(x[0]);
-                      })
+                      .then!(
+                        (x){
+                            SymbolBuilderV2.visit(x[0]);
+                        }
+                      )
                       // transform Aleph AST into C AST
                       .transform
                       // generate code

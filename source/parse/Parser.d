@@ -12,7 +12,6 @@ import std.string;
 import std.typecons;
 import std.range;
 
-import AlephException;
 import util;
 
 
@@ -208,11 +207,9 @@ public:
         auto exp = this.postfixExpression;
         switch(this.la.type){
         case Token.Type.PLUS:
-            this.match(Token.Type.PLUS);
-            return new BinOpNode(exp, this.additiveExpression, "+", new UnknownType);
         case Token.Type.MINUS:
-            this.match(Token.Type.MINUS);
-            return new BinOpNode(exp, this.additiveExpression, "-", new UnknownType);
+            auto op = this.advance.lexeme;
+            return new BinOpNode(exp, this.additiveExpression, op, new UnknownType);
         default: break;
         }
         return exp;
@@ -222,19 +219,19 @@ public:
     {
         auto exp = this.additiveExpression;
         switch(this.la.type){
+        case Token.Type.LTEQ:
+        case Token.Type.GTEQ:
+        case Token.Type.NEQ:
         case Token.Type.EQEQ:
-            this.match(Token.Type.EQEQ);
-            auto x = new BinOpNode(exp, this.equalityExpression, "==", new UnknownType);
-            return x;
+            auto op = this.advance.lexeme;
+            return new BinOpNode(exp, this.equalityExpression, op, new UnknownType);
         default: break;
         }
         return exp;
     }
 
-    auto expression()
-    {
-        return this.equalityExpression;
-    }
+
+    alias expression = this.equalityExpression;
 
     auto statement()
     {
@@ -278,7 +275,7 @@ public:
             this.match(Token.Type.LPAREN);
             auto params = this.parseSepListOf(Token.Type.COMMA,
                                               &this.parseType,
-                                              { return this.test(Token.Type.RPAREN); });
+                                              () => this.test(Token.Type.RPAREN));
             this.match(Token.Type.RPAREN, Token.Type.RARROW);
             return new FunctionType(this.parseType, params);
         default:
@@ -388,10 +385,10 @@ public:
         this.match(Token.Type.LPAREN);
         bool vararg = false;
         auto params = this.parseSepListOf(Token.Type.COMMA,
-                                            &this.parseType,
-                                            () => this.test(Token.Type.VARARG)
-                                                       .if_then!({ this.advance; vararg = true; })
-                                                       .or(vararg || this.test(Token.Type.RPAREN)));
+                                          &this.parseType,
+                                          () => this.test(Token.Type.VARARG)
+                                                    .if_then!({ this.advance; vararg = true; })
+                                                    .or(vararg || this.test(Token.Type.RPAREN)));
         this.match(Token.type.RPAREN, Token.Type.RARROW);
         return new ExternProcNode(name, this.parseType, params, vararg);
     }

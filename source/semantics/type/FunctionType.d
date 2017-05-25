@@ -1,7 +1,7 @@
 module semantics.type.FunctionType;
 
 import semantics.type.Type;
-import AlephException;
+import util.AlephException;
 
 import std.range;
 import std.string;

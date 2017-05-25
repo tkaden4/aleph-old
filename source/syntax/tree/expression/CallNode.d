@@ -7,8 +7,8 @@ import util.match;
 public class CallNode : ExpressionNode {
     this(ExpressionNode toCall, ExpressionNode[] args)
     {
-        this.call = toCall;
-        this.args = args;
+        this.toCall = toCall;
+        this.arguments = args;
         this.type = toCall.resultType.match(
             (FunctionType f) => f.returnType,
             (Type t)         => new UnknownType
@@ -17,7 +17,7 @@ public class CallNode : ExpressionNode {
 
     invariant
     {
-        assert(this.call !is null, "tocall is null");
+        assert(this.toCall !is null, "tocall is null");
     }
 
     override @property Type resultType()
@@ -30,33 +30,14 @@ public class CallNode : ExpressionNode {
         this.type = t;
     }
 
-    @property auto toCall()
-    {
-        return this.call;
-    }
-
-    @property void toCall(ExpressionNode to)
-    {
-        this.call = to;
-    }
-
-    @property auto arguments()
-    {
-        return this.args;
-    }
-
-    @property void arguments(ExpressionNode[] n)
-    {
-        this.args = n;
-    }
-
     override string toString() const
     {
         import std.string;
-        return "Call(%s, %s, %s)".format(this.call, this.type, this.args);
+        return "Call(%s, %s, %s)".format(this.toCall, this.type, this.arguments);
     }
+
+    ExpressionNode toCall;
+    ExpressionNode[] arguments;
 private:
     Type type;
-    ExpressionNode call;
-    ExpressionNode[] args;
 };

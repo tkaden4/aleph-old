@@ -3,7 +3,6 @@ module semantics.actions.TypeChecker;
 import semantics;
 import syntax.tree;
 import syntax.visit.Visitor;
-import AlephException;
 import util;
 import syntax.print;
 
