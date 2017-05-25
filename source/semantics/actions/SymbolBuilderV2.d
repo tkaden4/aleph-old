@@ -1,44 +1,46 @@
 module semantics.actions.SymbolBuilderV2;
 
 import syntax.visitors;
+import semantics;
 
 import std.stdio;
 
-template SymbolBuilderProvider(alias Provider, T: VarDeclNode) {
-    public T visit(T t)
+
+template SymbolBuilderProvider(alias Provider, Args...){
+    auto visit(VarDeclNode node, AlephTable table)
     {
-        "visiting VarDecl".writeln;
-        return t;
+        "visiting vardecl".writeln;
+        return node;
     }
-};
 
-template SymbolBuilderProvider(alias Provider, T: ProcDeclNode) {
-    public T visit(T t)
+    auto visit(ProcDeclNode node, AlephTable table)
     {
-        "visiting ProcDecl".writeln;
-        t.bodyNode = Provider!(Provider, typeof(t.bodyNode)).visit(t.bodyNode);
-        return t;
+        "visiting procdecl".writeln;
+        return node;
     }
-};
 
-template SymbolBuilderProvider(alias Provider, T: ExternProcNode) {
-    public T visit(T t)
+    auto visit(ExternProcNode node, AlephTable table)
     {
-        "visitin extern proc".writeln;
-        return t;
+        "visiting externproc".writeln;
+        return node;
     }
-};
 
-template SymbolBuilderProvider(alias Provider, T: LambdaNode) {
-    public T visit(T t)
+    auto visit(LambdaNode node, AlephTable table)
     {
-        "visitin lambda node".writeln;
-        return t;
+        "visiting lambdanode".writeln;
+        return node;
     }
-};
 
-template SymbolBuilderProvider(alias Provider, T) {
-    alias SymbolBuilderProvider = DefaultProvider!(Provider, T);
-};
+    T visit(T)(T t, Args args)
+    {
+        return DefaultProvider!(Provider, Args).visit(t, args);
+    }
+}
 
-public alias SymbolBuilderV2 = DefaultProvider!(SymbolBuilderProvider, ProgramNode);
+public auto buildSymbolsV2(ProgramNode node)
+{
+    import std.typecons;
+    auto table = new AlephTable("Global Table");
+    node = DefaultProvider!(SymbolBuilderProvider, AlephTable).visit(node, table);
+    return tuple(node, table);
+}

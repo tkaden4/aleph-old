@@ -67,13 +67,13 @@ mixin template Lazy(string vname,
     };
 };
 
-template Partial(alias T, alias With) {
-    alias Partial = Partial!(T, 0, With);
+template PartialApp(alias T, alias With) {
+    alias PartialApp = PartialApp!(T, 0, With);
 };
 
-template Partial(alias T, size_t where, With...) {
-    template Partial(Args...){
-        alias Partial = T!(Insert!(With, where, Args));
+template PartialApp(alias T, size_t where, With...) {
+    template PartialApp(Args...){
+        alias PartialApp = T!(Insert!(With, where, Args));
     };
 };
 

@@ -41,7 +41,7 @@ int main(string[] args)
                       .desugar
                       .then!(
                         (x){
-                            SymbolBuilderV2.visit(x[0]);
+                            x[0].buildSymbolsV2();
                         }
                       )
                       // transform Aleph AST into C AST
