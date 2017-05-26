@@ -15,6 +15,6 @@ public class ExternImportNode : DeclarationNode {
 
     override string toString()
     {
-        return "Import(%s)".format(this.file);
+        return "ExternImport(%s)".format(this.file);
     }
 };

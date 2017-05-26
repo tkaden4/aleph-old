@@ -10,8 +10,8 @@ import std.traits;
 import std.stdio;
 import std.string;
 
-template DefaultProvider(alias Provider,  Args...) {
-
+template DefaultProvider(alias Provider,  Args...)
+{
     alias P = Provider!(Provider, Args);
 
     ProgramNode visit(ProgramNode t, Args args)
@@ -25,10 +25,12 @@ template DefaultProvider(alias Provider,  Args...) {
     DeclarationNode visit(DeclarationNode t, Args args)
     {
         return t.match(
+            (StructDeclNode node) => P.visit(node, args),
             (VarDeclNode node)    => P.visit(node, args),
             (ProcDeclNode node)   => P.visit(node, args),
             (ExternProcNode node) => P.visit(node, args),
             (LambdaNode node)     => P.visit(node, args),
+            (ExternImportNode node)   => P.visit(node, args),
             (){ throw new AlephException("Couldnt visit declaration %s".format(t)); }
         );
     }
@@ -52,8 +54,44 @@ template DefaultProvider(alias Provider,  Args...) {
             (IntegerNode node)     => cast(ExpressionNode)P.visit(node, args),
             (IdentifierNode node)  => P.visit(node, args),
             (CallNode node)        => P.visit(node, args),
+            (BinOpNode node)       => P.visit(node, args),
+            (CastNode node)        => P.visit(node, args),
+            (IfExpressionNode node)          => P.visit(node, args),
             (){ throw new AlephException("Could not visit expression %s".format(t)); }
         );
+    }
+
+    BinOpNode visit(BinOpNode node, Args args)
+    {
+        node.left = P.visit(node.left, args);
+        node.right = P.visit(node.right, args);
+        return node;
+    }
+
+    IfExpressionNode visit(IfExpressionNode node, Args args)
+    {
+        node.ifexp = P.visit(node.ifexp, args);
+        node.thenexp = P.visit(node.thenexp, args);
+        if(node.elseexp){
+            node.elseexp = P.visit(node.elseexp, args);
+        }
+        return node;
+    }
+
+    CastNode visit(CastNode node, Args args)
+    {
+        node.node = P.visit(node.node, args);
+        return node;
+    }
+
+    StructDeclNode visit(StructDeclNode node, Args args)
+    {
+        return node;
+    }
+
+    ExternImportNode visit(ExternImportNode node, Args args)
+    {
+        return node;
     }
 
     ReturnNode visit(ReturnNode node, Args args)
@@ -122,7 +160,8 @@ template DefaultProvider(alias Provider,  Args...) {
     }
 };
 
-template ComposedProvider(U, Providers...){
+template ComposedProvider(U, Providers...)
+{
     /* the new provider */
     template ComposedProvider(alias Provider, Args...){
         /* the actual visitor function */
@@ -157,7 +196,8 @@ template MultiProvider(alias Provider, T, Providers...) {
 */
 
 // create a provider from a a function
-template FunctionProvider(alias Provider, T, alias fun) {
+template FunctionProvider(alias Provider, T, alias fun)
+{
     template FunctionProvider(alias Prov, Args...){
         T visit(T t, Args args)
         {
