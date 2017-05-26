@@ -1,6 +1,5 @@
 module syntax.print;
 
-import syntax.visit.Visitor;
 import semantics.type;
 import gen.OutputBuilder;
 import util;
@@ -11,12 +10,13 @@ import std.algorithm;
 
 public auto ref toPretty(T)(T node, bool types=false)
 {
-    auto x = new PrettifyVisitor(types);
+ //   auto x = new PrettifyVisitor(types);
     string res = "";
-    x.dispatch(node, new OutputBuilder(new StringStream(res)));
+//    x.dispatch(node, new OutputBuilder(new StringStream(res)));
     return res;
 }
 
+/*
 
 private class PrettifyVisitor : Visitor!(void, OutputBuilder*) {
 private:
@@ -183,3 +183,4 @@ protected:
         }
     }
 };
+*/

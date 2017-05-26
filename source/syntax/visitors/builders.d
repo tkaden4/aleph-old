@@ -11,10 +11,13 @@ import std.stdio;
 import std.string;
 
 template DefaultProvider(alias Provider,  Args...) {
+
+    alias P = Provider!(Provider, Args);
+
     ProgramNode visit(ProgramNode t, Args args)
     {
         foreach(ref x; t.children){
-            x = Provider!(Provider, Args).visit(x, args);
+            x = P.visit(x, args);
         }
         return t;
     }
@@ -22,34 +25,48 @@ template DefaultProvider(alias Provider,  Args...) {
     DeclarationNode visit(DeclarationNode t, Args args)
     {
         return t.match(
-            (VarDeclNode node)    => Provider!(Provider, Args).visit(node, args),
-            (ProcDeclNode node)   => Provider!(Provider, Args).visit(node, args),
-            (ExternProcNode node) => Provider!(Provider, Args).visit(node, args),
-            (LambdaNode node)     => Provider!(Provider, Args).visit(node, args),
+            (VarDeclNode node)    => P.visit(node, args),
+            (ProcDeclNode node)   => P.visit(node, args),
+            (ExternProcNode node) => P.visit(node, args),
+            (LambdaNode node)     => P.visit(node, args),
             (){ throw new AlephException("Couldnt visit declaration %s".format(t)); }
+        );
+    }
+
+    StatementNode visit(StatementNode node, Args args)
+    {
+        return node.match(
+            (DeclarationNode node) => P.visit(node, args),
+            (ReturnNode node)      => P.visit(node, args),
+            (){ throw new AlephException("Could not visit statement %s".format(node)); }
         );
     }
 
     ExpressionNode visit(ExpressionNode t, Args args)
     {
         return t.match(
-            (DeclarationNode node) => node.visit(args),
-            (StatementNode node)   => node.visit(args),
-            (BlockNode node)       => node.visit(args),
-            (StringNode node)      => cast(ExpressionNode)node.visit(args),
-            (CharNode node)        => cast(ExpressionNode)node.visit(args),
-            (IntegerNode node)     => cast(ExpressionNode)node.visit(args),
-            (IdentifierNode node)  => node.visit(args),
-            (CallNode node)        => node.visit(args),
+            (StatementNode node)   => P.visit(node, args),
+            (BlockNode node)       => P.visit(node, args),
+            (StringNode node)      => cast(ExpressionNode)P.visit(node, args),
+            (CharNode node)        => cast(ExpressionNode)P.visit(node, args),
+            (IntegerNode node)     => cast(ExpressionNode)P.visit(node, args),
+            (IdentifierNode node)  => P.visit(node, args),
+            (CallNode node)        => P.visit(node, args),
             (){ throw new AlephException("Could not visit expression %s".format(t)); }
         );
     }
 
+    ReturnNode visit(ReturnNode node, Args args)
+    {
+        node.value = P.visit(node.value, args);
+        return node;
+    }
+
     CallNode visit(CallNode node, Args args)
     {
-        node.toCall = node.toCall.visit(args);
+        node.toCall = P.visit(node.toCall, args);
         foreach(ref x; node.arguments){
-            x = x.visit(args);
+            x = P.visit(x, args);
         }
         return node;
     }
@@ -77,14 +94,31 @@ template DefaultProvider(alias Provider,  Args...) {
     BlockNode visit(BlockNode node, Args args)
     {
         foreach(ref x; node.children){
-            x = x.visit(args);
+            x = P.visit(x, args);
         }
         return node;
     }
 
-    T visit(T)(T t, Args args)
+    VarDeclNode visit(VarDeclNode node, Args args)
     {
-        static assert(false, "You must provide a visitor for %s".format(T.stringof));
+        node.initVal = P.visit(node.initVal, args);
+        return node;
+    }
+
+    ExternProcNode visit(ExternProcNode node, Args args)
+    {
+        return node;
+    }
+
+    LambdaNode visit(LambdaNode node, Args args)
+    {
+        return node;
+    }
+
+    ProcDeclNode visit(ProcDeclNode node, Args args)
+    {
+        node.bodyNode = P.visit(node.bodyNode, args);
+        return node;
     }
 };
 

@@ -1,10 +1,8 @@
 module semantics.actions.TypeChecker;
 
 import semantics;
-import syntax.tree;
-import syntax.visit.Visitor;
+import syntax;
 import util;
-import syntax.print;
 
 import std.typecons;
 import std.range;
@@ -15,7 +13,7 @@ import std.stdio;
 public auto checkTypes(Tuple!(ProgramNode, AlephTable) t)
 {
     return alephErrorScope("type checker", {
-        new TypeCheckerVisitor().dispatch(t[0]);
+        t[0] = TypeCheckProvider!(TypeCheckProvider).visit(t[0]);
         return t;
     });
 }
@@ -37,20 +35,22 @@ private void checkCast(Type a, Type b, string extra="")
     a.canCast(b).err(new AlephException("couldn't cast %s to %s, %s".format(a, b, extra)));
 }
 
-private class TypeCheckerVisitor : Visitor!void {
-    override void visit(ref ProcDeclNode node)
+template TypeCheckProvider(alias Provider, Args...) {
+    ProcDeclNode visit(ProcDeclNode node)
     {
-        super.visit(node);
+        node = DefaultProvider!(Provider).visit(node);
         node.returnType.checkCast(node.bodyNode.resultType, "in function \n%s".format(node.toPretty));
+        return node;
     }
 
-    override void visit(ref VarDeclNode node)
+    VarDeclNode visit(VarDeclNode node)
     {
-        super.visit(node);
+        node = DefaultProvider!(Provider).visit(node);
         node.type.checkCast(node.initVal.resultType, "in variable \n%s".format(node.toPretty(true)));
+        return node;
     }
 
-    override void visit(ref CallNode node)
+    CallNode visit(CallNode node)
     {
         auto funtype = node.toCall.resultType.match(
             (FunctionType f) => f,
@@ -74,5 +74,11 @@ private class TypeCheckerVisitor : Visitor!void {
         foreach(a; zipped){
             checkCast(a[0], a[1]);
         }
+        return node;
+    }
+
+    T visit(T)(T t)
+    {
+        return DefaultProvider!(Provider).visit(t);
     }
 };

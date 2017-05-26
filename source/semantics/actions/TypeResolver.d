@@ -10,10 +10,8 @@ import std.algorithm;
 import std.stdio;
 import std.string;
 
-import syntax.tree;
-import syntax.print;
+import syntax;
 import semantics;
-import syntax.visit.Visitor;
 import util;
 
 public auto resolveTypes(Tuple!(ProgramNode, AlephTable) t)
@@ -30,15 +28,15 @@ in {
     assert(t[1]);
 } body {
     return alephErrorScope("type resolver", {
-        new TypeResolver().dispatch(node, table);
+        node = TypeResolveProvider!(TypeResolveProvider, AlephTable).visit(node, table);
         return tuple(node, table);
     });
 }
 
 
-private class TypeResolver : Visitor!(void, AlephTable) {
-protected:
-    auto evaluateType(N)(N def, Type t, AlephTable table)
+template TypeResolveProvider(alias Provider, Args...)
+{
+    Type evaluateType(N)(N def, Type t, AlephTable table)
     {
         return t.match(
             (UnknownType _){
@@ -46,7 +44,7 @@ protected:
             },
             (TypeofType t){
                 if(!t.isResolved){
-                    super.visit(t.node, table);
+                    t.node = t.node.visit(table);
                 }
                 return t.node.resultType;
             },
@@ -54,49 +52,53 @@ protected:
         );
     }
 
-    override void visit(ref VarDeclNode node, AlephTable table)
+    VarDeclNode visit(VarDeclNode node, AlephTable table)
     {
-        super.visit(node, table);
+        node = DefaultProvider!(Provider, Args).visit(node, table);
         auto sym = table.find(node.name).err(new Exception("Symbol %s not defined".format(node.name)));
-        auto type = this.evaluateType(node.initVal, node.type, table);
+        auto type = evaluateType(node.initVal, node.type, table);
         sym.type = type;
         node.type = type;
+        return node;
     }
 
-    override void visit(ref BlockNode node, AlephTable table)
+    BlockNode visit(BlockNode node, AlephTable table)
     {
-        super.visit(node, table);
+        node = DefaultProvider!(Provider, Args).visit(node, table);
         node.resultType = node.children.back.use!(x => x.resultType).or(PrimitiveType.Void);
+        return node;
     }
 
-    override void visit(ref IfExpressionNode node, AlephTable table)
+    IfExpressionNode visit(IfExpressionNode node, AlephTable table)
     {
-        super.visit(node.ifexp, table);
-        super.visit(node.thenexp, table);
+        node.ifexp = node.ifexp.visit(table);
+        node.thenexp = node.thenexp.visit(table);
         if(node.elseexp){
-            super.visit(node.elseexp, table);
+            node.elseexp = node.elseexp.visit(table);
         }
         node.resultType = node.thenexp.resultType;
+        return node;
     }
 
-    override void visit(ref ProcDeclNode node, AlephTable table)
+    ProcDeclNode visit(ProcDeclNode node, AlephTable table)
     {
         auto sym = table.find(node.name).err(new AlephException("Function %s not defined".format(node.name)));
         sym.match(
             (FunctionSymbol f){
-                super.visit(node.bodyNode, f.bodyScope);
-                auto type = this.evaluateType(node.bodyNode, node.returnType, table);
+                node.bodyNode = node.bodyNode.visit(f.bodyScope);
+                auto type = evaluateType(node.bodyNode, node.returnType, table);
                 node.returnType = type;
                 sym.type = node.functionType;
             },
             (){ throw new AlephException("no function named %s".format(node.name)); }
         );
+        return node;
     }
 
-    override void visit(ref BinOpNode node, AlephTable table)
+    BinOpNode visit(BinOpNode node, AlephTable table)
     {
-        super.visit(node.left, table);
-        super.visit(node.right, table);
+        node.left = node.left.visit(table);
+        node.right = node.right.visit(table);
 
         auto leftType = node.left.resultType;
         auto rightType = node.right.resultType;
@@ -113,16 +115,12 @@ protected:
                                                 node.op,
                                                 node.right.toPretty));
         }
+        return node;
     }
 
-    override void visit(ref CallNode node, AlephTable table)
+    CallNode visit(CallNode node, AlephTable table)
     {
-        auto x = node.toCall;
-        super.visit(x, table);
-        node.toCall = x;
-        foreach(arg; node.arguments){
-            super.visit(arg, table);
-        }
+        node = DefaultProvider!(Provider, Args).visit(node, table);
         node.resultType = node.resultType.match(
             (UnknownType _) =>
                 node.toCall.resultType.match(
@@ -133,27 +131,34 @@ protected:
             ,
             (TypeofType t){
                 if(!t.isResolved){
-                    super.visit(t.node, table);
+                    t.node = t.node.visit(table);
                 }
                 return t.node.resultType;
             },
             emptyFunc!Type
         );
+        return node;
     }
 
-    override void visit(ref IdentifierNode node, AlephTable table)
+    IdentifierNode visit(IdentifierNode node, AlephTable table)
     {
         auto sym = table.find(node.name).err(new AlephException("identifier %s not defined".format(node.name)));
         node.resultType.match(
             (UnknownType t) => node.resultType = sym.type, 
             (TypeofType t){
                 if(!t.isResolved){
-                    super.visit(t.node, table);
+                    t.node = t.node.visit(table);
                 }
                 sym.type = t.node.resultType;
                 node.resultType = sym.type;
             },
             emptyFunc!Type
         );
+        return node;
+    }
+
+    T visit(T)(T t, Args args)
+    {
+        return cast(T)DefaultProvider!(Provider, Args).visit(t, args);
     }
 };

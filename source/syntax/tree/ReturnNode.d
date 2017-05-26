@@ -7,19 +7,14 @@ public class ReturnNode : StatementNode {
 public:
     this(ExpressionNode v)
     {
-        this._value = v;
-    }
-
-    @property auto value()
-    {
-        return this._value;
+        this.value = v;
     }
 
     override string toString() const
     {
         import std.string;
-        return "ReturnNode(%s)".format(this._value);
+        return "ReturnNode(%s)".format(this.value);
     }
-private:
-    ExpressionNode _value;
+
+    ExpressionNode value;
 };
