@@ -39,11 +39,6 @@ int main(string[] args)
                       .checkTypes
                       // Desugar the tree
                       .desugar
-                      .then!(
-                        (x){
-                            x[0].buildSymbolsV2();
-                        }
-                      )
                       // transform Aleph AST into C AST
                       .transform
                       // generate code

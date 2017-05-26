@@ -1,27 +1,28 @@
 module semantics.actions.SymbolBuilder;
 
-import std.typecons;
-import std.string;
-import std.algorithm;
-import std.range;
-
-import semantics.symbol;
-import semantics.type;
-import syntax.visit.Visitor;
+import syntax.visitors;
+import semantics;
 import util;
 
-public auto buildSymbols(Tuple!(ProgramNode, AlephTable) t)
-{
-    return alephErrorScope("symbol builder", {
-        new SymbolBuilder().dispatch(t[0], t[1]);
-        return t;
-    });
-}
+import std.stdio;
+import std.string;
+import std.typecons;
+import std.range;
+import std.algorithm;
 
-private class SymbolBuilder : Visitor!(void, AlephTable) {
-    override void visit(ref ProcDeclNode node, AlephTable table)
+
+template SymbolBuilderProvider(alias Provider, Args...){
+    VarDeclNode visit(VarDeclNode node, AlephTable table)
     {
-        alephErrorScope("in function " ~ node.name, {
+        table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));
+        table.insert(node.name, new VarSymbol(node.name, node.type, table));
+        node.initVal.visit(table);
+        return node;
+    }
+
+    ProcDeclNode visit(ProcDeclNode node, AlephTable table)
+    {
+        return alephErrorScope("in function " ~ node.name, {
             auto name = node.name;
             table.find(name).not.err(new AlephException("symbol %s already defined".format(name)));
             /* create the function's symbol table */
@@ -33,26 +34,33 @@ private class SymbolBuilder : Visitor!(void, AlephTable) {
             auto funSymbol = new FunctionSymbol(name, node.functionType, funTable, false);
             /* add the funciton to the symbol table */
             table.insert(name, funSymbol);
-            super.visit(node, table);
+            node.bodyNode.visit(table);
+            return node;
         });
     }
 
-    override void visit(ref LambdaNode node, AlephTable table)
-    {
-        super.visit(node, table);
-    }
-
-    override void visit(ref VarDeclNode node, AlephTable table)
-    {
-        table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));
-        table.insert(node.name, new VarSymbol(node.name, node.type, table));
-        super.visit(node, table);
-    }
-
-    override void visit(ref ExternProcNode node, AlephTable table)
+    ExternProcNode visit(ExternProcNode node, AlephTable table)
     {
         table.find(node.name).not.err(new AlephException("symbol %s defined".format(node.name)));
         table.insert(node.name, new FunctionSymbol(node.name, node.functionType, table, true));
-
+        return node;
     }
-};
+
+    LambdaNode visit(LambdaNode node, AlephTable table)
+    {
+        return node;
+    }
+
+    T visit(T)(T t, Args args)
+    {
+        return DefaultProvider!(Provider, Args).visit(t, args);
+    }
+}
+
+public auto buildSymbols(Tuple!(ProgramNode, AlephTable) tup)
+{
+    return alephErrorScope("symbol builder", {
+        auto node = SymbolBuilderProvider!(SymbolBuilderProvider, AlephTable).visit(tup[0], tup[1]);
+        return tuple(node, tup[1]);
+    });
+}
