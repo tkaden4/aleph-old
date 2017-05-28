@@ -10,7 +10,7 @@ import std.algorithm;
 import std.string;
 import std.stdio;
 
-public auto checkTypes(Tuple!(ProgramNode, AlephTable) t)
+public auto checkTypes(Tuple!(Program, AlephTable) t)
 {
     return alephErrorScope("type checker", {
         t[0] = TypeCheckProvider!(TypeCheckProvider).visit(t[0]);
@@ -36,21 +36,21 @@ private void checkCast(Type a, Type b, string extra="")
 }
 
 template TypeCheckProvider(alias Provider, Args...) {
-    ProcDeclNode visit(ProcDeclNode node)
+    ProcDecl visit(ProcDecl node)
     {
         node = DefaultProvider!(Provider).visit(node);
         node.returnType.checkCast(node.bodyNode.resultType, "in function \n%s".format(node.toPretty));
         return node;
     }
 
-    VarDeclNode visit(VarDeclNode node)
+    VarDecl visit(VarDecl node)
     {
         node = DefaultProvider!(Provider).visit(node);
         node.type.checkCast(node.initVal.resultType, "in variable \n%s".format(node.toPretty(true)));
         return node;
     }
 
-    CallNode visit(CallNode node)
+    Call visit(Call node)
     {
         auto funtype = node.toCall.resultType.match(
             (FunctionType f) => f,

@@ -19,34 +19,34 @@ alias CSymbolTable = SymbolTable!CSymbol;
 /* Transform the Aleph AST into the C AST, for 
  * improved error checking and code generation */
 
-public auto transform(Tuple!(ProgramNode, AlephTable) t)
+public auto transform(Tuple!(Program, AlephTable) t)
 {
     return t.expand.transform;
 }
 
-public auto transform(ProgramNode node, AlephTable tab)
+public auto transform(Program node, AlephTable tab)
 {
     return alephErrorScope("tree transformer", {
         return node.visit(tab);
     });
 }
 
-private auto visit(ProgramNode node, AlephTable tab)
+private auto visit(Program node, AlephTable tab)
 {
     auto table = new CSymbolTable;
     CTopLevelNode[] top = [];
     foreach(n; node.children){
         n.match(
-            (ProcDeclNode proc){
+            (ProcDecl proc){
                 top ~= proc.visit(table, tab);
             },
-            (ExternImportNode node){
+            (ExternImport node){
                 top.insertInPlace(0, new CPreprocessorNode("include<%s>".format(node.file)));
             },
-            (ExternProcNode node){
+            (ExternProc node){
                 top ~= node.visit(table, tab);
             },
-            () => new AlephException("Invalid Top-Level Declaration").raise
+            () => new AlephException("Invalid Top-Level Declaration\n\t%s".format(n)).raise
         );
     }
     foreach(x; tab.libraryPaths){
@@ -55,7 +55,7 @@ private auto visit(ProgramNode node, AlephTable tab)
     return tuple(new CProgramNode(top), table);
 }
 
-private auto visit(ExternProcNode node, CSymbolTable ctable, AlephTable table)
+private auto visit(ExternProc node, CSymbolTable ctable, AlephTable table)
 {
     return new CExternFuncNode(node.name,
                                node.returnType.visit(table),
@@ -63,15 +63,15 @@ private auto visit(ExternProcNode node, CSymbolTable ctable, AlephTable table)
                                node.isvararg);
 }
 
-private auto visit(ProcDeclNode node, CSymbolTable ctable, AlephTable table)
+private auto visit(ProcDecl node, CSymbolTable ctable, AlephTable table)
 {
     import std.conv;
     CStatementNode[] bod_s;
     auto ret_type = node.returnType.visit(table);
     auto params = node.parameters.map!(x => CParameter(x.name, x.type.visit(table))).array;
-    node.bodyNode.to!BlockNode.children.each!(x => x.match(
-        (StatementNode n) => bod_s ~= cast(CStatementNode)n.visit(table),
-        (ExpressionNode n) => bod_s ~= cast(CStatementNode)n.visit(table)
+    node.bodyNode.to!Block.children.each!(x => x.match(
+        (Statement n) => bod_s ~= cast(CStatementNode)n.visit(table),
+        (Expression n) => bod_s ~= cast(CStatementNode)n.visit(table)
     ));
     auto bod = new CBlockStatementNode(bod_s);
     return new CFuncDeclNode(CStorageClass.EXTERN, 
@@ -80,25 +80,25 @@ private auto visit(ProcDeclNode node, CSymbolTable ctable, AlephTable table)
 }
 
 
-private CStatementNode visit(StatementNode n, AlephTable table)
+private CStatementNode visit(Statement n, AlephTable table)
 {
     return n.match(
-        (VarDeclNode n) => cast(CStatementNode)new CVarDeclNode(CStorageClass.AUTO,
+        (VarDecl n) => cast(CStatementNode)new CVarDeclNode(CStorageClass.AUTO,
                                                                  n.type.visit(table),
                                                                  n.name,
                                                                  n.initVal.visit(table)),
-        (ReturnNode n) => new CReturnNode(n.value.visit(table))
+        (Return n) => new CReturnNode(n.value.visit(table))
     );
 }
 
-private CExpressionNode visit(ExpressionNode n, AlephTable table)
+private CExpressionNode visit(Expression n, AlephTable table)
 {
     return n.match(
-        (IntegerNode n)      => cast(CExpressionNode)new IntLiteral(n.value),
-        (StringNode n)       => cast(CExpressionNode)new StringLiteral(n.value),
-        (CharNode n)         => cast(CExpressionNode)new CharLiteral(n.value),
-        (IdentifierNode n)   => new CIdentifierNode(n.name, n.type.visit(table)),
-        (CallNode n)         => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
+        (IntPrimitive n)    => cast(CExpressionNode)new IntLiteral(n.value),
+        (StringPrimitive n) => cast(CExpressionNode)new StringLiteral(n.value),
+        (CharPrimitive n)   => cast(CExpressionNode)new CharLiteral(n.value),
+        (Identifier n)   => new CIdentifierNode(n.name, n.resultType.visit(table)),
+        (Call n)            => new CCallNode(n.toCall.visit(table), n.arguments.map!(x => x.visit(table)).array),
         (){ throw new AlephException("could not be converted to C:\n%s".format(n.toPretty)); }
     );
 }

@@ -1,14 +1,14 @@
-module syntax.tree.declaration.ExternProcNode;
+module syntax.tree.declaration.ExternProc;
 
 import semantics.type;
-import syntax.tree.expression.StatementNode;
-import syntax.tree.declaration.DeclarationNode;
+import syntax.tree.expression.Statement;
+import syntax.tree.declaration.Declaration;
 import syntax.common.routine;
 
 import util;
 import std.string;
 
-public class ExternProcNode : DeclarationNode {
+public class ExternProc : Declaration {
 
     this(string name, Type type, Type[] params, bool isvararg=false)
     {

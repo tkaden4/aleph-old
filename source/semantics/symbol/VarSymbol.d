@@ -8,7 +8,7 @@ public class VarSymbol : NamedSymbol {
     this(string _name, Type _type, AlephTable _upper)
     {
         super(_name, _type);
-        this.enclosing_scope = _upper;
+        this.enclosingScope = _upper;
     }
 
     override string toString()
@@ -16,6 +16,6 @@ public class VarSymbol : NamedSymbol {
         import std.string;
         return "VarSym(%s, %s)".format(this.name, this.type);
     }
-private:
-    AlephTable enclosing_scope;
+
+    AlephTable enclosingScope;
 };

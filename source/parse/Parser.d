@@ -44,11 +44,11 @@ public:
     auto program()
     {
         try{
-            DeclarationNode[] res;
+            Declaration[] res;
             while(this.lexer.hasNext){
                 res ~= this.topLevel;
             }
-            return tuple(new ProgramNode(res), this.resultTable);
+            return tuple(new Program(res), this.resultTable);
         }catch(ParserException e){
             throw new AlephException("parser error [%s, %s, %s] : %s"
                                 .format(this.la.location.filename, this.la.location.line_no, this.la.location.col_no, e.msg));
@@ -56,7 +56,7 @@ public:
     }
 
     /* any node at the top level of the file */
-    DeclarationNode topLevel()
+    Declaration topLevel()
     {
         switch(this.la.type){
         case Token.Type.EXTERN: return this.externRule;
@@ -82,7 +82,7 @@ public:
         this.resultTable.loadLibrary(path);
     }
 
-    DeclarationNode externRule()
+    Declaration externRule()
     {
         this.advance;
         switch(this.la.type){
@@ -93,18 +93,18 @@ public:
         }
     }
 
-    ExpressionNode literalExpression()
+    Expression literalExpression()
     {
         import std.conv;
         switch(this.la.type){
         case Token.Type.INTEGER:
             return this.match(Token.Type.INTEGER)
-                       .use!(x => new IntegerNode(x.lexeme.to!int));
+                       .use!(x => new IntPrimitive(x.lexeme.to!int));
         case Token.Type.CHAR:
             return this.match(Token.Type.CHAR)
-                       .use!(x => new CharNode(x.lexeme[1..$-1].to!char));
+                       .use!(x => new CharPrimitive(x.lexeme[1..$-1].to!char));
         case Token.Type.STRING:
-            return new StringNode(this.advance.lexeme[1..$-1]);
+            return new StringPrimitive(this.advance.lexeme[1..$-1]);
         default:
             throw new ParserException("invalid literal \"%s\"", this.la.lexeme);
         }
@@ -124,7 +124,7 @@ public:
 
     /* EXPRESSIONS */
 
-    ExpressionNode primaryExpression()
+    Expression primaryExpression()
     {
         switch(this.la.type){
         /* lambda */
@@ -132,11 +132,11 @@ public:
             this.advance;
             auto params = this.typedParameterList(Token.Type.RARROW);
             this.match(Token.Type.RARROW);
-            return new LambdaNode(params, this.expression);
+            return new Lambda(params, this.expression);
         /* ID */
         case Token.Type.ID: 
             auto id = this.match(Token.Type.ID);
-            auto node = new IdentifierNode(id.lexeme, new UnknownType);
+            auto node = new Identifier(id.lexeme, new UnknownType);
             return node;
         /* { expression* } */
         case Token.Type.LBRACE: return this.blockExpression;
@@ -155,7 +155,7 @@ public:
             auto elseexp = this.test(Token.Type.ELSE)
                                .use!((x){ this.advance; return this.expression; })
                                .or(new EmptyExpression);
-            return new IfExpressionNode(ifexp, thenexp, elseexp, new UnknownType);
+            return new IfExpression(ifexp, thenexp, elseexp, new UnknownType);
         /* Literals */
         case Token.Type.INTEGER:
         case Token.Type.STRING:
@@ -176,17 +176,17 @@ public:
 
     auto postfixExpression()
     {
-        ExpressionNode postOp(ExpressionNode node, bool optional=true)
+        Expression postOp(Expression node, bool optional=true)
         {
             switch(this.la.type){
             case Token.Type.COLON:
                 this.advance;
-                return new CastNode(node, this.parseType);
+                return new Cast(node, this.parseType);
             case Token.Type.LPAREN:
                 this.match(Token.Type.LPAREN);
                 auto args = this.paramExpressions;
                 this.match(Token.Type.RPAREN);
-                return new CallNode(node, args);
+                return new Call(node, args);
             default:
                 optional.err(new ParserException("non-optional post-exp"));
                 return null;
@@ -202,20 +202,20 @@ public:
         return exp;
     }
 
-    ExpressionNode additiveExpression()
+    Expression additiveExpression()
     {
         auto exp = this.postfixExpression;
         switch(this.la.type){
         case Token.Type.PLUS:
         case Token.Type.MINUS:
             auto op = this.advance.lexeme;
-            return new BinOpNode(exp, this.additiveExpression, op, new UnknownType);
+            return new BinaryExpression(exp, this.additiveExpression, op, new UnknownType);
         default: break;
         }
         return exp;
     }
 
-    ExpressionNode equalityExpression()
+    Expression equalityExpression()
     {
         auto exp = this.additiveExpression;
         switch(this.la.type){
@@ -224,7 +224,7 @@ public:
         case Token.Type.NEQ:
         case Token.Type.EQEQ:
             auto op = this.advance.lexeme;
-            return new BinOpNode(exp, this.equalityExpression, op, new UnknownType);
+            return new BinaryExpression(exp, this.equalityExpression, op, new UnknownType);
         default: break;
         }
         return exp;
@@ -247,7 +247,7 @@ public:
 
     auto blockExpression()
     {
-        return new BlockNode(this.parseListOf(Token.Type.LBRACE,
+        return new Block(this.parseListOf(Token.Type.LBRACE,
                                              &this.statement,
                                              Token.Type.RBRACE));
     }
@@ -310,7 +310,7 @@ public:
         return this.expression.use!((x){
                    ret_type = ret_type.or(new TypeofType(x));
                    auto name = toks[1].lexeme;
-                   return new ProcDeclNode(name, ret_type, params, x); });
+                   return new ProcDecl(name, ret_type, params, x); });
     }
 
     auto varDecl()
@@ -327,10 +327,10 @@ public:
 
         auto exp = this.expression;
         type = type.or(new TypeofType(exp));
-        return new VarDeclNode(toks[1].lexeme, type, exp);
+        return new VarDecl(toks[1].lexeme, type, exp);
     }
 
-    StatementNode declaration()
+    Declaration declaration()
     {
         bool external = false;
         switch(this.la.type){
@@ -343,7 +343,7 @@ public:
                 goto case;
             }
         case Token.Type.PROC: 
-            StatementNode ret = null;
+            Declaration ret = null;
             if(external){
                 ret = this.externProc;
             }else{
@@ -366,9 +366,9 @@ public:
                                          this.match(Token.Type.COLON);
                                          auto type = this.parseType;
                                          this.optional(Token.Type.ENDSTMT);
-                                         return StructDeclNode.Field(name, type); },
+                                         return StructDecl.Field(name, type); },
                                        Token.Type.RBRACE);
-        return new StructDeclNode(name, fields).then!(x => x.writeln);
+        return new StructDecl(name, fields).then!(x => x.writeln);
     }
 
     /* EXTERNAL RULES */
@@ -376,7 +376,7 @@ public:
     auto externImport()
     {
         auto toks = this.match(Token.Type.IMPORT, Token.Type.STRING);
-        return new ExternImportNode(toks[1].lexeme[1..$-1]);
+        return new ExternImport(toks[1].lexeme[1..$-1]);
     }
 
     auto externProc()
@@ -390,7 +390,7 @@ public:
                                                     .if_then!({ this.advance; vararg = true; })
                                                     .or(vararg || this.test(Token.Type.RPAREN)));
         this.match(Token.type.RPAREN, Token.Type.RARROW);
-        return new ExternProcNode(name, this.parseType, params, vararg);
+        return new ExternProc(name, this.parseType, params, vararg);
     }
 private:
     /* UTILITY FUNCTIONS */

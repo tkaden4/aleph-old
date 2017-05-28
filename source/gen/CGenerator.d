@@ -8,11 +8,9 @@ import std.range;
 import std.algorithm;
 import std.string;
 
+import semantics;
+import syntax;
 import util;
-import syntax.ctree;
-import syntax.transform;
-import semantics.symbol.SymbolTable;
-import semantics.symbol.Symbol;
 import gen.TypeUtils;
 public import gen.OutputBuilder;
 import util.AlephException;

@@ -1,17 +1,13 @@
-module syntax.tree.expression.CharNode;
+module syntax.tree.expression.CharPrimitive;
 
-import syntax.tree.expression.ExpressionNode;
+import syntax.tree.expression.Expression;
 
-public class CharNode : ExpressionNode {
+public class CharPrimitive : Expression {
 public:
     this(char value)
     {
+        super(PrimitiveType.Char);
         this._value = value;
-    }
-
-    override Type resultType()
-    {
-        return PrimitiveType.Char;
     }
 
     override string toString() const

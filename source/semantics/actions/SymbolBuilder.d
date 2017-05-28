@@ -12,7 +12,7 @@ import std.algorithm;
 
 
 template SymbolBuilderProvider(alias Provider, Args...){
-    VarDeclNode visit(VarDeclNode node, AlephTable table)
+    VarDecl visit(VarDecl node, AlephTable table)
     {
         table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));
         table.insert(node.name, new VarSymbol(node.name, node.type, table));
@@ -20,7 +20,7 @@ template SymbolBuilderProvider(alias Provider, Args...){
         return node;
     }
 
-    ProcDeclNode visit(ProcDeclNode node, AlephTable table)
+    ProcDecl visit(ProcDecl node, AlephTable table)
     {
         return alephErrorScope("in function " ~ node.name, {
             auto name = node.name;
@@ -39,14 +39,14 @@ template SymbolBuilderProvider(alias Provider, Args...){
         });
     }
 
-    ExternProcNode visit(ExternProcNode node, AlephTable table)
+    ExternProc visit(ExternProc node, AlephTable table)
     {
         table.find(node.name).not.err(new AlephException("symbol %s defined".format(node.name)));
         table.insert(node.name, new FunctionSymbol(node.name, node.functionType, table, true));
         return node;
     }
 
-    LambdaNode visit(LambdaNode node, AlephTable table)
+    Lambda visit(Lambda node, AlephTable table)
     {
         return node;
     }
@@ -57,7 +57,7 @@ template SymbolBuilderProvider(alias Provider, Args...){
     }
 }
 
-public auto buildSymbols(Tuple!(ProgramNode, AlephTable) tup)
+public auto buildSymbols(Tuple!(Program, AlephTable) tup)
 {
     return alephErrorScope("symbol builder", {
         auto node = SymbolBuilderProvider!(SymbolBuilderProvider, AlephTable).visit(tup[0], tup[1]);

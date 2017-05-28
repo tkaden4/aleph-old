@@ -1,10 +1,10 @@
 module semantics.type.TypeofType;
 
 import semantics.type.Type;
-import syntax.tree.expression.ExpressionNode;
+import syntax.tree.expression.Expression;
 
 public class TypeofType : Type {
-    this(ExpressionNode node)
+    this(Expression node)
     {
         this.node = node;
     }
@@ -42,5 +42,5 @@ public class TypeofType : Type {
         return node.resultType;
     }
 
-    ExpressionNode node;
+    Expression node;
 };

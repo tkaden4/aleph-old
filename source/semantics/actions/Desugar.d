@@ -10,13 +10,13 @@ import semantics.symbol;
 import util;
 import syntax;
 
-public auto desugar(Tuple!(ProgramNode, AlephTable) node)
+public auto desugar(Tuple!(Program, AlephTable) node)
 {
     return tuple(node[0].desugar, node[1]);
 }
 
 
-public ProgramNode desugar(ProgramNode node)
+public Program desugar(Program node)
 in {
     assert(node);
 } body {
@@ -24,16 +24,16 @@ in {
 }
 
 template DesugarProvider(alias Provider, Args...){
-    ProcDeclNode visit(ProcDeclNode node)
+    ProcDecl visit(ProcDecl node)
     {
         node.bodyNode = node.bodyNode.match(
-            (BlockNode node) => node,
-            (ExpressionNode node) => new BlockNode([node])
+            (Block node) => node,
+            (Expression node) => new Block([node])
         ).then!(
             (x){
                 x.children.back = x.children.back.match(
-                    identity!StatementNode,
-                    (ExpressionNode exp) => new ReturnNode(exp)
+                    identity!Statement,
+                    (Expression exp) => new Return(exp)
                 );
             }
         );

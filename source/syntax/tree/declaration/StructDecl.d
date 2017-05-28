@@ -1,9 +1,9 @@
-module syntax.tree.declaration.StructDeclNode;
+module syntax.tree.declaration.StructDecl;
 
-import syntax.tree.declaration.DeclarationNode;
+import syntax.tree.declaration.Declaration;
 import semantics.type.Type;
 
-public class StructDeclNode : DeclarationNode {
+public class StructDecl : Declaration {
     import std.string;
     public struct Field {
         string name;
@@ -23,7 +23,7 @@ public:
 
     override string toString() const
     {
-        return "StructDeclNode(%s, %s)".format(this.name, this.fields);
+        return "StructDecl(%s, %s)".format(this.name, this.fields);
     }
 
     string name;

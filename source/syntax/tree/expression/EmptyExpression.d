@@ -1,10 +1,15 @@
 module syntax.tree.expression.EmptyExpression;
 
-import syntax.tree.expression.ExpressionNode;
+import syntax.tree.expression.Expression;
 
-public class EmptyExpression : ExpressionNode {
-    final override Type resultType()
+public class EmptyExpression : Expression {
+    this()
     {
-        return new UnknownType;
+        super(new UnknownType);
+    }
+
+    override string toString() const
+    {
+        return "EmptyExpression";
     }
 };

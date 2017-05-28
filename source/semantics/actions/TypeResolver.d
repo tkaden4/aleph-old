@@ -14,25 +14,18 @@ import syntax;
 import semantics;
 import util;
 
-public auto resolveTypes(Tuple!(ProgramNode, AlephTable) t)
+public auto resolveTypes(Tuple!(Program, AlephTable) t)
 {
     return t.expand.resolveTypes;
 }
 
-public auto resolveTypes(ProgramNode node, AlephTable table)
-in {
-    assert(node);
-    assert(table);
-} out(t) {
-    assert(t[0]);
-    assert(t[1]);
-} body {
+public auto resolveTypes(Program node, AlephTable table)
+{
     return alephErrorScope("type resolver", {
         node = TypeResolveProvider!(TypeResolveProvider, AlephTable).visit(node, table);
         return tuple(node, table);
     });
 }
-
 
 template TypeResolveProvider(alias Provider, Args...)
 {
@@ -52,7 +45,7 @@ template TypeResolveProvider(alias Provider, Args...)
         );
     }
 
-    VarDeclNode visit(VarDeclNode node, AlephTable table)
+    VarDecl visit(VarDecl node, AlephTable table)
     {
         node = DefaultProvider!(Provider, Args).visit(node, table);
         auto sym = table.find(node.name).err(new Exception("Symbol %s not defined".format(node.name)));
@@ -62,14 +55,14 @@ template TypeResolveProvider(alias Provider, Args...)
         return node;
     }
 
-    BlockNode visit(BlockNode node, AlephTable table)
+    Block visit(Block node, AlephTable table)
     {
         node = DefaultProvider!(Provider, Args).visit(node, table);
         node.resultType = node.children.back.use!(x => x.resultType).or(PrimitiveType.Void);
         return node;
     }
 
-    IfExpressionNode visit(IfExpressionNode node, AlephTable table)
+    IfExpression visit(IfExpression node, AlephTable table)
     {
         node.ifexp = node.ifexp.visit(table);
         node.thenexp = node.thenexp.visit(table);
@@ -80,7 +73,7 @@ template TypeResolveProvider(alias Provider, Args...)
         return node;
     }
 
-    ProcDeclNode visit(ProcDeclNode node, AlephTable table)
+    ProcDecl visit(ProcDecl node, AlephTable table)
     {
         auto sym = table.find(node.name).err(new AlephException("Function %s not defined".format(node.name)));
         sym.match(
@@ -95,7 +88,7 @@ template TypeResolveProvider(alias Provider, Args...)
         return node;
     }
 
-    BinOpNode visit(BinOpNode node, AlephTable table)
+    BinaryExpression visit(BinaryExpression node, AlephTable table)
     {
         node.left = node.left.visit(table);
         node.right = node.right.visit(table);
@@ -118,7 +111,7 @@ template TypeResolveProvider(alias Provider, Args...)
         return node;
     }
 
-    CallNode visit(CallNode node, AlephTable table)
+    Call visit(Call node, AlephTable table)
     {
         node = DefaultProvider!(Provider, Args).visit(node, table);
         node.resultType = node.resultType.match(
@@ -140,7 +133,7 @@ template TypeResolveProvider(alias Provider, Args...)
         return node;
     }
 
-    IdentifierNode visit(IdentifierNode node, AlephTable table)
+    Identifier visit(Identifier node, AlephTable table)
     {
         auto sym = table.find(node.name).err(new AlephException("identifier %s not defined".format(node.name)));
         node.resultType.match(
@@ -159,6 +152,6 @@ template TypeResolveProvider(alias Provider, Args...)
 
     T visit(T)(T t, Args args)
     {
-        return cast(T)DefaultProvider!(Provider, Args).visit(t, args);
+        return DefaultProvider!(Provider, Args).visit(t, args);
     }
 };
