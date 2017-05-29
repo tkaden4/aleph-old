@@ -9,6 +9,7 @@ import std.range;
 import std.algorithm;
 import std.stdio;
 import std.string;
+import std.exception;
 
 import syntax;
 import semantics;
@@ -29,29 +30,34 @@ public auto resolveTypes(Program node, AlephTable table)
 
 template TypeResolveProvider(alias Provider, Args...)
 {
-    Type evaluateType(N)(N def, Type t, AlephTable table)
+    auto inferTypes(Args...)(AlephTable table, Args args)
     {
-        return t.match(
-            (UnknownType _){
-                return def.resultType;
-            },
-            (TypeofType t){
-                if(!t.isResolved){
-                    t.node = t.node.visit(table);
-                }
-                return t.node.resultType;
-            },
-            emptyFunc!Type
-        );
+        alias resolveType =
+            (x, y) =>
+                x.match(
+                    (UnknownType _) => y,
+                    (TypeofType t) => t.isResolved ?
+                                      t.node.resultType :
+                                      (t.node = t.node.visit(table)).resultType,
+                    emptyFunc!Type
+                );
+        auto res = [args].map!(x => resolveType(x.expand)).array;
+        static if(Args.length > 1){
+            return res;
+        }else{
+            return res[0];
+        }
     }
+
 
     VarDecl visit(VarDecl node, AlephTable table)
     {
         node = DefaultProvider!(Provider, Args).visit(node, table);
         auto sym = table.find(node.name).err(new Exception("Symbol %s not defined".format(node.name)));
-        auto type = evaluateType(node.initVal, node.type, table);
-        sym.type = type;
-        node.type = type;
+
+        table.inferTypes(tuple(node.type, node.initVal.resultType))
+             .then!((x){ sym.type = x; node.type = x; });
+
         return node;
     }
 
@@ -79,16 +85,16 @@ template TypeResolveProvider(alias Provider, Args...)
         sym.match(
             (FunctionSymbol f){
                 node.bodyNode = node.bodyNode.visit(f.bodyScope);
-                auto type = evaluateType(node.bodyNode, node.returnType, table);
-                node.returnType = type;
-                sym.type = node.functionType;
+                table.inferTypes(tuple(node.returnType, node.bodyNode.resultType))
+                     .then!((x){ node.returnType = x;
+                                 sym.type = node.functionType; });
             },
             (){ throw new AlephException("no function named %s".format(node.name)); }
         );
         return node;
     }
 
-    BinaryExpression visit(BinaryExpression node, AlephTable table)
+    auto visit(BinaryExpression node, AlephTable table)
     {
         node.left = node.left.visit(table);
         node.right = node.right.visit(table);
@@ -111,42 +117,25 @@ template TypeResolveProvider(alias Provider, Args...)
         return node;
     }
 
-    Call visit(Call node, AlephTable table)
+    auto visit(Call node, AlephTable table)
     {
         node = DefaultProvider!(Provider, Args).visit(node, table);
-        node.resultType = node.resultType.match(
-            (UnknownType _) =>
-                node.toCall.resultType.match(
-                    (FunctionType ftype) => ftype.returnType,
-                    (){ throw new AlephException("unable to call non-function of type %s in \n%s"
-                                                    .format(node.resultType, node.toPretty)); }
-                )
-            ,
-            (TypeofType t){
-                if(!t.isResolved){
-                    t.node = t.node.visit(table);
-                }
-                return t.node.resultType;
-            },
-            emptyFunc!Type
-        );
+        auto t = 
+            //TODO fix
+            table.inferTypes(
+                tuple(node.resultType,
+                      node.toCall.resultType.use!(x => cast(FunctionType)x).returnType),
+            );
+        node.resultType = t;
         return node;
     }
 
-    Identifier visit(Identifier node, AlephTable table)
+    auto visit(Identifier node, AlephTable table)
     {
         auto sym = table.find(node.name).err(new AlephException("identifier %s not defined".format(node.name)));
-        node.resultType.match(
-            (UnknownType t) => node.resultType = sym.type, 
-            (TypeofType t){
-                if(!t.isResolved){
-                    t.node = t.node.visit(table);
-                }
-                sym.type = t.node.resultType;
-                node.resultType = sym.type;
-            },
-            emptyFunc!Type
-        );
+        table.inferTypes(tuple(node.resultType, sym.type))
+             .then!((t){ node.resultType = t;
+                         sym.type = t; });
         return node;
     }
 

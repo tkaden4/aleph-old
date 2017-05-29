@@ -20,6 +20,7 @@ public class Call : Expression {
         assert(this.toCall !is null, "tocall is null");
     }
 
+
     override string toString() const
     {
         import std.string;

@@ -10,6 +10,11 @@ import std.traits;
 import std.stdio;
 import std.string;
 
+interface Visitor(alias Provider, R, T, Args...)
+{
+    R visit(T, Args);
+}
+
 template DefaultProvider(alias Provider,  Args...)
 {
     alias P = Provider!(Provider, Args);

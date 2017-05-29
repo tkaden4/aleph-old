@@ -1,2 +1,2 @@
 *.al linguist-language=Rust
-test/*.al linguist-language=Rust
+*.al linguist-language=Rust

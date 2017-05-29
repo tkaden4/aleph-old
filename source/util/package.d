@@ -11,7 +11,12 @@ public {
     import util.match;
     import util.AlephException;
 
-    auto cons(Type, Params...)(Params params)
+    auto between(T)(bool pred, T a, T b)
+    {
+        return pred ? a : b;
+    }
+
+    auto construct(Type, Params...)(Params params)
     {
         return new Type(params);
     }
