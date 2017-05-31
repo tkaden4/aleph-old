@@ -39,7 +39,21 @@ template TypeResolveProvider(alias Provider, Args...)
                     (TypeofType t) => t.isResolved ?
                                       t.node.resultType :
                                       (t.node = t.node.visit(table)).resultType,
-                    emptyFunc!Type
+                    (FunctionType fn) =>
+                        fn,
+                    /* TODO
+                        y.match(
+                            emptyFunc!FunctionType,
+                            (){ throw new Exception("Internal type-resolution error"); }
+                        ).use!((asFun){
+                            auto ret = table
+                                    .inferTypes(
+                                        tuple(fn.returnType, asFun.returnType),
+                                    );
+
+                        }),
+                        */
+                    identity!Type
                 );
         auto res = [args].map!(x => resolveType(x.expand)).array;
         static if(Args.length > 1){

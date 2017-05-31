@@ -20,7 +20,7 @@ public:
         assert(this.type);
     }
 
-    override string toString() const
+    override string toString() const 
     {
         return "QualifiedType(%s, %s)".format(this.qualifier, this.type);
     }

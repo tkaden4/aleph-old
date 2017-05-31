@@ -1,6 +1,10 @@
 # TODO #
-- [ ] Aleph -> C AST Transformation
-- [ ] C Generation
+- [X] Aleph -> C AST Transformation
+- [X] C Generation
+- [ ] Multiple-language targets
+- [ ] Inheritance/Polymorphism
+- [ ] Optional GC
+- [ ] LLVM Target
 - [ ] Better type checking
 - [ ] Compound Types (Structs, Tuples, Tagged Unions)
 - [ ] Pointer and Reference Types

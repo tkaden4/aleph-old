@@ -24,7 +24,7 @@ private class AnyType : Type {
         return true;
     }
 
-    override string toString() pure
+    override string toString() const
     {
         return "AnyType()";
     }

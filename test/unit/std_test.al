@@ -1,6 +1,6 @@
-//import std.c.stdio
+import std.c.stdio
 
-extern proc printf(*const char, ...) -> int
+//extern proc printf(*const char, ...) -> int
 
 proc printTo(x: int) = {
     printf("%d", x)

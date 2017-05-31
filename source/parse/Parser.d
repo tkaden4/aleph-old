@@ -202,9 +202,23 @@ public:
         return exp;
     }
 
-    Expression additiveExpression()
+    Expression multiplicativeExpression()
     {
         auto exp = this.postfixExpression;
+        switch(this.la.type){
+        case Token.Type.PLUS:
+        case Token.Type.MINUS:
+            auto op = this.advance.lexeme;
+            return new BinaryExpression(exp, this.multiplicativeExpression, op, new UnknownType);
+        default: break;
+        }
+        return exp;
+    }
+
+
+    Expression additiveExpression()
+    {
+        auto exp = this.multiplicativeExpression;
         switch(this.la.type){
         case Token.Type.PLUS:
         case Token.Type.MINUS:
@@ -215,9 +229,10 @@ public:
         return exp;
     }
 
+
     Expression equalityExpression()
     {
-        auto exp = this.additiveExpression;
+        auto exp = this.multiplicativeExpression;
         switch(this.la.type){
         case Token.Type.LTEQ:
         case Token.Type.GTEQ:

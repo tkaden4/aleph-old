@@ -28,7 +28,7 @@ public:
         return this.return_type;
     }
 
-    bool isVararg() pure
+    bool isVararg() const
     {
         return this.vararg;
     }
@@ -43,7 +43,7 @@ public:
         this.return_type = t;
     }
 
-    override string toString()
+    override string toString() const
     {
         import std.string;
         string params;

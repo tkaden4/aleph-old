@@ -21,7 +21,7 @@ public class TypeofType : Type {
         return type.canCast(this.node.resultType);
     }
 
-    override string toString()
+    override string toString() const
     {
         import std.string;
         return "TypeofType(%s)".format(this.node.resultType);

@@ -28,21 +28,22 @@ int main(string[] args)
     try{
         "Compilation took %d %s\n".writefln(
             time!timefmt({
-                Parser.fromFile(args[1])
-                      // parse the file
-                      .program
-                      // build symbols
-                      .buildSymbols
-                      // inference all types
-                      .resolveTypes
-                      // Perform all type checking
-                      .checkTypes
-                      // Desugar the tree
-                      .desugar
-                      // transform Aleph AST into C AST
-                      .transform
-                      // generate code
-                      .cgenerate(new FileStream("%s.c".format(args[1])));
+                Parser
+                    .fromFile(args[1])
+                    // parse the file
+                    .program
+                    // build symbols
+                    .buildSymbols
+                    // inference all types
+                    .resolveTypes
+                    // Perform all type checking
+                    .checkTypes
+                    // Desugar the tree
+                    .desugar
+                    // transform Aleph AST into C AST
+                    .transform
+                    // generate code
+                    .cgenerate(new FileStream("%s.c".format(args[1])));
             }),
             timefmt
         );

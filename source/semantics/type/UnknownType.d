@@ -10,7 +10,7 @@ public class UnknownType : Type {
         return false;
     }
 
-    override string toString() pure
+    override string toString() const
     {
         return "UnknownType()";
     }

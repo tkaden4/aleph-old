@@ -15,7 +15,6 @@ public auto desugar(Tuple!(Program, AlephTable) node)
     return tuple(node[0].desugar, node[1]);
 }
 
-
 public Program desugar(Program node)
 in {
     assert(node);
@@ -23,11 +22,14 @@ in {
     return DesugarProvider!(DesugarProvider).visit(node);
 }
 
-template DesugarProvider(alias Provider, Args...){
+template DesugarProvider(alias Provider, Args...)
+{
+    alias defProvider = DefaultProvider!(Provider, Args);
+
     ProcDecl visit(ProcDecl node)
     {
         node.bodyNode = node.bodyNode.match(
-            (Block node) => node,
+            identity!Block,
             (Expression node) => new Block([node])
         ).then!(
             (x){
@@ -37,11 +39,16 @@ template DesugarProvider(alias Provider, Args...){
                 );
             }
         );
-        return DefaultProvider!(Provider, Args).visit(node);
+        return defProvider.visit(node);
+    }
+
+    IfExpression visit(IfExpression ifExpression)
+    {
+        return defProvider.visit(ifExpression);
     }
 
     T visit(T)(T t, Args args)
     {
-        return DefaultProvider!(Provider, Args).visit(t, args);
+        return defProvider.visit(t, args);
     }
 };

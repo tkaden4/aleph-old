@@ -2,6 +2,8 @@ module semantics.type.Type;
 
 public interface Type {
     bool canCast(Type other);
+
+    abstract string toString() const;
 };
 
 import util;
