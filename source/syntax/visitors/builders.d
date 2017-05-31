@@ -10,11 +10,6 @@ import std.traits;
 import std.stdio;
 import std.string;
 
-interface Visitor(alias Provider, R, T, Args...)
-{
-    R visit(T, Args);
-}
-
 template DefaultProvider(alias Provider,  Args...)
 {
     alias P = Provider!(Provider, Args);
@@ -30,12 +25,12 @@ template DefaultProvider(alias Provider,  Args...)
     Declaration visit(Declaration t, Args args)
     {
         return t.match(
-            (StructDecl node) => P.visit(node, args),
-            (VarDecl node)    => P.visit(node, args),
-            (ProcDecl node)   => P.visit(node, args),
-            (ExternProc node) => P.visit(node, args),
-            (Lambda node)     => P.visit(node, args),
-            (ExternImport node)   => P.visit(node, args),
+            (VarDecl node)      => P.visit(node, args),
+            (StructDecl node)   => P.visit(node, args),
+            (ProcDecl node)     => P.visit(node, args),
+            (ExternProc node)   => P.visit(node, args),
+            (Lambda node)       => P.visit(node, args),
+            (ExternImport node) => P.visit(node, args),
             (){ throw new AlephException("Couldnt visit declaration %s".format(t)); }
         );
     }
@@ -43,15 +38,15 @@ template DefaultProvider(alias Provider,  Args...)
     Statement visit(Statement node, Args args)
     {
         return node.match(
-            (Declaration node) => P.visit(node, args),
-            (Return node)      => P.visit(node, args),
+            (Declaration n) => P.visit(n, args),
+            (Return n)      => P.visit(n, args),
             (){ throw new AlephException("Could not visit statement %s".format(node)); }
         );
     }
 
-    Expression visit(Expression t, Args args)
+    Expression visit(Expression e, Args args)
     {
-        return t.match(
+        return e.match(
             (Statement node)        => P.visit(node, args),
             (Block node)            => P.visit(node, args),
             (StringPrimitive node)  => cast(Expression)P.visit(node, args),
@@ -63,7 +58,7 @@ template DefaultProvider(alias Provider,  Args...)
             (Cast node)             => P.visit(node, args),
             (IfExpression node)     => P.visit(node, args),
             (Lambda node)           => P.visit(node, args),
-            (){ throw new AlephException("Could not visit expression %s".format(t)); }
+            (){ throw new AlephException("Could not visit expression %s".format(e)); }
         );
     }
 
@@ -164,6 +159,11 @@ template DefaultProvider(alias Provider,  Args...)
         node.bodyNode = P.visit(node.bodyNode, args);
         return node;
     }
+
+    T visit(T)(T t, Args arg)
+    {
+        static assert(true, "You failed");
+    }
 };
 
 template ComposedProvider(U, Providers...)
@@ -179,35 +179,4 @@ template ComposedProvider(U, Providers...)
             return u;
         }
     };
-};
-
-/*
-// create one provider from many different,
-// offering the result as a tuple of all results
-template MultiProvider(alias Provider, T, Providers...) {
-    private alias Applied = Partial!(ProviderReturn, 1, T);
-    private alias ProviderReturns = staticMap!(Applied, Providers);
-
-    template MultiProvider(T){
-        auto visit(T t)
-        {
-            auto tup = tuple!(ProviderReturns);
-            foreach(i, x; Providers){
-                tup[i] = x!(Provider, T).visit(t);
-            }
-            return tup;
-        }
-    };
-};
-*/
-
-// create a provider from a a function
-template FunctionProvider(alias Provider, T, alias fun)
-{
-    template FunctionProvider(alias Prov, Args...){
-        T visit(T t, Args args)
-        {
-            return fun!(Prov)(t, args);
-        }
-    }
 };

@@ -1,5 +1,6 @@
 module syntax.print;
 
+import syntax.visitors;
 import semantics.type;
 import gen.OutputBuilder;
 import util;
@@ -8,105 +9,109 @@ import std.string;
 import std.range;
 import std.algorithm;
 
-public auto ref toPretty(T)(T node, bool types=false)
-{
- //   auto x = new PrettifyVisitor(types);
-    string res = "";
-//    x.dispatch(node, new OutputBuilder(new StringStream(res)));
-    return res;
-}
-
-/*
-
-private class PrettifyVisitor : Visitor!(void, OutputBuilder*) {
-private:
+struct PrettifyContext {
     bool statementexp;
     bool withTypes;
-protected:
-    this(bool withTypes = false)
+    OutputBuilder *builder;
+};
+
+public auto ref toPretty(T)(T node, bool types=false)
+{
+    string res = "";
+    auto output = new OutputBuilder(new StringStream(res));
+    PrettifyProvider!(PrettifyProvider, PrettifyContext *)
+        .visit(node, new PrettifyContext(false, types, output));
+    return res;
+}
+auto statem(alias body_fun)(PrettifyContext *ctx)
+{
+    auto k = ctx.statementexp;
+    ctx.statementexp = true;
+    body_fun();
+    ctx.statementexp = k;
+}
+
+template PrettifyProvider(alias Provider, Args...) {
+    alias defVis = DefaultProvider!(Provider, Args);
+
+    Call visit(Call node, PrettifyContext *ctx)
     {
-        this.withTypes = withTypes;
+        defVis.visit(node.toCall, ctx);
+        with(ctx.builder){
+            untabbed({
+                printf("(");
+                node.arguments.headLast!(
+                    (x){
+                        x.visit(ctx);
+                        printf(", ");
+                    },
+                    (x){
+                        x.visit(ctx);
+                    }
+                );
+                printf(")");
+            });
+        }
+        return node;
     }
 
-    auto statem(T)(T body_fun)
+    IfExpression visit(IfExpression node, PrettifyContext *ctx)
     {
-        auto k = this.statementexp;
-        this.statementexp = true;
-        body_fun();
-        this.statementexp = k;
-    }
-
-    override void visit(ref CallNode node, OutputBuilder *res)
-    {
-        auto x = node.toCall;
-        super.visit(x, res);
-        node.toCall = x;
-        res.untabbed({
-            res.printf("(");
-            node.arguments.headLast!(
-                (x){
-                    visit(x, res);
-                    res.printf(", ");
-                },
-                (x){
-                    visit(x, res);
-                }
-            );
-            res.printf(")");
-        });
-    }
-
-    override void visit(ref IfExpressionNode node, OutputBuilder *res)
-    {
-        with(res){
+        with(ctx.builder){
             printf("if ");
             untabbed({
-                this.visit(node.ifexp, res);
+                node.ifexp.visit(ctx);
                 printf(" then ");
             });
             block({
-                this.statem({
-                    this.visit(node.thenexp, res);
+                ctx.statem!({
+                    node.thenexp.visit(ctx);
                 });
             });
             if(node.elseexp){
                 untabbed({
                     printf(" else ");
                     block({
-                        this.statem({
-                            this.visit(node.elseexp, res);
+                        ctx.statem!({
+                            node.elseexp.visit(ctx);
                         });
                     });
-                    if(this.withTypes){
+                    if(ctx.withTypes){
                         printf("::[%s]", node.resultType.toPrintable);
                     }
                 });
             }
         }
+        return node;
     }
 
-    override void visit(ref BlockNode node, OutputBuilder *res)
+    Block visit(Block node, PrettifyContext *ctx)
     {
-        res.block({
-            this.statem({
-                node.children.each!(x => visit(x, res));
+        with(ctx.builder){
+            block({
+                ctx.statem!({
+                    node.children.each!(x => visit(x, ctx));
+                });
             });
-        });
+        }
+        return node;
     }
 
-    override void visit(ref ReturnNode node, OutputBuilder *res)
+    auto visit(Return node, PrettifyContext *ctx)
     {
-        res.printf("return ");
-        res.untabbed({
-            auto x = node.value;
-            this.visit(x, res);
-        });
+        with(ctx.builder){
+            printf("return ");
+            untabbed({
+                node.value = node.value.visit(ctx);
+            });
+        }
+        return node;
     }
 
-    override void visit(ref ProcDeclNode node, OutputBuilder *res)
+    auto visit(ProcDecl node, PrettifyContext *ctx)
     {
-        with(res){
-                printf("proc %s(", node.name);
+        with(ctx.builder){
+            printf("proc %s(", node.name);
             untabbed({
                 node.parameters.headLast!(
                     x => printf("%s: %s, ", x.name, x.type.toPrintable),
@@ -114,73 +119,100 @@ protected:
                 );
                 printf(") -> %s = ", node.returnType.toPrintable);
             });
-            visit(node.bodyNode, res);
+            node.bodyNode.visit(ctx);
             printfln("");
         }
+        return node;
     }
 
-    override void visit(ref StatementNode node, OutputBuilder *res)
+    Expression visit(Expression node, PrettifyContext *ctx)
     {
-        super.visit(node, res);
-    }
-
-    override void visit(ref ExpressionNode node, OutputBuilder *res)
-    {
-        super.visit(node, res);
-        if(this.statementexp && res.usetabs){
-            res.untabbed({
-                res.printfln(";");
-            });
-        }
-    }
-
-    override void visit(ref CharNode node, OutputBuilder *res)
-    {
-        res.printf("'%c'", node.value);
-    }
-
-    override void visit(ref BinOpNode node, OutputBuilder *res)
-    {
-        res.printf("(");
-        res.untabbed({
-            this.visit(node.left, res);
-            res.printf(" %s ", node.op);
-            this.visit(node.right, res);
-            res.printf(")");
-            if(this.withTypes){
-                res.printf("::[%s]", node.resultType.toPrintable);
+        with(ctx.builder){
+            defVis.visit(node, ctx);
+            if(ctx.statementexp && ctx.builder.usetabs){
+                untabbed({
+                    printfln(";");
+                });
             }
-        });
-    }
-
-    override void visit(ref IntegerNode node, OutputBuilder *res)
-    {
-        res.printf("%d", node.value);
-    }
-
-    override void visit(ref StringNode node, OutputBuilder *res)
-    {
-        res.printf("%s", node.value);
-    }
-
-    override void visit(ref IdentifierNode node, OutputBuilder *res)
-    {
-        res.printf("%s", node.name);
-        if(this.withTypes){
-            res.untabbed({
-                res.printf("::[%s]", node.resultType.toPrintable);
-            });
         }
+        return node;
     }
 
-    override void visit(ref VarDeclNode node, OutputBuilder *res)
+    auto visit(Cast c, PrettifyContext *ctx)
     {
-        with(res){
-            res.printf("let %s: %s = ", node.name, node.type.toPrintable);
+        with(ctx.builder){
             untabbed({
-                visit(node.initVal, res);
+                c.node = c.node.visit(ctx);
+                printfln(" : %s", c.castType.toPrintable);
             });
         }
+        return c;
+    }
+
+    auto visit(BinaryExpression node, PrettifyContext *ctx)
+    {
+        with(ctx.builder){
+            printf("(");
+            untabbed({
+                node.left.visit(ctx);
+                printf(" %s ", node.op);
+                node.right.visit(ctx);
+                printf(")");
+                if(ctx.withTypes){
+                    printf("::[%s]", node.resultType.toPrintable);
+                }
+            });
+        }
+        return node;
+    }
+
+    auto visit(CharPrimitive node, PrettifyContext *res) {
+       res.builder.printf("%c", node.value);
+       return node;
+    }
+
+    auto visit(IntPrimitive node, PrettifyContext *res) {
+       res.builder.printf("%d", node.value);
+       return node;
+    }
+
+    auto visit(StringPrimitive node, PrettifyContext *res) {
+       res.builder.printf("%s", node.value);
+       return node;
+    }
+
+    auto visit(Identifier node, PrettifyContext *ctx)
+    {
+        with(ctx.builder){
+            printf("%s", node.name);
+            if(ctx.withTypes){
+                untabbed({
+                    printf("::[%s]", node.resultType.toPrintable);
+                });
+            }
+        }
+        return node;
+    }
+
+    auto visit(VarDecl node, PrettifyContext *ctx)
+    {
+        import std.stdio;
+        with(ctx.builder){
+            printf("let %s: %s = ", node.name, node.type.toPrintable);
+            untabbed({
+                node.initVal.visit(ctx);
+            });
+        }
+        return node;
+    }
+
+    Statement visit(Statement n, Args args)
+    {
+        return defVis.visit(n, args);
+    }
+
+    Declaration visit(Declaration n, Args args)
+    {
+        return defVis.visit(n, args);
     }
 };
-*/

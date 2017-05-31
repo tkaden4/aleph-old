@@ -6,7 +6,7 @@
 - [ ] Optional GC
 - [ ] LLVM Target
 - [ ] Better type checking
-- [ ] Compound Types (Structs, Tuples, Tagged Unions)
+- [ ] Compound Types (Structs (almost), Tuples, Tagged Unions)
 - [ ] Pointer and Reference Types
 - [ ] Pattern Matching
 - [ ] Preprocessor

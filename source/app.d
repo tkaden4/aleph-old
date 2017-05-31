@@ -40,8 +40,6 @@ int main(string[] args)
                     .checkTypes
                     // Desugar the tree
                     .desugar
-                    // transform Aleph AST into C AST
-                    .transform
                     // generate code
                     .cgenerate(new FileStream("%s.c".format(args[1])));
             }),
