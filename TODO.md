@@ -1,6 +1,8 @@
 # TODO #
 - [X] Aleph -> C AST Transformation
 - [X] C Generation
+- [ ] Improve visitors (Buggy when overloading visit(Expression))
+- [ ] Improve generation
 - [ ] Multiple-language targets
 - [ ] Inheritance/Polymorphism
 - [ ] Optional GC

@@ -205,14 +205,4 @@ template PrettifyProvider(alias Provider, Args...) {
         }
         return node;
     }
-
-    Statement visit(Statement n, Args args)
-    {
-        return defVis.visit(n, args);
-    }
-
-    Declaration visit(Declaration n, Args args)
-    {
-        return defVis.visit(n, args);
-    }
 };

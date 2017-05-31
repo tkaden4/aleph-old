@@ -10,14 +10,31 @@ import std.traits;
 import std.stdio;
 import std.string;
 
-template DefaultProvider(alias Provider,  Args...)
+T dispatch(alias V, T, Args...)(T t, Args args)
 {
-    alias P = Provider!(Provider, Args);
+    static if(__traits(compiles, V!(V, Args).visit(t, args))){
+        alias member = V!(V, Args);
+        static if(is(typeof(member.visit(t, args)) == T)){
+            return V!(V, Args).visit(t, args);
+        }else{
+            return DefaultProvider!(V, Args).visit(t, args);
+        }
+    }else{
+        return DefaultProvider!(V, Args).visit(t, args);
+    }
+}
+
+template DefaultProvider(alias Provider, Args...)
+{
+    T defaultDispatch(T, Args...)(T t, Args args)
+    {
+        return dispatch!Provider(t, args);
+    }
 
     Program visit(Program t, Args args)
     {
         foreach(ref x; t.children){
-            x = P.visit(x, args);
+            x = x.defaultDispatch(args);
         }
         return t;
     }
@@ -25,12 +42,12 @@ template DefaultProvider(alias Provider,  Args...)
     Declaration visit(Declaration t, Args args)
     {
         return t.match(
-            (VarDecl node)      => P.visit(node, args),
-            (StructDecl node)   => P.visit(node, args),
-            (ProcDecl node)     => P.visit(node, args),
-            (ExternProc node)   => P.visit(node, args),
-            (Lambda node)       => P.visit(node, args),
-            (ExternImport node) => P.visit(node, args),
+            (VarDecl node)      => defaultDispatch(node, args),
+            (StructDecl node)   => defaultDispatch(node, args),
+            (ProcDecl node)     => defaultDispatch(node, args),
+            (ExternProc node)   => defaultDispatch(node, args),
+            (Lambda node)       => defaultDispatch(node, args),
+            (ExternImport node) => defaultDispatch(node, args),
             (){ throw new AlephException("Couldnt visit declaration %s".format(t)); }
         );
     }
@@ -38,8 +55,8 @@ template DefaultProvider(alias Provider,  Args...)
     Statement visit(Statement node, Args args)
     {
         return node.match(
-            (Declaration n) => P.visit(n, args),
-            (Return n)      => P.visit(n, args),
+            (Declaration n) => defaultDispatch(n, args),
+            (Return n)      => defaultDispatch(n, args),
             (){ throw new AlephException("Could not visit statement %s".format(node)); }
         );
     }
@@ -47,41 +64,41 @@ template DefaultProvider(alias Provider,  Args...)
     Expression visit(Expression e, Args args)
     {
         return e.match(
-            (Statement node)        => P.visit(node, args),
-            (Block node)            => P.visit(node, args),
-            (StringPrimitive node)  => cast(Expression)P.visit(node, args),
-            (CharPrimitive node)    => cast(Expression)P.visit(node, args),
-            (IntPrimitive node)     => cast(Expression)P.visit(node, args),
-            (Identifier node)       => P.visit(node, args),
-            (Call node)             => P.visit(node, args),
-            (BinaryExpression node) => P.visit(node, args),
-            (Cast node)             => P.visit(node, args),
-            (IfExpression node)     => P.visit(node, args),
-            (Lambda node)           => P.visit(node, args),
+            (Statement node)        => defaultDispatch(node, args),
+            (Block node)            => defaultDispatch(node, args),
+            (StringPrimitive node)  => cast(Expression)defaultDispatch(node, args),
+            (CharPrimitive node)    => cast(Expression)defaultDispatch(node, args),
+            (IntPrimitive node)     => cast(Expression)defaultDispatch(node, args),
+            (Identifier node)       => defaultDispatch(node, args),
+            (Call node)             => defaultDispatch(node, args),
+            (BinaryExpression node) => defaultDispatch(node, args),
+            (Cast node)             => defaultDispatch(node, args),
+            (IfExpression node)     => defaultDispatch(node, args),
+            (Lambda node)           => defaultDispatch(node, args),
             (){ throw new AlephException("Could not visit expression %s".format(e)); }
         );
     }
 
     auto visit(BinaryExpression node, Args args)
     {
-        node.left = P.visit(node.left, args);
-        node.right = P.visit(node.right, args);
+        node.left = defaultDispatch(node.left, args);
+        node.right = defaultDispatch(node.right, args);
         return node;
     }
 
     auto visit(IfExpression node, Args args)
     {
-        node.ifexp = P.visit(node.ifexp, args);
-        node.thenexp = P.visit(node.thenexp, args);
+        node.ifexp = defaultDispatch(node.ifexp, args);
+        node.thenexp = defaultDispatch(node.thenexp, args);
         if(node.elseexp){
-            node.elseexp = P.visit(node.elseexp, args);
+            node.elseexp = defaultDispatch(node.elseexp, args);
         }
         return node;
     }
 
     auto visit(Cast node, Args args)
     {
-        node.node = P.visit(node.node, args);
+        node.node = defaultDispatch(node.node, args);
         return node;
     }
 
@@ -97,15 +114,15 @@ template DefaultProvider(alias Provider,  Args...)
 
     auto visit(Return node, Args args)
     {
-        node.value = P.visit(node.value, args);
+        node.value = defaultDispatch(node.value, args);
         return node;
     }
 
     auto visit(Call node, Args args)
     {
-        node.toCall = P.visit(node.toCall, args);
+        node.toCall = defaultDispatch(node.toCall, args);
         foreach(ref x; node.arguments){
-            x = P.visit(x, args);
+            x = defaultDispatch(x, args);
         }
         return node;
     }
@@ -133,14 +150,14 @@ template DefaultProvider(alias Provider,  Args...)
     auto visit(Block node, Args args)
     {
         foreach(ref x; node.children){
-            x = P.visit(x, args);
+            x = defaultDispatch(x, args);
         }
         return node;
     }
 
     auto visit(VarDecl node, Args args)
     {
-        node.initVal = P.visit(node.initVal, args);
+        node.initVal = defaultDispatch(node.initVal, args);
         return node;
     }
 
@@ -151,12 +168,12 @@ template DefaultProvider(alias Provider,  Args...)
 
     auto visit(Lambda node, Args args)
     {
-        node.bodyNode = P.visit(node.bodyNode, args);
+        node.bodyNode = defaultDispatch(node.bodyNode, args);
         return node;
     }
 
     auto visit(ProcDecl node, Args args) {
-        node.bodyNode = P.visit(node.bodyNode, args);
+        node.bodyNode = defaultDispatch(node.bodyNode, args);
         return node;
     }
 

@@ -154,7 +154,7 @@ public:
         }
     }
 
-    void visit(alias withResult)(Expression node)
+    void visit(Expression node)
     {
         import std.stdio;
         node.match(
