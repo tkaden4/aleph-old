@@ -23,7 +23,7 @@ public auto cgenerate(Tuple)(Tuple t, OutputStream outp)
 public auto cgenerate(Program node, AlephTable table, OutputStream outp)
 {
     return alephErrorScope("c generator", () =>
-        new CGenerator(new OutputBuilder(outp)).apply(node)
+        new CGenerator(new OutputBuilder(outp), table).apply(node)
     );
 }
 
@@ -31,9 +31,11 @@ private class CGenerator {
 private:
     OutputBuilder *ob;
     alias ob this;
+    AlephTable table;
 public:
-    this(OutputBuilder *builder)
+    this(OutputBuilder *builder, AlephTable table)
     {
+        this.table = table;
         this.ob = builder;
     }
 
@@ -51,8 +53,15 @@ public:
 
     void visit(Program node)
     {
+        foreach(x; this.table.libraryPaths){
+            this.printfln("#include\"%s\"", x);
+        }
+        this.printfln("");
         foreach(x; node.children){
             this.visit(x);
+            this.untabbed({
+                this.printfln(";");
+            });
         }
     }
 
@@ -60,28 +69,34 @@ public:
     {
         node.match(
             (ProcDecl func) => this.visit(func),
-            (VarDecl n) => this.visit(n),
-            (ExternProc node){
-                this.statement({
-                    this.untabbed({
-                        this.printf("extern ");
-                        string inside = node.name ~ "(";
-                        node.parameterTypes.headLast!(x => inside ~= x.typeString("") ~ ", ",
-                                                      x => inside ~= x.typeString(""));
-                        if(node.isvararg){
-                            inside ~= "%s...".format(node.parameterTypes.length == 0 ? "" : ", ");
+            (StructDecl s){
+                this.printf("struct %s ", s.name);
+                this.untabbed({
+                    this.block({
+                        foreach(x; s.fields){
+                            this.printfln("%s %s;", x.type.typeString, x.name);
                         }
-                        inside ~= ")";
-                        this.printf("%s", node.returnType.typeString(inside));
                     });
                 });
-                this.printfln("");
+            },
+            (VarDecl n) => this.visit(n),
+            (ExternProc node){
+                this.untabbed({
+                    this.printf("extern ");
+                    string inside = node.name ~ "(";
+                    node.parameterTypes.headLast!(x => inside ~= x.typeString ~ ", ",
+                                                  x => inside ~= x.typeString);
+                    if(node.isvararg){
+                        inside ~= "%s...".format(node.parameterTypes.length == 0 ? "" : ", ");
+                    }
+                    inside ~= ")";
+                    this.printf("%s", node.returnType.typeString(inside));
+                });
             },
             (ExternImport pre){
                 this.untabbed({
                     this.printfln("#include\"%s\"", pre.file);
                 });
-                this.printfln("");
             }
         );
     }
@@ -98,14 +113,17 @@ public:
             this.printf("%s %s", "extern", node.returnType.typeString(inside));
         });
         this.visit(node.bodyNode);
-        this.printfln("");
     }
 
     void visit(Block node)
     {
         this.block({
-            node.children.each!(x => this.visit(x));
-            this.printfln("");
+            node.children.each!((x){
+                this.visit(x);
+                this.untabbed({
+                    this.printfln(";");
+                });
+            });
         });
     }
 
@@ -113,16 +131,12 @@ public:
     {
         node.match(
             (Declaration n){
-                this.statement({
-                    this.visit(n);
-                });
+                this.visit(n);
             },
             (Return n){
-                this.statement({
-                    this.printf("return ");
-                    this.untabbed({
-                        this.visit(n.value);
-                    });
+                this.printf("return ");
+                this.untabbed({
+                    this.visit(n.value);
                 });
             },
         );
@@ -131,18 +145,16 @@ public:
     void visit(VarDecl node)
     {
         import std.string;
-        this.statement({
-            this.printf("%s %s", "auto", node.type.typeString(node.name));
-            if(node.initVal){
-                this.untabbed({
-                    this.printf(" = ");
-                    this.visit(node.initVal);
-                });
-            }
-        });
+        this.printf("%s %s", "auto", node.type.typeString(node.name));
+        if(node.initVal){
+            this.untabbed({
+                this.printf(" = ");
+                this.visit(node.initVal);
+            });
+        }
     }
 
-    void visit(Expression node)
+    void visit(alias withResult)(Expression node)
     {
         import std.stdio;
         node.match(
@@ -150,9 +162,11 @@ public:
                 this.visit(n),
             (Cast n){
                 this.untabbed({
-                    this.printf("(%s)", n.castType.typeString(""));
+                    this.printf("(%s)", n.castType.typeString);
                 });
                 this.visit(n.node);
+            },
+            (IfExpression n){
             },
             (IntPrimitive n) =>
                 this.printf("%d", n.value),

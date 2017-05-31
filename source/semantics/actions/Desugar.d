@@ -42,11 +42,6 @@ template DesugarProvider(alias Provider, Args...)
         return defProvider.visit(node);
     }
 
-    IfExpression visit(IfExpression ifExpression)
-    {
-        return defProvider.visit(ifExpression);
-    }
-
     T visit(T)(T t, Args args)
     {
         return defProvider.visit(t, args);

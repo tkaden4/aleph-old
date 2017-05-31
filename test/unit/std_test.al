@@ -1,4 +1,5 @@
 import std.c.stdio
+import std.c.stdlib
 
 //extern proc printf(*const char, ...) -> int
 

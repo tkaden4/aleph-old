@@ -6,7 +6,7 @@ import std.algorithm;
 import semantics.type;
 import util;
 
-public string typeString(Type t, in string id)
+public string typeString(Type t, in string id="")
 {
     return t.use!(t => t.match((PrimitiveType t) => t.typeString(id),
                                (PointerType t)   => t.typeString(id),
