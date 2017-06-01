@@ -10,7 +10,7 @@ import std.traits;
 import std.stdio;
 import std.string;
 
-public T dispatch(alias V, T, Args...)(T t, Args args)
+public T route(alias V, T, Args...)(T t, Args args)
 {
     static if(__traits(compiles, V!(V, Args).visit(t, args))){
         alias member = V!(V, Args);
@@ -28,7 +28,7 @@ template DefaultProvider(alias Provider, Args...)
 {
     T defaultDispatch(T, Args...)(T t, Args args)
     {
-        return dispatch!Provider(t, args);
+        return route!Provider(t, args);
     }
 
     Program visit(Program t, Args args)
