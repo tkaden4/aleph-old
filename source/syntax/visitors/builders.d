@@ -10,12 +10,12 @@ import std.traits;
 import std.stdio;
 import std.string;
 
-T dispatch(alias V, T, Args...)(T t, Args args)
+public T dispatch(alias V, T, Args...)(T t, Args args)
 {
     static if(__traits(compiles, V!(V, Args).visit(t, args))){
         alias member = V!(V, Args);
         static if(is(typeof(member.visit(t, args)) == T)){
-            return V!(V, Args).visit(t, args);
+            return member.visit(t, args);
         }else{
             return DefaultProvider!(V, Args).visit(t, args);
         }
@@ -79,14 +79,14 @@ template DefaultProvider(alias Provider, Args...)
         );
     }
 
-    auto visit(BinaryExpression node, Args args)
+    BinaryExpression visit(BinaryExpression node, Args args)
     {
         node.left = defaultDispatch(node.left, args);
         node.right = defaultDispatch(node.right, args);
         return node;
     }
 
-    auto visit(IfExpression node, Args args)
+    IfExpression visit(IfExpression node, Args args)
     {
         node.ifexp = defaultDispatch(node.ifexp, args);
         node.thenexp = defaultDispatch(node.thenexp, args);
@@ -96,29 +96,29 @@ template DefaultProvider(alias Provider, Args...)
         return node;
     }
 
-    auto visit(Cast node, Args args)
+    Cast visit(Cast node, Args args)
     {
         node.node = defaultDispatch(node.node, args);
         return node;
     }
 
-    auto visit(StructDecl node, Args args)
+    StructDecl visit(StructDecl node, Args args)
     {
         return node;
     }
 
-    auto visit(ExternImport node, Args args)
+    ExternImport visit(ExternImport node, Args args)
     {
         return node;
     }
 
-    auto visit(Return node, Args args)
+    Return visit(Return node, Args args)
     {
         node.value = defaultDispatch(node.value, args);
         return node;
     }
 
-    auto visit(Call node, Args args)
+    Call visit(Call node, Args args)
     {
         node.toCall = defaultDispatch(node.toCall, args);
         foreach(ref x; node.arguments){
@@ -127,27 +127,27 @@ template DefaultProvider(alias Provider, Args...)
         return node;
     }
 
-    auto visit(Identifier node, Args args)
+    Identifier visit(Identifier node, Args args)
     {
         return node;
     }
 
-    auto visit(IntPrimitive node, Args args)
+    IntPrimitive visit(IntPrimitive node, Args args)
     {
         return node;
     }
 
-    auto visit(CharPrimitive node, Args args)
+    CharPrimitive visit(CharPrimitive node, Args args)
     {
         return node;
     }
 
-    auto visit(StringPrimitive node, Args args)
+    StringPrimitive visit(StringPrimitive node, Args args)
     {
         return node;
     }
 
-    auto visit(Block node, Args args)
+    Block visit(Block node, Args args)
     {
         foreach(ref x; node.children){
             x = defaultDispatch(x, args);
@@ -155,24 +155,24 @@ template DefaultProvider(alias Provider, Args...)
         return node;
     }
 
-    auto visit(VarDecl node, Args args)
+    VarDecl visit(VarDecl node, Args args)
     {
         node.initVal = defaultDispatch(node.initVal, args);
         return node;
     }
 
-    auto visit(ExternProc node, Args args)
+    ExternProc visit(ExternProc node, Args args)
     {
         return node;
     }
 
-    auto visit(Lambda node, Args args)
+    Lambda visit(Lambda node, Args args)
     {
         node.bodyNode = defaultDispatch(node.bodyNode, args);
         return node;
     }
 
-    auto visit(ProcDecl node, Args args) {
+    ProcDecl visit(ProcDecl node, Args args) {
         node.bodyNode = defaultDispatch(node.bodyNode, args);
         return node;
     }

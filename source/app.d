@@ -6,6 +6,7 @@ import parse.lex.Lexer;
 import parse.lex.FileInputBuffer;
 import parse.Parser;
 import gen : cgenerate, FileStream;
+import gen.Generator;
 import semantics;
 import syntax;
 import util;
@@ -40,8 +41,11 @@ int main(string[] args)
                     .checkTypes
                     // Desugar the tree
                     .desugar
+                    .generate(new FileStream("nothing.c"));
+                    /*
                     // generate code
                     .cgenerate(new FileStream("%s.c".format(args[1])));
+                    */
             }),
             timefmt
         );
