@@ -267,8 +267,32 @@ public:
                                              Token.Type.RBRACE));
     }
 
-    /* Parse a type */
-    auto parseType()
+    alias parseType = qualifiedType;
+
+    /* parse an unqualified type */
+    Type unqualifiedType()
+    {
+        switch(this.la.type){
+            case Token.Type.STAR:
+                return this.advance.use!(_ => new PointerType(this.parseType));
+            /* Primitive type or single-parameter function */
+            case Token.Type.ID:
+                return this.advance.lexeme.toPrimitive;
+            /* Function types */
+            case Token.Type.LPAREN:
+                this.match(Token.Type.LPAREN);
+                auto params = this.parseSepListOf(Token.Type.COMMA,
+                                                  &this.parseType,
+                                                  () => this.test(Token.Type.RPAREN));
+                this.match(Token.Type.RPAREN, Token.Type.RARROW);
+                return new FunctionType(this.parseType, params);
+        default:
+            throw new ParserException("%s is not the start of a unqualified type".format(*this.la));
+        }
+    }
+
+    /* Parse a possibly qualified type */
+    Type qualifiedType()
     {
         switch(this.la.type){
         case Token.Type.TYPEOF:
@@ -279,22 +303,9 @@ public:
                                       (UnknownType type) => new TypeofType(x),
                                       emptyFunc!Type));
         case Token.Type.CONST:
-            return this.advance.use!(_ => new QualifiedType(TypeQualifier.Const, this.parseType));
-        case Token.Type.STAR:
-            return this.advance.use!(_ => new PointerType(this.parseType));
-        /* Primitive type or single-parameter function */
-        case Token.Type.ID:
-            return this.advance.lexeme.toPrimitive;
-        /* Function types */
-        case Token.Type.LPAREN:
-            this.match(Token.Type.LPAREN);
-            auto params = this.parseSepListOf(Token.Type.COMMA,
-                                              &this.parseType,
-                                              () => this.test(Token.Type.RPAREN));
-            this.match(Token.Type.RPAREN, Token.Type.RARROW);
-            return new FunctionType(this.parseType, params);
+            return this.advance.use!(_ => new QualifiedType(TypeQualifier.Const, this.unqualifiedType));
         default:
-            throw new ParserException("%s is not the start of a valid type".format(*this.la));
+            return this.unqualifiedType;
         }
     }
 
