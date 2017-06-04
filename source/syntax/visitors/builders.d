@@ -14,10 +14,10 @@ public T route(alias V, T, Args...)(T t, Args args)
 {
     static if(__traits(compiles, V!(V, Args).visit(t, args))){
         alias member = V!(V, Args);
-        static if(is(typeof(member.visit(t, args)) == T)){
-            return member.visit(t, args);
-        }else{
+        static if(!is(typeof(member.visit(t, args)) == T)){
             return DefaultProvider!(V, Args).visit(t, args);
+        }else{
+            return member.visit(t, args);
         }
     }else{
         return DefaultProvider!(V, Args).visit(t, args);

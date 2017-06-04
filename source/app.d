@@ -41,7 +41,7 @@ int main(string[] args)
                     .checkTypes
                     // Desugar the tree
                     .desugar
-                    .generate(new FileStream("nothing.c"));
+                    .generate(new FileStream("%s.c".format(args[1])));
                     /*
                     // generate code
                     .cgenerate(new FileStream("%s.c".format(args[1])));
