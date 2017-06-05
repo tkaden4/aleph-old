@@ -1,6 +1,5 @@
 module syntax.tree.declaration.ProcDecl;
 
-import syntax.tree.ASTNode;
 import syntax.tree.Return;
 import syntax.tree.Parameter;
 import syntax.tree.expression.Expression;

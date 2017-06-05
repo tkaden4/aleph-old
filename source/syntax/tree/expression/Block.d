@@ -1,6 +1,5 @@
 module syntax.tree.expression.Block;
 
-import syntax.tree.ASTNode;
 import syntax.tree.expression.Expression;
 
 import std.range;
