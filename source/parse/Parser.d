@@ -4,26 +4,23 @@ public import parse.ParserException;
 
 import parse.lex.Lexer;
 import syntax.tree;
-import semantics.type;
-import semantics.symbol;
+import semantics;
+import util;
 
 import std.stdio;
 import std.string;
 import std.typecons;
 import std.range;
 
-import util;
-
-
 public final class Parser {
     import parse.lex.FileInputBuffer;
 public:
-    static Parser fromFile(in string name)
+    static auto fromFile(in string name)
     {
         return new Parser(new Lexer(new FileInputBuffer(name)));
     }
 
-    static Parser fromFile(ref File file)
+    static auto fromFile(ref File file)
     {
         return new Parser(new Lexer(new FileInputBuffer(file)));
     }
@@ -274,7 +271,7 @@ public:
     {
         switch(this.la.type){
             case Token.Type.STAR:
-                return this.advance.use!(_ => new PointerType(this.parseType));
+                return this.advance.use!(() => new PointerType(this.parseType));
             /* Primitive type or single-parameter function */
             case Token.Type.ID:
                 return this.advance.lexeme.toPrimitive;
@@ -287,7 +284,7 @@ public:
                 this.match(Token.Type.RPAREN, Token.Type.RARROW);
                 return new FunctionType(this.parseType, params);
         default:
-            throw new ParserException("%s is not the start of a unqualified type".format(*this.la));
+            throw new ParserException("%s is not the start of an unqualified type".format(this.la.lexeme));
         }
     }
 
@@ -303,7 +300,8 @@ public:
                                       (UnknownType type) => new TypeofType(x),
                                       emptyFunc!Type));
         case Token.Type.CONST:
-            return this.advance.use!(_ => new QualifiedType(TypeQualifier.Const, this.unqualifiedType));
+            return this.advance
+                       .use!({ return new QualifiedType(TypeQualifier.Const, this.unqualifiedType ); });
         default:
             return this.unqualifiedType;
         }
@@ -361,21 +359,9 @@ public:
         bool external = false;
         switch(this.la.type){
         case Token.Type.EXTERN:
-            this.advance;
-            if(this.test(Token.Type.IMPORT)){
-                return this.externImport;
-           }else{
-                external = true;
-                goto case;
-            }
+            return this.externDecl;
         case Token.Type.PROC: 
-            Declaration ret = null;
-            if(external){
-                ret = this.externProc;
-            }else{
-                ret = this.procDecl;
-            }
-            return ret;
+            return this.procDecl;
         case Token.Type.IMPORT:
         case Token.Type.STRUCT: return this.structDecl;
         case Token.Type.LET: return this.varDecl;
@@ -398,6 +384,16 @@ public:
     }
 
     /* EXTERNAL RULES */
+
+    Declaration externDecl()
+    {
+        this.match(Token.Type.EXTERN);
+        switch(this.la.type){
+        case Token.Type.PROC: return this.externProc;
+        case Token.Type.IMPORT: return this.externImport;
+        default: throw new AlephException("invalid external declaration");
+        }
+    }
 
     auto externImport()
     {

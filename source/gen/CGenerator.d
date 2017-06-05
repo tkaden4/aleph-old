@@ -51,6 +51,15 @@ public:
         return this.ob;
     }
 
+    void visit(BinaryExpression node)
+    {
+        this.visit(node.left);
+        this.untabbed({
+            this.printf(" %s ", node.op);
+            this.visit(node.right);
+        });
+    }
+
     void visit(Program node)
     {
         foreach(x; this.table.libraryPaths){
@@ -175,6 +184,8 @@ public:
             (CharPrimitive n) =>
                 this.printf("\'%c\'", n.value),
             (Block n) =>
+                this.visit(n),
+            (BinaryExpression n) =>
                 this.visit(n),
             (Identifier n){
                 this.printf("%s", n.name);

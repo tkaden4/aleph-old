@@ -74,13 +74,18 @@ public {
 
     auto use(alias f, T)(T t)
     {
+        static if(__traits(compiles, f())){
+            alias fun = _ => f();
+        }else{
+            alias fun = f;
+        }
         static if(__traits(compiles, !t)){
             if(t){
-                return f(t);
+                return fun(t);
             }
             return null;
         }else{
-            return f(t);
+            return fun(t);
         }
     }
 

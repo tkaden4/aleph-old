@@ -41,11 +41,11 @@ int main(string[] args)
                     .checkTypes
                     // Desugar the tree
                     .desugar
-                    .generate(new FileStream("%s.c".format(args[1])));
                     /*
+                    .generate(new FileStream("%s.c".format(args[1])));
+                    */
                     // generate code
                     .cgenerate(new FileStream("%s.c".format(args[1])));
-                    */
             }),
             timefmt
         );
