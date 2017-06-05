@@ -78,7 +78,11 @@ template TypeResolveProvider(alias Provider, Args...)
     Block visit(Block node, AlephTable table)
     {
         node = DefaultProvider!(Provider, Args).visit(node, table);
-        node.resultType = node.children.back.use!(x => x.resultType).or(PrimitiveType.Void);
+        if(node.children.empty){
+            node.resultType = PrimitiveType.Void;
+        }else{
+            node.resultType = node.children.back.use!(x => x.resultType).or(PrimitiveType.Void);
+        }
         return node;
     }
 

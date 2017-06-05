@@ -121,6 +121,16 @@ public:
 
     /* EXPRESSIONS */
 
+    Expression structInit()
+    {
+        auto name = this.advance.lexeme;
+        this.match(Token.Type.RBRACE);
+        while(!this.test(Token.Type.LBRACE)){
+        
+        }
+    }
+
+    // TODO add struct init
     Expression primaryExpression()
     {
         switch(this.la.type){

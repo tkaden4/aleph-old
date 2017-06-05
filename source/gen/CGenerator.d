@@ -83,7 +83,7 @@ public:
                 this.untabbed({
                     this.block({
                         foreach(x; s.fields){
-                            this.printfln("%s %s;", x.type.typeString, x.name);
+                            this.printfln("%s;", x.type.typeString(x.name));
                         }
                     });
                 });

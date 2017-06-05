@@ -33,10 +33,12 @@ template DesugarProvider(alias Provider, Args...)
             (Expression node) => new Block([node])
         ).then!(
             (x){
-                x.children.back = x.children.back.match(
-                    identity!Statement,
-                    (Expression exp) => new Return(exp)
-                );
+                if(x.children){
+                    x.children.back = x.children.back.match(
+                        identity!Statement,
+                        (Expression exp) => new Return(exp)
+                    );
+                }
             }
         );
         return defProvider.visit(node);

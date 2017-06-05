@@ -13,11 +13,6 @@ public:
         this._children = children;
     }
 
-    invariant
-    {
-        assert(this._children);
-    }
-
     override string toString() const
     {
         import std.string;
