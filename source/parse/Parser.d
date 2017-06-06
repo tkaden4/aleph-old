@@ -291,7 +291,8 @@ public:
         switch(this.la.type){
             case Token.Type.STAR:
                 return this.advance.use!(() => new PointerType(this.parseType));
-            /* Primitive type or single-parameter function */
+            /* Primitive type */
+            /* TODO add structs and other named types */
             case Token.Type.ID:
                 return this.advance.lexeme.toPrimitive;
             /* Function types */

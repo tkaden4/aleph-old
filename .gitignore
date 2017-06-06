@@ -14,3 +14,4 @@ alephc
 *.6732
 .tst
 alephc-test-*
+__test.*
