@@ -123,11 +123,17 @@ public:
 
     Expression structInit()
     {
-        auto name = this.advance.lexeme;
-        this.match(Token.Type.RBRACE);
-        while(!this.test(Token.Type.LBRACE)){
-        
+        auto name = this.match(Token.Type.ID).lexeme;
+        this.match(Token.Type.LBRACE);
+        ParamInit[] inits;
+        while(!this.test(Token.Type.RBRACE)){
+            auto param = this.match(Token.Type.ID, Token.Type.EQ)[0].lexeme;
+            auto value = this.expression;
+            this.optional(Token.Type.COMMA);
+            inits ~= ParamInit(param, value);
         }
+        this.match(Token.Type.RBRACE);
+        return new StructInit(name, inits, new UnknownType);
     }
 
     // TODO add struct init
@@ -142,6 +148,9 @@ public:
             return new Lambda(params, this.expression);
         /* ID */
         case Token.Type.ID: 
+            if(this.test(Token.Type.LBRACE, 1)){
+                return this.structInit;
+            }
             auto id = this.match(Token.Type.ID);
             auto node = new Identifier(id.lexeme, new UnknownType);
             return node;

@@ -14,4 +14,5 @@ public {
     import syntax.tree.expression.Lambda;
     import syntax.tree.expression.Statement;
     import syntax.tree.expression.StringPrimitive;
+    import syntax.tree.expression.StructInit;
 }

@@ -1,11 +1,14 @@
 import std.c.stdio
 
-struct Funct {
-    x: (int) -> int
+struct ReturnsItself {
+    foo: (int, int) -> int
+    default: int
 }
 
+proc call(x: ReturnsItself) = x.foo(x.default, 0)
+
 proc main {
-    let x = Funct { x = identity }
-    printf("%d", x.x(8))
+    let function = Funct { x = identity }
+    //printf("%d", x.x(8))
     0
 }
