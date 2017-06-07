@@ -11,6 +11,15 @@ public {
     import util.match;
     import util.AlephException;
 
+    auto maybeArgsCall(alias fun, Args...)(Args args)
+    {
+        static if(__traits(compiles, fun(args))){
+            fun(args);
+        }else{
+            fun();
+        }
+    }
+
     auto between(T)(bool pred, T a, T b)
     {
         return pred ? a : b;
