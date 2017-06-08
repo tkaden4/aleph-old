@@ -16,3 +16,4 @@ alephc
 alephc-test-*
 __test.*
 __test*.*
+__test*/
