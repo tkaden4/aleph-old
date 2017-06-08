@@ -3,6 +3,7 @@
 	"authors": [
 		"Kaden Thomas"
 	],
+    "dflags": ["-J./"],
 	"description": "A programming language for embedded development",
 	"copyright": "Copyright © 2017, Kaden Thomas",
 	"license": "GPLv2.0"
