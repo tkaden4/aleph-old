@@ -20,7 +20,6 @@ private auto usage()
 int main(string[] args)
 {
     import parse.generator;
-    import parse.lex.StringInputBuffer;
     import parse.lex.Lexer;
 
     if(args.length != 2){
@@ -28,7 +27,7 @@ int main(string[] args)
         return 0;
     }
 
-    static enum timefmt = "usecs";
+    enum timefmt = "usecs";
     "Compiling \"%s\"".writefln(args[1]);
     try{
         "Compilation took %d %s\n".writefln(

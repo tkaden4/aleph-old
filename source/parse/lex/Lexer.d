@@ -2,6 +2,8 @@ module parse.lex.Lexer;
 
 public import parse.lex.Token;
 public import parse.lex.LexerInputBuffer;
+public import parse.lex.StringInputBuffer;
+public import parse.lex.FileInputBuffer;
 public import parse.lex.LexerException;
 
 import std.container;
@@ -24,6 +26,16 @@ private bool isIdStart(dchar c) pure
 public final class Lexer {
     import std.functional;
 public:
+    static auto from(in string str)
+    {
+        return new Lexer(new StringInputBuffer(str));
+    }
+
+    static auto from(File file)
+    {
+        return new Lexer(new FileInputBuffer(file));
+    }
+
     this(LexerInputBuffer input)
     {
         this.buff = input;
@@ -38,7 +50,7 @@ public:
         assert(this.buff);
     }
 
-    Token *next()
+    auto next()
     {
         if(!this.hasNext){
             return this.makeToken("EOS", Token.Type.EOS);
@@ -134,7 +146,7 @@ private:
         }
     }
 
-    Token *lexIdOrKeyword()
+    auto lexIdOrKeyword()
     {
         string lexeme;
         while(this.test(toDelegate(&isIdBody))){
@@ -144,7 +156,7 @@ private:
     }
 
     /* TODO handle floating-point numbers */
-    Token *lexNumber()
+    auto lexNumber()
     {
         string lexeme;
         while(this.test(toDelegate(&isDigit))){
@@ -153,7 +165,7 @@ private:
         return this.makeToken(lexeme, Token.Type.INTEGER);
     }
 
-    Token *lexString()
+    auto lexString()
     {
         string lexeme = "" ~ this.match('\"');
         while(!this.test('\"')){
@@ -167,7 +179,7 @@ private:
         return this.makeToken(lexeme, Token.Type.STRING);
     }
 
-    Token *lexChar()
+    auto lexChar()
     {
         string lexeme = "" ~ this.match('\'');
         if(this.test('\\')){
@@ -181,7 +193,7 @@ private:
 
     /* UTILITY FUNCTIONS */
 
-    Token *lexMultiple(Args...)(char defla, TokenType deftype,
+    auto lexMultiple(Args...)(char defla, TokenType deftype,
                                 char altla, TokenType alttype, Args args)
     {
         if(this.test(altla, 1)){
@@ -194,7 +206,7 @@ private:
         }
     }
 
-    Token *handleKeyword(Token *tok)
+    auto handleKeyword(Token *tok)
     {
         if(tok.type == Token.Type.ID){
             switch(tok.lexeme){
@@ -216,7 +228,7 @@ private:
         return tok;
     }
 
-    Token *makeAndAdvance(in string lexeme, Token.Type type, size_t n=1)
+    auto makeAndAdvance(in string lexeme, Token.Type type, size_t n=1)
     {
         auto ret = this.makeToken(lexeme, type);
         while(n--){
@@ -225,13 +237,13 @@ private:
         return ret;
     }
 
-    Token *makeToken(in string lexeme, Token.Type type)
+    auto makeToken(in string lexeme, Token.Type type)
     {
         return new Token(lexeme, type, this.buff.getLocation);
     }
 
 
-    char la(size_t n=0)
+    auto la(size_t n=0)
     {
         while(this.la_buff.length <= n){
             this.la_buff ~= this.buff.next;
@@ -239,7 +251,7 @@ private:
         return this.la_buff[n];
     }
 
-    char advance()
+    auto advance()
     {
         if(!this.la_buff.length){
             throw new LexerException("Reached end of lookahead buffer");
@@ -252,24 +264,24 @@ private:
         return ret;
     }
 
-    char match(char c)
+    auto match(char c)
     {
         if(!this.test(c)){
         }
         return this.advance;
     }
 
-    bool test(char c, size_t n=0)
+    auto test(char c, size_t n=0)
     {
         return this.la(n) == c;
     }
 
-    bool test(bool delegate(dchar) t)
+    auto test(bool delegate(dchar) t)
     {
         return t(this.la);
     }
 
-    bool test(in string s)
+    auto test(in string s)
     {
         foreach(x, i; s){
             if(!this.test(i, x)){
@@ -279,14 +291,14 @@ private:
         return true;
     }
 
-    void ignore(char c)
+    auto ignore(char c)
     {
         while(this.buff.hasNext && this.test(c)){
             this.advance;
         }
     }
 
-    void ignore(bool delegate(dchar) foo)
+    auto ignore(bool delegate(dchar) foo)
     {
         while(this.buff.hasNext && foo(this.la)){
             this.advance;

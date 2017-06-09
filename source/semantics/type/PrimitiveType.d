@@ -9,11 +9,6 @@ public:
         this._type = _type;
     }
 
-    invariant
-    {
-        assert(this._type);
-    }
-
     @property auto type() pure
     {
         return this._type;

@@ -1,6 +1,7 @@
 # TODO #
 - [X] Aleph -> C AST Transformation
 - [X] C Generation
+- [X] Remove C AST
 - [ ] Improve visitors (Buggy when overloading visit(Expression))
 - [ ] Improve generation
 - [ ] Multiple-language targets
@@ -14,3 +15,5 @@
 - [ ] Preprocessor
 - [ ] Module system and STD
 - [ ] Templating (and Template Inference)
+- [ ] Parser Generator
+- [ ] AlephX extension language

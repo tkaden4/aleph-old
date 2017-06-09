@@ -43,8 +43,8 @@ auto parseOr(Rules...)(ref TokenRange range)
     foreach(i, x; Rules){
         static assert(isRule!x, "invalid rule");
         static if(x.store){
-            //enum setVal = "result." ~ x.name ~ " = cast(" ~ ReturnType!x.stringof ~ ")x(range);"; 
-            //mixin(setVal);
+            enum setVal = "result." ~ x.name ~ " = cast(" ~ ReturnType!x.stringof ~ ")x(range);"; 
+            mixin(setVal);
         }
     }
     return result;
