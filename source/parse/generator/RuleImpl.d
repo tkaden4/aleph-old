@@ -13,6 +13,7 @@ public template RuleImpl(alias Fun, string ruleName, bool storeRule=false)
         enum name = ruleName;
         enum store = storeRule;
 
+        pragma(inline);
         auto opCall(ref TokenRange range)
         {
             return Fun(range);

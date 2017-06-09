@@ -107,9 +107,11 @@ alias program =
         parseAnyAmount!(declaration),
         "program");
 
+import parse.lex.Lexer;
+import std.stdio;
 
-auto thingy()
+public auto parseRule(alias Rule)(Lexer lexer)
 {
-    auto range = TokenRange.from([Token()]);
-    auto x = range.program();
+    auto range = TokenRange(&lexer.next);
+    return Rule(range);
 }

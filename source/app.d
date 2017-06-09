@@ -19,6 +19,10 @@ private auto usage()
 
 int main(string[] args)
 {
+    import parse.generator;
+    import parse.lex.StringInputBuffer;
+    import parse.lex.Lexer;
+
     if(args.length != 2){
         usage();
         return 0;

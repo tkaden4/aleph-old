@@ -7,12 +7,33 @@ import std.typecons;
 import parse.generator;
 import parse.lex.Token;
 
-auto ruleProperty(alias Rule)()
-    if(isRule!Rule)
+/* create a rule that parses with
+ * operator precedence given a base
+ * rule and a list of token types
+ * that represent operators */
+template parsePrecedence(string genName,
+                         alias BaseRule,
+                         Token.Type[][] rules)
 {
-    alias retType = ReturnType!Rule;
-    return retType.stringof ~ " " ~ Rule.name;
-}
+    auto parsePrecedenceImpl(ref TokenRange range)
+    {
+        return "";
+    }
+    
+    alias parsePrecedence =
+        RuleImpl!(
+            parsePrecedenceImpl,
+            genName);
+}; 
+
+alias parsed =
+    parsePrecedence!(
+        "binaryExpression",
+        primaryExpression,
+        [
+            [ Token.Type.PLUS, Token.Type.MINUS ],
+            [ Token.Type.STAR, Token.Type.DIV ],
+        ]);
 
 /* rule | rule2 */
 auto parseOr(Rules...)(ref TokenRange range)
@@ -29,7 +50,7 @@ auto parseOr(Rules...)(ref TokenRange range)
     return result;
 }
 
-/* rule+ (n or more times) */
+/* rule (n or more times) */
 auto parseAtLeastN(size_t n, alias Rule)(ref TokenRange range)
     if(isRule!Rule)
 {

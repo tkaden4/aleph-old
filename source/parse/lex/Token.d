@@ -8,7 +8,7 @@ public alias TokenType = Token.Type;
 
 public struct Token {
 public:
-    enum Type {
+    static enum Type {
         EOF,
         EOS,
         /* Literals */
@@ -67,13 +67,14 @@ public:
     Type type;
     SourceLocation location;
 
+    @disable this();
+
     this(in string _lexeme, Type type, in SourceLocation loc)
     {
         this._lexeme = new StringView(loc, _lexeme.ptr, _lexeme.length);
         this.type = type;
         this.location = loc;
     }
-
 
     @property auto lexeme()
     {
