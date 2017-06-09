@@ -3,20 +3,26 @@ module parse.generator.rules;
 import parse.lex.Token;
 import util;
 
+import syntax;
 import parse.generator;
 
+template GrammarContext()
+{
+    
+};
+
 /* TODO fix recursive rules */
-import syntax;
 auto primaryRule(ref TokenRange range)
 {
-    return range.parseOr!(
+     range.parseOr!(
         parseSequence!(
             parseToken!(Token.Type.LPAREN),
-            //StoreAs!(RuleImpl!(primaryRule, "primary"), "parenExp"),
+            //StoreAs!(expression, "parenExp"),
             parseToken!(Token.Type.RPAREN)),
         StoreAs!(parseToken!(Token.Type.INTEGER), "intVal"),
         StoreAs!(parseToken!(Token.Type.STRING), "strVal"),
         StoreAs!(parseToken!(Token.Type.FLOAT), "floatVal"));
+     return "";
 }
 
 alias primaryExpression = 
@@ -95,17 +101,20 @@ alias procedure =
                     type)),
             parseToken!(Token.Type.EQ),
             expression),
-            "procedure");
+            "procedure",
+            true);
 
 alias declaration =
     RuleImpl!(
-        parseOr!(procedure, importDecl),
-        "declaration");
+        parseOr!(StoreAs!(procedure, "proc"), StoreAs!(importDecl, "importD")),
+        "declaration",
+        true);
 
 alias program =
     RuleImpl!(
-        parseAnyAmount!(declaration),
-        "program");
+        StoreAs!(parseAnyAmount!(declaration), "declarations"),
+        "program",
+        true);
 
 import parse.lex.Lexer;
 import std.stdio;

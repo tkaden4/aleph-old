@@ -34,5 +34,9 @@ template isRule(alias Rule)
 
 template RulePair(alias Rule)
 {
-    alias RulePair = AliasSeq!(ReturnType!Rule, Rule.name);
+    static if(Rule.store){
+        alias RulePair = AliasSeq!(ReturnType!Rule, Rule.name);
+    }else{
+        alias RulePair = AliasSeq!();
+    }
 };

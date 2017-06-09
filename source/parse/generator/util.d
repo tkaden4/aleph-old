@@ -17,6 +17,7 @@ template parsePrecedence(string genName,
 {
     auto parsePrecedenceImpl(ref TokenRange range)
     {
+        // TODO finish
         return "";
     }
     
@@ -26,7 +27,7 @@ template parsePrecedence(string genName,
             genName);
 }; 
 
-alias parsed =
+alias precedenceTest =
     parsePrecedence!(
         "binaryExpression",
         primaryExpression,
@@ -36,51 +37,71 @@ alias parsed =
         ]);
 
 /* rule | rule2 */
-auto parseOr(Rules...)(ref TokenRange range)
+template parseOr(Rules...)
 {
-    alias OrResult = Tuple!(staticMap!(RulePair, Rules));
-    auto result = OrResult();
-    foreach(i, x; Rules){
-        static assert(isRule!x, "invalid rule");
-        static if(x.store){
-            enum setVal = "result." ~ x.name ~ " = cast(" ~ ReturnType!x.stringof ~ ")x(range);"; 
-            mixin(setVal);
-        }
-    }
-    return result;
-}
-
-/* rule (n or more times) */
-auto parseAtLeastN(size_t n, alias Rule)(ref TokenRange range)
-    if(isRule!Rule)
-{
-    ReturnType!Rule[] result;
-    Rule(range);
-    /*
-    for(size_t i = 0; ; ++i){
-        try {
-            range.saveState({
-                result ~= Rule(range);
-            });
-        } catch(ParseException e) {
-            range.revert;
-            if(i <= n){
-                import std.string;
-                throw new ParseException("couldn't parse %lu of rule".format(n));
+    auto parseOrImpl(ref TokenRange range)
+    {
+        alias OrResult = Tuple!(staticMap!(RulePair, Rules));
+        auto result = OrResult();
+        foreach(i, x; Rules){
+            static assert(isRule!x, "invalid rule");
+            static if(x.store){
+                enum setVal = "result." ~ x.name;
+                mixin(setVal) = x(range);
             }
         }
+        return result;
     }
-    */
-    return result;
-}
+
+    alias parseOr =
+        RuleImpl!(
+            parseOrImpl,
+            "parseOr",
+            true);
+};
+
+/* rule (n or more times) */
+template parseAtLeastN(size_t n, alias Rule)
+{
+    auto parseAtLeastNImpl(ref TokenRange range)
+    {
+        ReturnType!Rule[] result = [Rule(range)];
+        /*
+        for(size_t i = 0; ; ++i){
+            try {
+                range.saveState({
+                    result ~= Rule(range);
+                });
+            } catch(ParseException e) {
+                range.revert;
+                if(i <= n){
+                    import std.string;
+                    throw new ParseException("couldn't parse %lu of rule".format(n));
+                }
+            }
+        }
+        */
+        return result;
+    }
+
+    alias parseAtLeastN =
+        RuleImpl!(
+            parseAtLeastNImpl,
+            "parseAtLeastN" ~ Rule.name,
+            true);
+};
+
 
 
 /* rule+ */
-auto parseOneOrMore(alias Rule)(ref TokenRange range)
-    if(isRule!Rule)
+template parseOneOrMore(alias Rule)
 {
-    return range.parseAtLeastN!(1, Rule);
-}
+    alias parseOneOrMore =
+        RuleImpl!(
+            parseAtLeastN!(1, Rule),
+            "parseOneOrMore" ~ Rule.name,
+            true);
+};
 
 /* rule* */
 template parseAnyAmount(alias Rule)
@@ -98,23 +119,23 @@ template parseSequence(Rules...)
 
     auto parseSequenceImpl(ref TokenRange range)
     {
+        alias RetType = Tuple!(staticMap!(RulePair, Rules));
+        auto ret = RetType();
         foreach(i, x; Rules){
             static assert(isRule!x, "invalid rule");
+            static if(x.store){
+                mixin("ret." ~ x.name) = x(range);
+            }
         }
-        return Tuple!(staticMap!(ReturnType, Rules))();
+        return ret;
     }
 
     alias parseSequence = 
         RuleImpl!(
             parseSequenceImpl,
-            "sequential");
+            "sequential",
+            true);
 };
-
-auto collectInto(alias Rule, alias How)(ref TokenRange range)
-    if(isRule!Rule)
-{
-    return How(Rule(range));
-}
 
 template parseToken(Token.Type type)
 {
@@ -130,7 +151,8 @@ template parseOptional(alias Rule)
     alias parseOptional = 
         RuleImpl!(
             Rule,
-            "parseOptional" ~ Rule.name);
+            "parseOptional" ~ Rule.name,
+            true);
 };
 
 template StoreAs(alias Rule, string name) 
