@@ -108,29 +108,6 @@ alias program =
         "program");
 
 
-template RuleResult(string name, Rules...)
-{
-    template Members(Rules...)
-    {
-        static if(Rules.length == 0){
-            enum Members = "";
-        }else{
-            alias curRule = Rules[0];
-            static if(curRule.store){
-                enum curProperty = ruleProperty!curRule;
-                enum Members = "\t" ~ curProperty ~ ";\n" ~ Members!(Rules[1..$]);
-            }else{
-                enum Members = Members!(Rules[1..$]);
-            }
-        }
-    };
-
-    enum RuleResult = 
-        "struct " ~ name ~ " {\n"
-            ~ Members!Rules ~
-        "}";
-}
-
 auto thingy()
 {
     auto range = TokenRange.from([Token()]);
