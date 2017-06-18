@@ -2,7 +2,7 @@ module parse.Parser;
 
 public import parse.ParserException;
 
-import parse.lex.Lexer;
+import parse;
 import syntax.tree;
 import semantics;
 import util;
@@ -17,23 +17,21 @@ public final class Parser {
 public:
     static auto fromFile(in string name)
     {
-        return new Parser(new Lexer(new FileInputBuffer(name)));
+        return new Parser(TokenRange(&new Lexer(new FileInputBuffer(name)).next));
     }
 
     static auto fromFile(ref File file)
     {
-        return new Parser(new Lexer(new FileInputBuffer(file)));
+        return new Parser(
+                TokenRange(
+                    &new Lexer(new FileInputBuffer(file)).next
+                    )
+                );
     }
 
-    this(Lexer lexer)
+    this(TokenRange range)
     {
-        this.lexer = lexer;
-        this.resultTable = new AlephTable("Global Table");
-    }
-
-    invariant
-    {
-        assert(this.lexer !is null, "Parser was provided a null lexer");
+        this.range = range.dup;
     }
 
     /* PARSER RULES */
@@ -42,10 +40,10 @@ public:
     {
         try{
             Declaration[] res;
-            /* XXX this is a terrible way to do this */
-            while(this.lexer.hasNext){
+            while(!this.range.empty){
                 res ~= this.topLevel;
             }
+            "uoila".writeln;
             return tuple(new Program(res), this.resultTable);
         }catch(ParserException e){
             throw new AlephException("parser error [%s, %s, %s] : %s"
@@ -436,8 +434,6 @@ public:
         return new ExternProc(name, this.parseType, params, vararg);
     }
 private:
-    /* UTILITY FUNCTIONS */
-
     /* parse a list */ 
     auto parseListOf(F)(Token.Type start, scope F fun, Token.Type end)
     {
@@ -463,24 +459,6 @@ private:
         return ret;
     }
 
-    auto la(size_t n=0)
-    {
-        while(this.la_buff.length <= n){
-            this.la_buff ~= this.lexer.next;
-        }
-        return this.la_buff[n];
-    }
-
-    auto advance()
-    {
-        return this.la_buff.err(new ParserException("Reached end of lookahead buffer")).use!((x){
-            auto ret = this.la_buff[0];
-            this.la_buff = this.la_buff[1..$];
-            this.la_buff ~= this.lexer.next;
-            return ret;
-        });
-    }
-
     auto optional(Token.Type type)
     {
         if(this.test(type)){
@@ -489,30 +467,12 @@ private:
         return this.la;
     }
 
-    auto match(U...)(Token.Type t, Token.Type t2, U args)
-    {
-        auto ret = [this.match(t), this.match(t2)];
-        static if(args.length > 0){
-            return ret ~ this.match(args);
-        }else{
-            return ret;
-        }
-    }
-
-    auto match(Token.Type c)
-    {
-        import std.string;
-        return this.test(c).use_err!(
-            x => this.advance
-        )(new ParserException("Could not match given token %s with expected token %s : %s".format(this.la.type, c, this.la.location)));
-    }
-
-    bool test(Token.Type c, size_t n=0)
+    auto test(Token.Type c, size_t n=0)
     {
         return this.la(n).type == c;
     }
 
-    bool test(F)(F t)
+    auto test(F)(scope F t)
         if(is(isCallable!t) &&
            is(ReturnType!t == bool) &&
            is(Parameters!t[0] == Token.Type))
@@ -522,7 +482,7 @@ private:
 
     void ignore(Token.Type t)
     {
-        while(this.lexer.hasNext && this.test(t)){
+        while(!this.range.empty && this.test(t)){
             this.advance;
         }
     }
@@ -532,13 +492,14 @@ private:
            is(ReturnType!t == bool) &&
            is(Parameters!t[0] == Token.Type))
     {
-        while(this.lexer.hasNext && t(this.la.type)){
+        while(!this.range.empty && t(this.la.type)){
             this.advance;
         }
     }
 
+    /* forward old calls to TokenRange */
+    alias range this;
 private:
-    Token*[] la_buff;
-    Lexer lexer;
+    TokenRange range;
     AlephTable resultTable;
 };

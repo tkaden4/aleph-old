@@ -2,16 +2,13 @@ import std.stdio;
 import std.string;
 import std.range;
 
-import parse.lex.Lexer;
-import parse.lex.FileInputBuffer;
-import parse.Parser;
-import gen : cgenerate, FileStream;
-import gen.Generator;
+import parse;
+import gen;
 import semantics;
 import syntax;
 import util;
 
-private auto usage()
+auto usage()
 {
     enum usage_msg = "Usage: alephc <file>.al";
     stderr.writeln(usage_msg);
@@ -19,11 +16,6 @@ private auto usage()
 
 int main(string[] args)
 {
-    import parse.generator;
-    import parse.lex.Lexer;
-    Lexer
-        .from("0 + 0 * 0 + 0 * 1")
-        .parseRule!precedenceTest.writeln;
 
     if(args.length != 2){
         usage();
