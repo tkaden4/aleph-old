@@ -14,10 +14,33 @@ import parse.lex.Token;
 template parsePrecedence(string genName,
                          alias BaseRule,
                          Token.Type[][] rules)
+    if(isRule!BaseRule)
 {
+    import std.stdio;
+
+    alias RuleType = ReturnType!BaseRule;
+
+    pragma(msg, rules);
+
+    /* create the precedence table */
+    template PrecedenceTable(Token.Type[][] total_rules)
+        if(total_rules.length >= 1)
+    {
+        enum PrecedenceTable =
+            "default: break;";
+    };
+
+    /* the implementation of the algorithm */
     auto parsePrecedenceImpl(ref TokenRange range)
     {
-        // TODO finish
+        RuleType[] stack;
+
+        auto k = range.la;
+        k.toString.writeln;
+        switch(k.type) {
+            mixin(PrecedenceTable!rules);
+        }
+
         return "";
     }
     
@@ -29,8 +52,8 @@ template parsePrecedence(string genName,
 
 alias precedenceTest =
     parsePrecedence!(
-        "binaryExpression",
-        primaryExpression,
+        "binary",
+        parseToken!(Token.Type.INTEGER),
         [
             [ Token.Type.PLUS, Token.Type.MINUS ],
             [ Token.Type.STAR, Token.Type.DIV ],

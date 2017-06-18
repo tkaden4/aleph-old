@@ -19,9 +19,11 @@ private auto usage()
 
 int main(string[] args)
 {
-    //import parse.generator;
-    //import parse.lex.Lexer;
-    //Lexer.from("proc main = 0").parseRule!program.writeln;
+    import parse.generator;
+    import parse.lex.Lexer;
+    Lexer
+        .from("0 + 0 * 0 + 0 * 1")
+        .parseRule!precedenceTest.writeln;
 
     if(args.length != 2){
         usage();
