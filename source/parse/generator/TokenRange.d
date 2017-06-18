@@ -2,6 +2,7 @@ module parse.generator.TokenRange;
 
 import parse.lex.Token;
 import std.traits;
+import std.range;
 
 /* TODO implement */
 
@@ -55,8 +56,10 @@ public struct TokenRange {
     /* advance past token */
     auto advance(size_t n=1)
     {
-        this.uncache(n);
-        this.cache(this.next());
+        while(n--){
+            this.uncache(1);
+            this.cache(this.next());
+        }
     }
 
     /* remove tokens from lookahead buffer */
@@ -82,6 +85,16 @@ public struct TokenRange {
     {
         return null;
     }
+
+    /* for InputRange */
+    @property
+    auto empty()
+    {
+        return this.buffer.empty;
+    }
+    alias front = this.la;
+    alias popFront = this.advance;
+
 private:
     Token*[] buffer;
     // advance to next token

@@ -42,6 +42,7 @@ public:
     {
         try{
             Declaration[] res;
+            /* XXX this is a terrible way to do this */
             while(this.lexer.hasNext){
                 res ~= this.topLevel;
             }
