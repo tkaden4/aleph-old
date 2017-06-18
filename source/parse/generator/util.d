@@ -148,9 +148,17 @@ template parseToken(Token.Type type)
 /* rule? */
 template parseOptional(alias Rule)
 {
+    auto parseOptionalImpl(ref TokenRange range)
+    {
+        return nullable(
+                range.attempt({
+                    return Rule(range);
+                }));
+    }
+
     alias parseOptional = 
         RuleImpl!(
-            Rule,
+            parseOptionalImpl,
             "parseOptional" ~ Rule.name,
             true);
 };

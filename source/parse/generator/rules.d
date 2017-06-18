@@ -106,7 +106,8 @@ alias procedure =
 
 alias declaration =
     RuleImpl!(
-        parseOr!(StoreAs!(procedure, "proc"), StoreAs!(importDecl, "importD")),
+        //parseOr!(StoreAs!(procedure, "proc"), StoreAs!(importDecl, "importD")),
+        StoreAs!(procedure, "procedure"),
         "declaration",
         true);
 
@@ -117,8 +118,6 @@ alias program =
         true);
 
 import parse.lex.Lexer;
-import std.stdio;
-
 public auto parseRule(alias Rule)(Lexer lexer)
 {
     auto range = TokenRange(&lexer.next);

@@ -437,8 +437,8 @@ public:
 private:
     /* UTILITY FUNCTIONS */
 
-    /* parse a list */
-    auto parseListOf(F)(Token.Type start, F fun, Token.Type end)
+    /* parse a list */ 
+    auto parseListOf(F)(Token.Type start, scope F fun, Token.Type end)
     {
         import std.traits;
         ReturnType!(fun)[] ret;

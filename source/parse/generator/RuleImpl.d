@@ -8,7 +8,7 @@ import parse.generator.TokenRange;
 
 public template RuleImpl(alias Fun, string ruleName, bool storeRule=false)
 {
-    static struct RuleImpl {
+    struct RuleImpl {
     static:
         enum name = ruleName;
         enum store = storeRule;
@@ -19,12 +19,6 @@ public template RuleImpl(alias Fun, string ruleName, bool storeRule=false)
             return Fun(range);
         }
     };
-};
-
-/* copy a rule */
-template Defer(alias Rule)
-{
-    alias Defer = RuleImpl!(Rule.opCall, Rule.name);
 };
 
 template isRule(alias Rule)

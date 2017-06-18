@@ -13,12 +13,16 @@ import util;
 
 private auto usage()
 {
-    static enum usage_msg = "Usage: alephc <file>.al";
+    enum usage_msg = "Usage: alephc <file>.al";
     stderr.writeln(usage_msg);
 }
 
 int main(string[] args)
 {
+    //import parse.generator;
+    //import parse.lex.Lexer;
+    //Lexer.from("proc main = 0").parseRule!program.writeln;
+
     if(args.length != 2){
         usage();
         return 0;

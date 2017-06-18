@@ -17,3 +17,4 @@
 - [ ] Templating (and Template Inference)
 - [ ] Parser Generator
 - [ ] AlephX extension language
+- [ ] Improve Semantic Analyzer
