@@ -12,14 +12,6 @@ public struct TokenRange {
         this.next = next;
     }
 
-    static auto from(Token[] t)
-    {
-        import std.range;
-        import std.functional;
-        //alias fun = partial!();
-        return TokenRange();
-    }
-
     /* match next token */
     auto match(Token.Type type)
     {
@@ -27,17 +19,15 @@ public struct TokenRange {
         if(tok.type != type){
             throw new Exception("Couldn't match");
         }
-        this.advance;
-        return tok;
+        return this.advance;
     }
 
     /* match types.length tokens */
     auto match(Token.Type[] types...)
     {
         Token*[] result;
-        result.reserve(types.length);
         foreach(i, x; types){
-            result[i] = this.match(x);
+            result ~= this.match(x);
         }
         return result;
     }
@@ -54,12 +44,12 @@ public struct TokenRange {
     }
 
     /* advance past token */
-    auto advance(size_t n=1)
+    auto advance()
     {
-        while(n--){
-            this.uncache(1);
-            this.cache(this.next());
-        }
+        auto ret = this.la;
+        this.uncache(1);
+        this.cache(this.next());
+        return ret;
     }
 
     /* remove tokens from lookahead buffer */
@@ -76,24 +66,41 @@ public struct TokenRange {
     /* add a token to lookahead buffer */
     auto cache(Token *tok)
     {
+        assert(tok, "cached token is null");
         this.buffer ~= tok;
     }
 
-    /* TODO fix with LL(*) parsing algorithms */
-    auto attempt(Func)(scope Func f)
-        if(isCallable!Func)
+    /* XXX just for now */
+    auto attempt(alias f)()
+        if(isCallable!f)
     {
-        return null;
+        /* dont discard tokens */
+        /* allow rewinding */
+        /*
+        try {
+
+        } catch(Exception e) {
+            throw e;
+        }
+        */
+        return f(this);
     }
 
     /* for InputRange */
-    @property
     auto empty()
     {
-        return this.buffer.empty;
+        if(this.buffer.empty) this.cache(this.next());
+        return this.buffer.back.type == Token.Type.EOS;
     }
     alias front = this.la;
     alias popFront = this.advance;
+
+    @property auto dup()
+    {
+        auto ret = TokenRange(this.next);
+        ret.buffer = this.buffer.dup;
+        return ret;
+    }
 
 private:
     Token*[] buffer;

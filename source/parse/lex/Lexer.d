@@ -23,9 +23,11 @@ private bool isIdStart(dchar c) pure
     return isAlpha(c) || c == '_';
 }
 
-public final class Lexer {
+struct Lexer {
     import std.functional;
 public:
+    @disable this();
+
     static auto from(in string str)
     {
         return new Lexer(new StringInputBuffer(str));
@@ -167,7 +169,8 @@ private:
 
     auto lexString()
     {
-        string lexeme = "" ~ this.match('\"');
+        import std.conv;
+        string lexeme = this.match('\"').to!string;
         while(!this.test('\"')){
             if(this.test('\\')){
                 lexeme ~= "" ~ this.advance ~ this.advance;

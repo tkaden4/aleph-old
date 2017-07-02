@@ -10,6 +10,13 @@ import std.typecons;
 import std.range;
 import std.algorithm;
 
+public auto buildSymbols(Tuple!(Program, AlephTable) tup)
+{
+    return alephErrorScope("symbol builder", {
+        auto node = SymbolBuilderProvider!(SymbolBuilderProvider, AlephTable).visit(tup[0], tup[1]);
+        return tuple(node, tup[1]);
+    });
+}
 
 template SymbolBuilderProvider(alias Provider, Args...){
     VarDecl visit(VarDecl node, AlephTable table)
@@ -55,12 +62,4 @@ template SymbolBuilderProvider(alias Provider, Args...){
     {
         return DefaultProvider!(Provider, Args).visit(t, args);
     }
-}
-
-public auto buildSymbols(Tuple!(Program, AlephTable) tup)
-{
-    return alephErrorScope("symbol builder", {
-        auto node = SymbolBuilderProvider!(SymbolBuilderProvider, AlephTable).visit(tup[0], tup[1]);
-        return tuple(node, tup[1]);
-    });
 }

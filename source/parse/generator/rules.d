@@ -6,11 +6,6 @@ import util;
 import syntax;
 import parse.generator;
 
-template GrammarContext()
-{
-    
-};
-
 /* TODO fix recursive rules */
 auto primaryRule(ref TokenRange range)
 {

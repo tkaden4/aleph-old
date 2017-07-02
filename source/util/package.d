@@ -11,6 +11,15 @@ public {
     import util.match;
     import util.AlephException;
 
+    static auto instance(T, Args...)(Args args)
+    {
+        static T ins = null;
+        if(!ins){
+            ins = new T(args);
+        }
+        return ins;
+    }
+
     auto maybeArgsCall(alias fun, Args...)(Args args)
     {
         static if(__traits(compiles, fun(args))){

@@ -9,12 +9,11 @@ import parse.generator.TokenRange;
 public template RuleImpl(alias Fun, string ruleName, bool storeRule=false)
 {
     struct RuleImpl {
-    static:
         enum name = ruleName;
         enum store = storeRule;
 
         pragma(inline);
-        auto opCall(ref TokenRange range)
+        static auto opCall(ref TokenRange range)
         {
             return Fun(range);
         }

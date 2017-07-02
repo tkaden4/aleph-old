@@ -8,6 +8,7 @@ public class EmptyExpression : Expression {
         super(new UnknownType);
     }
 
+
     override string toString() const
     {
         return "EmptyExpression";
