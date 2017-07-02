@@ -1,14 +1,9 @@
 # Aleph #
 
 Aleph is a high level programming language intended for use in
-systems and embedded development. It features static typing,
+systems development. It features static typing,
 generics, first class functions, and an ANSI C99 output.
 It emphasizes ease of use, C compatibility, and efficiency.
-
-## Features ##
-- First-Class Functions
-- Pattern Matching
-- ANSI C99 Output
 
 ## Examples ##
 
