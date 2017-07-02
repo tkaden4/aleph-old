@@ -4,20 +4,22 @@ import std.typecons;
 import std.traits;
 public import std.meta;
 
-public import util.meta.map;
-
+/* gets the return types of a set of functions */
 template ReturnTypes(Args...){
     alias ReturnTypes = staticMap!(ReturnType, Args);
 };
 
+/* removes null */
 template WithoutNull(Args...){
     alias WithoutNull = EraseAll!(typeof(null), Args);
 };
 
+/* geta all converstion targets of types */
 template AllConversions(Args...){
     alias AllConversions = WithoutNull!(NoDuplicates!(staticMap!(ImplicitConversionTargets, Args)));
 };
 
+/* gets the highest converstion target */
 template GreatestCommonType(Args...){
     static if(is(CommonType!Args == void)){
         private alias temp = DerivedToFront!(Reverse!(AllConversions!(Args)));
@@ -31,13 +33,14 @@ template GreatestCommonType(Args...){
     }
 };
 
+/* function that returns parameter passed to it */
 template emptyFunc(T)
 {
     alias emptyFunc = (T _) => _;
 }
-
 alias identity = emptyFunc;
 
+/* get all fields of an aggregate type with names */
 template FieldsWithNames(T)
     if(isAggregateType!T)
 {
@@ -51,6 +54,7 @@ template FieldsWithNames(T)
     alias FieldsWithNames = Tuple!(staticMap!(makeTup, names));
 };
 
+/* create a lazy property */
 mixin template Lazy(string vname,
                     alias getter,
                     string backingField="_" ~ vname,
@@ -67,16 +71,19 @@ mixin template Lazy(string vname,
     };
 };
 
+/* partially apply a template */
 template PartialApp(alias T, alias With) {
     alias PartialApp = PartialApp!(T, 0, With);
 };
 
+/* partially apply a template at a given index */
 template PartialApp(alias T, size_t where, With...) {
     template PartialApp(Args...){
         alias PartialApp = T!(Insert!(With, where, Args));
     };
 };
 
+/* insert an alias into a set of aliases */
 template Insert(alias T, size_t where, Args...){
     static if(__traits(compiles, T.length)){
         alias Insert = AliasSeq!(Args[0..where], T, Args[(where + T.length - 1)..$]);
@@ -84,14 +91,3 @@ template Insert(alias T, size_t where, Args...){
         alias Insert = AliasSeq!(Args[0..where], T, Args[where..$]);
     }
 };
-
-/*
-template FoldLeft(alias Apply, Args...)
-{
-    static if(Args.length > 0){
-        alias FoldLeft = Apply!();
-    }else{
-        alias FoldLeft = Apply!(Args[0]);
-    }
-}
-*/

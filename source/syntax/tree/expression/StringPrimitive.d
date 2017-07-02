@@ -1,6 +1,7 @@
 module syntax.tree.expression.StringPrimitive;
 
 import syntax.tree.expression.Expression;
+import util;
 
 public class StringPrimitive : Expression {
 public:

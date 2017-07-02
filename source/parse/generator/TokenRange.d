@@ -66,15 +66,24 @@ public struct TokenRange {
     /* add a token to lookahead buffer */
     auto cache(Token *tok)
     {
-        assert(tok, "dont cache things that dont exist, please");
+        assert(tok, "cached token is null");
         this.buffer ~= tok;
     }
 
-    /* TODO fix with LL(*) parsing algorithms */
-    auto attempt(Func)(scope Func f)
-        if(isCallable!Func)
+    /* XXX just for now */
+    auto attempt(alias f)()
+        if(isCallable!f)
     {
-        return null;
+        /* dont discard tokens */
+        /* allow rewinding */
+        /*
+        try {
+
+        } catch(Exception e) {
+            throw e;
+        }
+        */
+        return f(this);
     }
 
     /* for InputRange */

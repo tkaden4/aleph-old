@@ -8,7 +8,7 @@ import semantics;
 import syntax;
 import util;
 
-auto usage()
+static auto usage()
 {
     enum usage_msg = "Usage: alephc <file>.al";
     stderr.writeln(usage_msg);
@@ -16,7 +16,6 @@ auto usage()
 
 int main(string[] args)
 {
-
     if(args.length != 2){
         usage();
         return 0;
@@ -39,9 +38,6 @@ int main(string[] args)
                     .checkTypes
                     // Desugar the tree
                     .desugar
-                    /*
-                    .generate(new FileStream("%s.c".format(args[1])));
-                    */
                     // generate code
                     .cgenerate(new FileStream("%s.c".format(args[1])));
             }),

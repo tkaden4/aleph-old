@@ -7,20 +7,27 @@ import std.typecons;
 import parse.generator;
 import parse.lex.Token;
 
+/* TODO generate lookahead switch */
+
 /* create a rule that parses with
  * operator precedence given a base
  * rule and a list of token types
  * that represent operators */
 template parsePrecedence(string genName,
                          alias BaseRule,
-                         Token.Type[][] rules)
+                         Token.Type[][] rules,
+                         alias Conv)
     if(isRule!BaseRule)
 {
+    /* TODO finish precedence */
     import std.stdio;
 
     alias RuleType = ReturnType!BaseRule;
 
-    pragma(msg, rules);
+    static assert(__traits(compiles, Conv(RuleType.init, RuleType.init)),
+                  "invalid conversion function in precedence parser");
+    static assert(!is(ReturnType!Conv == void),
+                  "conversion function must return a value");
 
     /* create the precedence table */
     template PrecedenceTable(Token.Type[][] total_rules)
@@ -36,7 +43,6 @@ template parsePrecedence(string genName,
         RuleType[] stack;
 
         auto k = range.la;
-        k.toString.writeln;
         switch(k.type) {
             mixin(PrecedenceTable!rules);
         }
@@ -50,6 +56,7 @@ template parsePrecedence(string genName,
             genName);
 }; 
 
+import std.stdio;
 alias precedenceTest =
     parsePrecedence!(
         "binary",
@@ -57,7 +64,9 @@ alias precedenceTest =
         [
             [ Token.Type.PLUS, Token.Type.MINUS ],
             [ Token.Type.STAR, Token.Type.DIV ],
-        ]);
+        ],
+        (x, y) => "%s and %s".writefln(x, y)
+    );
 
 /* rule | rule2 */
 template parseOr(Rules...)
@@ -174,9 +183,8 @@ template parseOptional(alias Rule)
     auto parseOptionalImpl(ref TokenRange range)
     {
         return nullable(
-                range.attempt({
-                    return Rule(range);
-                }));
+                    range.attempt!Rule
+                );
     }
 
     alias parseOptional = 

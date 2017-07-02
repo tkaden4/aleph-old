@@ -22,11 +22,7 @@ public:
 
     static auto fromFile(ref File file)
     {
-        return new Parser(
-                TokenRange(
-                    &new Lexer(new FileInputBuffer(file)).next
-                    )
-                );
+        return new Parser(TokenRange(&new Lexer(new FileInputBuffer(file)).next));
     }
 
     this(TokenRange range)
