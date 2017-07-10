@@ -19,7 +19,14 @@ public Program desugar(Program node)
 in {
     assert(node);
 } body {
-    return DesugarProvider!(DesugarProvider).visit(node);
+    return node;
+//    return DesugarProvider!(DesugarProvider).visit(node);
+}
+
+/*
+auto visit(N, T)(auto ref N node, T context)
+{
+    return context.visit(node);
 }
 
 template DesugarProvider(alias Provider, Args...)
@@ -49,3 +56,4 @@ template DesugarProvider(alias Provider, Args...)
         return defProvider.visit(t, args);
     }
 };
+*/

@@ -13,7 +13,7 @@ import std.stdio;
 public auto checkTypes(Tuple!(Program, AlephTable) t)
 {
     return alephErrorScope("type checker", {
-        t[0] = TypeCheckProvider!(TypeCheckProvider).visit(t[0]);
+        //t[0] = TypeCheckProvider!(TypeCheckProvider).visit(t[0]);
         return t;
     });
 }
@@ -35,6 +35,7 @@ private void checkCast(Type a, Type b, string extra="")
     a.canCast(b).err(new AlephException("couldn't cast %s to %s, %s".format(a, b, extra)));
 }
 
+/+
 template TypeCheckProvider(alias Provider, Args...) {
     ProcDecl visit(ProcDecl node)
     {
@@ -82,3 +83,4 @@ template TypeCheckProvider(alias Provider, Args...) {
         return DefaultProvider!(Provider).visit(t);
     }
 };
++/

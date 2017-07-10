@@ -2,15 +2,19 @@ module syntax.tree.declaration.VarDecl;
 
 import syntax.tree.declaration.Declaration;
 import syntax.tree.expression.Expression;
-import syntax.common.variable;
 
 public class VarDecl : Declaration {
 public:
-    mixin variableClass!(Type, Expression);
+
+    string name;
+    Type type;
+    Expression initVal;
 
     this(in string name, Type type, Expression init=null)
     {
-        this.initv(name, type, init);
+        this.name = name;
+        this.type = type;
+        this.initVal = init;
     }
 
     override string toString() const

@@ -6,7 +6,6 @@ import syntax.tree.expression.Expression;
 import syntax.tree.declaration.Declaration;
 
 import semantics.type : Type, FunctionType;
-import syntax.common.routine;
 
 import std.string;
 import std.range;
@@ -15,11 +14,17 @@ import util;
 
 public class ProcDecl : Declaration {
 
-    mixin routineNodeClass!(Type, Expression, Parameter);
+    string name;
+    Type returnType;
+    Parameter[] parameters;
+    Expression bodyNode;
 
     this(in string name, Type type, Parameter[] params, Expression init=null)
     {
-        this.init(name, type, params, init);
+        this.name = name;
+        this.returnType = type;
+        this.parameters = params;
+        this.bodyNode = init;
     }
 
     auto functionType()

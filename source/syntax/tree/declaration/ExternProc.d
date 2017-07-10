@@ -3,7 +3,6 @@ module syntax.tree.declaration.ExternProc;
 import semantics.type;
 import syntax.tree.expression.Statement;
 import syntax.tree.declaration.Declaration;
-import syntax.common.routine;
 
 import util;
 import std.string;

@@ -1,6 +1,6 @@
 module semantics.actions.SymbolBuilder;
 
-import syntax.visitors;
+import syntax.visit;
 import semantics;
 import util;
 
@@ -13,11 +13,13 @@ import std.algorithm;
 public auto buildSymbols(Tuple!(Program, AlephTable) tup)
 {
     return alephErrorScope("symbol builder", {
-        auto node = SymbolBuilderProvider!(SymbolBuilderProvider, AlephTable).visit(tup[0], tup[1]);
-        return tuple(node, tup[1]);
+        //auto node = SymbolBuilderProvider!(SymbolBuilderProvider, AlephTable).visit(tup[0], tup[1]);
+        //return tuple(node, tup[1]);
+        return tup;
     });
 }
 
+/+
 template SymbolBuilderProvider(alias Provider, Args...){
     VarDecl visit(VarDecl node, AlephTable table)
     {
@@ -63,3 +65,4 @@ template SymbolBuilderProvider(alias Provider, Args...){
         return DefaultProvider!(Provider, Args).visit(t, args);
     }
 }
++/

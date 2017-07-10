@@ -8,7 +8,6 @@ public interface Type {
 
 import util;
 import semantics.type;
-import syntax.print;
 
 import std.string;
 
@@ -25,7 +24,7 @@ public string toPrintable(const(Type) t)
             str ~= ") -> " ~ type.returnType.toPrintable;
             return str;
         },
-        (TypeofType u) => "typeof(%s)".format(u.node.toPretty(true)),
+        (TypeofType u) => "typeof(%s)".format(/*u.node.toPretty(true)*/"none"),
         (UnknownType _) => "[unresolved]",
         (){ throw new AlephException("%s cannot be converted to printable string".format(t)); }
     );
