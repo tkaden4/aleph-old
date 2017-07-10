@@ -28,6 +28,7 @@ public:
     this(TokenRange range)
     {
         this.range = range.dup;
+        this.resultTable = new AlephTable("global table");
     }
 
     /* PARSER RULES */
