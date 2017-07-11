@@ -13,7 +13,7 @@ import std.stdio;
 public auto checkTypes(Tuple!(Program, AlephTable) t)
 {
     return alephErrorScope("type checker", {
-        //t[0] = TypeCheckProvider!(TypeCheckProvider).visit(t[0]);
+        t[0] = t[0].visit(TypeCheck());
         return t;
     });
 }
@@ -30,24 +30,28 @@ private class AnyType : Type {
     }
 };
 
-private void checkCast(Type a, Type b, string extra="")
+private void checkCast(Type a, Type b)
 {
-    a.canCast(b).err(new AlephException("couldn't cast %s to %s, %s".format(a, b, extra)));
+    a.canCast(b).err(new AlephException("couldn't cast %s to %s".format(a, b)));
 }
 
-/+
-template TypeCheckProvider(alias Provider, Args...) {
+struct TypeCheck {
+    auto visit(Program program)
+    {
+        return program;
+    }
+
     ProcDecl visit(ProcDecl node)
     {
-        node = DefaultProvider!(Provider).visit(node);
-        node.returnType.checkCast(node.bodyNode.resultType, "in function \n%s".format(node.toPretty));
+        //node = DefaultProvider!(Provider).visit(node);
+        node.returnType.checkCast(node.bodyNode.resultType);
         return node;
     }
 
     VarDecl visit(VarDecl node)
     {
-        node = DefaultProvider!(Provider).visit(node);
-        node.type.checkCast(node.initVal.resultType, "in variable \n%s".format(node.toPretty(true)));
+        //node = DefaultProvider!(Provider).visit(node);
+        node.type.checkCast(node.initVal.resultType);
         return node;
     }
 
@@ -68,7 +72,7 @@ template TypeCheckProvider(alias Provider, Args...) {
         }
 
         err(parameters.length == argumentTypes.length,
-            new AlephException("Mismatched number of arguments in \n\t%s".format(node.toPretty)));
+            new AlephException("Mismatched number of arguments in \n\t%s".format(node)));
 
         /* get tuples of parameters */
         auto zipped = parameters.zip(node.arguments.map!(x => x.resultType)).array;
@@ -77,10 +81,4 @@ template TypeCheckProvider(alias Provider, Args...) {
         }
         return node;
     }
-
-    T visit(T)(T t)
-    {
-        return DefaultProvider!(Provider).visit(t);
-    }
 };
-+/

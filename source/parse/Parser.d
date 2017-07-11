@@ -40,7 +40,6 @@ public:
             while(!this.range.empty){
                 res ~= this.topLevel;
             }
-            "uoila".writeln;
             return tuple(new Program(res), this.resultTable);
         }catch(ParserException e){
             throw new AlephException("parser error [%s, %s, %s] : %s"

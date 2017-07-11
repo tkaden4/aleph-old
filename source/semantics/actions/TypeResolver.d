@@ -30,10 +30,9 @@ public auto resolveTypes(Program node, AlephTable table)
     });
 }
 
-/+
-template TypeResolveProvider(alias Provider, Args...)
-{
-    auto inferTypes(Args...)(AlephTable table, Args args)
+struct TypeResolver {
+
+    Type inferTypes(Args...)(AlephTable table, Args args)
     {
         alias resolveType =
             (x, y) =>
@@ -41,7 +40,7 @@ template TypeResolveProvider(alias Provider, Args...)
                     (UnknownType _) => y,
                     (TypeofType t) => t.isResolved ?
                                       t.node.resultType :
-                                      (t.node = t.node.visit(table)).resultType,
+                                      (t.node = t.node.visit(this)).resultType,
                     (FunctionType fn) =>
                         fn,
                     /* TODO
@@ -66,13 +65,15 @@ template TypeResolveProvider(alias Provider, Args...)
         }
     }
 
+    Expression visit(Expression exp){ return exp; }
+
 
     VarDecl visit(VarDecl node, AlephTable table)
     {
-        node = DefaultProvider!(Provider, Args).visit(node, table);
+        //node = DefaultProvider!(Provider, Args).visit(node, table);
         auto sym = table.find(node.name).err(new Exception("Symbol %s not defined".format(node.name)));
 
-        table.inferTypes(tuple(node.type, node.initVal.resultType))
+        inferTypes(table, tuple(node.type, node.initVal.resultType))
              .then!((x){ sym.type = x; node.type = x; });
 
         return node;
@@ -80,7 +81,7 @@ template TypeResolveProvider(alias Provider, Args...)
 
     Block visit(Block node, AlephTable table)
     {
-        node = DefaultProvider!(Provider, Args).visit(node, table);
+        //node = DefaultProvider!(Provider, Args).visit(node, table);
         if(node.children.empty){
             node.resultType = PrimitiveType.Void;
         }else{
@@ -91,10 +92,10 @@ template TypeResolveProvider(alias Provider, Args...)
 
     IfExpression visit(IfExpression node, AlephTable table)
     {
-        node.ifexp = node.ifexp.visit(table);
-        node.thenexp = node.thenexp.visit(table);
+        node.ifexp = node.ifexp.visit(this);
+        node.thenexp = node.thenexp.visit(this);
         if(node.elseexp){
-            node.elseexp = node.elseexp.visit(table);
+            node.elseexp = node.elseexp.visit(this);
         }
         node.resultType = node.thenexp.resultType;
         return node;
@@ -105,8 +106,8 @@ template TypeResolveProvider(alias Provider, Args...)
         auto sym = table.find(node.name).err(new AlephException("Function %s not defined".format(node.name)));
         sym.match(
             (FunctionSymbol f){
-                node.bodyNode = node.bodyNode.visit(f.bodyScope);
-                table.inferTypes(tuple(node.returnType, node.bodyNode.resultType))
+                node.bodyNode = node.bodyNode.visit(this);
+                inferTypes(table, tuple(node.returnType, node.bodyNode.resultType))
                      .then!((x){ node.returnType = x;
                                  sym.type = node.functionType; });
             },
@@ -115,10 +116,10 @@ template TypeResolveProvider(alias Provider, Args...)
         return node;
     }
 
-    auto visit(BinaryExpression node, AlephTable table)
+    BinaryExpression visit(BinaryExpression node, AlephTable table)
     {
-        node.left = node.left.visit(table);
-        node.right = node.right.visit(table);
+        node.left = node.left.visit(this);
+        node.right = node.right.visit(this);
 
         auto leftType = node.left.resultType;
         auto rightType = node.right.resultType;
@@ -128,22 +129,25 @@ template TypeResolveProvider(alias Provider, Args...)
         }else if(rightType.canCast(leftType)){
             node.resultType = rightType;
         }else {
+            /*
             throw new AlephException("incompatible types %s & %s for \n%s\n%s\n%s"
                                         .format(leftType.toPrintable,
                                                 rightType.toPrintable,
                                                 node.left.toPretty,
                                                 node.op,
                                                 node.right.toPretty));
+                                                */
+            throw new AlephException("incompatible types");
         }
         return node;
     }
 
     auto visit(Call node, AlephTable table)
     {
-        node = DefaultProvider!(Provider, Args).visit(node, table);
+        //node = DefaultProvider!(Provider, Args).visit(node, table);
         auto t = 
             //TODO fix
-            table.inferTypes(
+            inferTypes(table,
                 tuple(node.resultType,
                       node.toCall.resultType.use!(x => cast(FunctionType)x).returnType),
             );
@@ -154,15 +158,9 @@ template TypeResolveProvider(alias Provider, Args...)
     auto visit(Identifier node, AlephTable table)
     {
         auto sym = table.find(node.name).err(new AlephException("identifier %s not defined".format(node.name)));
-        table.inferTypes(tuple(node.resultType, sym.type))
+        inferTypes(table, tuple(node.resultType, sym.type))
              .then!((t){ node.resultType = t;
                          sym.type = t; });
         return node;
     }
-
-    T visit(T)(T t, Args args)
-    {
-        return DefaultProvider!(Provider, Args).visit(t, args);
-    }
 };
-+/

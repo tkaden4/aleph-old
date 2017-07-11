@@ -13,23 +13,40 @@ import std.algorithm;
 public auto buildSymbols(Tuple!(Program, AlephTable) tup)
 {
     return alephErrorScope("symbol builder", {
-        //auto node = SymbolBuilderProvider!(SymbolBuilderProvider, AlephTable).visit(tup[0], tup[1]);
-        //return tuple(node, tup[1]);
-        return tup;
+        auto node = tup[0].visit(SymbolBuilder(tup[1]));
+        return tuple(node, tup[1]);
     });
 }
 
-/+
-template SymbolBuilderProvider(alias Provider, Args...){
-    VarDecl visit(VarDecl node, AlephTable table)
+struct SymbolBuilder {
+    private AlephTable table;
+
+    @disable this();
+
+    this(AlephTable table)
+    {
+        this.table = table;
+    }
+
+    auto visit(Program prog)
+    {
+        return prog;
+    }
+
+    auto visit(Expression exp)
+    {
+        return exp;
+    }
+
+    VarDecl visit(VarDecl node)
     {
         table.find(node.name, false).not.err(new AlephException("redefined variable %s".format(node.name)));
         table.insert(node.name, new VarSymbol(node.name, node.type, table));
-        node.initVal.visit(table);
+        node.initVal.visit(this);
         return node;
     }
 
-    ProcDecl visit(ProcDecl node, AlephTable table)
+    ProcDecl visit(ProcDecl node)
     {
         return alephErrorScope("in function " ~ node.name, {
             auto name = node.name;
@@ -43,26 +60,20 @@ template SymbolBuilderProvider(alias Provider, Args...){
             auto funSymbol = new FunctionSymbol(name, node.functionType, funTable, false);
             /* add the funciton to the symbol table */
             table.insert(name, funSymbol);
-            node.bodyNode.visit(table);
+            node.bodyNode.visit(this);
             return node;
         });
     }
 
-    ExternProc visit(ExternProc node, AlephTable table)
+    auto visit(ExternProc node)
     {
         table.find(node.name).not.err(new AlephException("symbol %s defined".format(node.name)));
         table.insert(node.name, new FunctionSymbol(node.name, node.functionType, table, true));
         return node;
     }
 
-    Lambda visit(Lambda node, AlephTable table)
+    auto visit(Lambda node)
     {
         return node;
     }
-
-    T visit(T)(T t, Args args)
-    {
-        return DefaultProvider!(Provider, Args).visit(t, args);
-    }
 }
-+/

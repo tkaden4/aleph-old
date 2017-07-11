@@ -19,21 +19,16 @@ public Program desugar(Program node)
 in {
     assert(node);
 } body {
-    return node;
-//    return DesugarProvider!(DesugarProvider).visit(node);
+    return node.visit(Desugar());
 }
 
-/*
-auto visit(N, T)(auto ref N node, T context)
-{
-    return context.visit(node);
-}
+struct Desugar {
+    auto visit(Program prog)
+    {
+        return prog;
+    }
 
-template DesugarProvider(alias Provider, Args...)
-{
-    alias defProvider = DefaultProvider!(Provider, Args);
-
-    ProcDecl visit(ProcDecl node)
+    auto visit(ProcDecl node)
     {
         node.bodyNode = node.bodyNode.match(
             identity!Block,
@@ -48,12 +43,7 @@ template DesugarProvider(alias Provider, Args...)
                 }
             }
         );
-        return defProvider.visit(node);
-    }
-
-    T visit(T)(T t, Args args)
-    {
-        return defProvider.visit(t, args);
+        //node.visit(Default(this));
+        return node;
     }
 };
-*/

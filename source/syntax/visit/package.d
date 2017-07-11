@@ -43,31 +43,45 @@ struct ConditionVisitor(alias condition, alias then, alias otherwise) {
     }
 };
 
-struct Eh {
-    auto visit(N)(auto ref N n)
-    {
-        return n;
-    }
-}
+/* TODO unify both visitors */
 
 auto visit(N, C)(auto ref scope N node, auto ref scope C visitor)
 {
-    const type = typeid(node);
-    /* TODO get overloads and dispatch */
-    return visitor.visit(node);
-}
-
-auto visit(alias C, N)(auto ref scope N node)
-{
-    return C.visit(node);
-}
-
-public {
-    auto __test()
-    {
-        import std.stdio;
-        auto prim = new CharPrimitive('8');
-        auto node = new IfExpression(prim, prim, prim, null);
-        node.visit(Eh());
+    const toVisitType = typeid(node);
+    /* get all overloads */
+    alias visitMethods = typeof(__traits(getOverloads, C, "visit"));
+    foreach(x; visitMethods){
+        alias current = Parameters!x[0];
+        if(toVisitType == typeid(current)){
+            return cast(N)visitor.visit(cast(current)node);
+        }
+    }
+    static if(__traits(compiles, "return cast(N)visitor.visit(node);")){
+        return cast(N)visitor.visit(node);
+    }else{
+        import std.string;
+        throw new Exception("Unable to visit %s".format(node));
     }
 }
+
+/+
+auto visit(alias C, N)(auto ref scope N node)
+{
+    const toVisitType = typeid(node);
+    /* get all overloads */
+    alias visitMethods = typeof(__traits(getOverloads, C, "visit"));
+    foreach(x; visitMethods){
+        alias current = Parameters!x[0];
+        pragma(msg, current);
+        if(toVisitType == typeid(current)){
+            return visitor.visit(cast(current)node);
+        }
+    }
+    if(__traits(compiles, "return visitor.visit(node);")){
+        return C.visit(node);
+    }else{
+        import std.string;
+        throw new Exception("Unable to visit %s".format(node));
+    }
+}
++/
