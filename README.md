@@ -1,9 +1,8 @@
 # Aleph #
 
-Aleph is a high level programming language intended for use in
-systems development. It features static typing,
-generics, first class functions, and an ANSI C99 output.
-It emphasizes ease of use, C compatibility, and efficiency.
+Aleph is a high level programming language that offers highly expressive
+code through a functional procedural paradigm. Although currently
+it compiles to C, but is being migrated to the Karat VM.
 
 ## Examples ##
 
@@ -13,7 +12,7 @@ It emphasizes ease of use, C compatibility, and efficiency.
 import std.c.stdio;
 // Main procedure definition
 proc main() -> int {
-    // call the C puts(const char *) function
+    // call the C puts() function
     puts("Hello, World!");
     // return 0
     0
@@ -36,10 +35,9 @@ proc main {       // Parameters and return type optional
 <pre>
 proc add_two(a: int) = a + 2
 
-proc map_sum(a: int, b: int, fn: int -> int) {
+proc map_sum(a: int, b: int, fn: (int) -> int) =
     if a == b then fn(b)
     else fn(a) + map_sum(a+1, b, fn)
-}
 
 import std.c.stdio;
 
