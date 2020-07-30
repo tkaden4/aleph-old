@@ -1,8 +1,7 @@
 # Aleph #
 
 Aleph is a high level programming language that offers highly expressive
-code through a functional procedural paradigm. Although currently
-it compiles to C, but is being migrated to the Karat VM.
+code through a functional procedural paradigm.
 
 ## Examples ##
 
